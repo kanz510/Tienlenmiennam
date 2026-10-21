@@ -1,0 +1,113 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#07271a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Tiến Lên Miền Nam</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#04150e;color:#f3e9cf;font-family:system-ui,sans-serif;touch-action:none;overscroll-behavior:none}
+#stage{position:fixed;left:0;top:0;transform-origin:0 0;overflow:hidden;background:#04150e}
+#saprobe{position:absolute;left:0;top:0;width:0;height:0;visibility:hidden;padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left)}
+#c{display:block;width:100%;height:100%}
+#overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse,#0d3b26cc,#020a06ee);z-index:5;padding:16px}
+.panel{width:min(480px,94%);max-height:96%;overflow-y:auto;padding:26px 22px;text-align:center;border:1px solid #c9a44f;background:#07271add;box-shadow:0 0 35px #000;border-radius:12px}
+.k{font:700 10px system-ui;letter-spacing:.3em;color:#dfb96f}
+h1.title{font-size:clamp(30px,calc(var(--u,1vw)*7.5),46px);letter-spacing:.06em;margin:14px 0 0;font-family:Georgia,serif;background:linear-gradient(180deg,#fdf3c0,#e0b96a 55%,#9a6a24);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px #c9a44f55)}
+.sub{font:700 11px system-ui;letter-spacing:.3em;color:#b7d3a8;margin-top:4px}
+.story{font:13px/1.7 system-ui;color:#cfe0cd;margin:16px auto;max-width:380px}
+button{font:700 12px system-ui;letter-spacing:.14em;color:#23160a;background:linear-gradient(#f2d69b,#b98744);border:1px solid #f6dfa8;border-radius:6px;padding:15px 22px;min-height:48px;cursor:pointer;box-shadow:inset 0 1px 0 #fff6,0 3px 10px #0006;transition:transform .08s,filter .12s}
+button:active{transform:translateY(1px);filter:brightness(1.3)}
+.controls{font:9px/1.9 system-ui;color:#7d927d;margin:16px 0 0}
+.controls b{color:#c9b489}
+</style></head>
+<body>
+<div id="stage">
+<canvas id="c"></canvas>
+<div id="saprobe"></div>
+<div id="overlay">
+  <div class="panel" id="menu">
+    <div class="k">BÀI VIỆT NAM KINH ĐIỂN</div>
+    <h1 class="title">TIẾN LÊN</h1>
+    <div class="sub">MIỀN NAM</div>
+    <p class="story">Bốn người, 52 lá, một mục tiêu: hết bài trước. Chặt heo, tứ quý, sảnh rồng — khung game đang được dựng, luật chơi sẽ lên sóng ở bản tiếp theo.</p>
+    <button id="start">VÀO BÀN</button>
+    <p class="controls"><b>Cảm ứng:</b> game tự xoay ngang trên điện thoại · ghim Màn hình chính để chơi full màn hình, khóa zoom</p>
+  </div>
+</div>
+</div>
+<script>
+(() => {
+'use strict';
+// ---------- khung sân khấu: luôn ngang 960x540, xoay CSS khi máy dọc ----------
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+const stageEl=document.getElementById('stage'),probe=document.getElementById('saprobe');
+const LW=960,LH=540;let W=LW,H=LH,rotated=false,state='menu';
+function size(){
+  const vw=innerWidth,vh=innerHeight;rotated=vh>vw;
+  const sw=rotated?vh:vw,sh=rotated?vw:vh,s=sw/LW;
+  W=LW;H=LH;cv.width=LW;cv.height=LH;
+  const cs=getComputedStyle(probe),sa={t:parseFloat(cs.paddingTop)||0,r:parseFloat(cs.paddingRight)||0,b:parseFloat(cs.paddingBottom)||0,l:parseFloat(cs.paddingLeft)||0};
+  const m=rotated?{t:sa.l,r:sa.t,b:sa.r,l:sa.b}:sa,uv=Math.min(vw,vh)/100;
+  stageEl.style.width=sw+'px';stageEl.style.height=sh+'px';
+  stageEl.style.transform=rotated?`translateX(${vw}px) rotate(90deg) scale(${s})`:`scale(${s})`;
+  document.documentElement.style.setProperty('--u',uv+'px');
+  document.documentElement.style.setProperty('--sal',m.l+'px');document.documentElement.style.setProperty('--sat',m.t+'px');
+  document.documentElement.style.setProperty('--sar',m.r+'px');document.documentElement.style.setProperty('--sab',m.b+'px');
+}
+addEventListener('resize',size);addEventListener('orientationchange',()=>{size();setTimeout(size,80)});size();
+// ---------- chống zoom / chống cuộn (bản iOS Safari) ----------
+document.addEventListener('gesturestart',e=>e.preventDefault());
+document.addEventListener('gesturechange',e=>e.preventDefault());
+document.addEventListener('gestureend',e=>e.preventDefault());
+document.addEventListener('touchmove',e=>{if(!e.target.closest||!e.target.closest('#overlay'))e.preventDefault()},{passive:false});
+let lastTapEnd=0;
+document.addEventListener('touchend',e=>{const now=Date.now();if(now-lastTapEnd<350&&e.target.tagName!=='BUTTON'&&(!e.target.closest||!e.target.closest('#overlay')))e.preventDefault();lastTapEnd=now},{passive:false});
+document.addEventListener('dblclick',e=>e.preventDefault());
+// fullscreen + khóa ngang ở lần chạm đầu (Android; iOS dùng xoay CSS)
+let fsTried=false;
+addEventListener('pointerdown',()=>{if(fsTried)return;fsTried=true;try{const r=document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();if(r&&r.catch)r.catch(()=>{});if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{})}catch(e){}},{passive:true});
+// ---------- vẽ bàn + bộ bài (khung) ----------
+function rr(a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()}
+function drawDeck(cx,cy,t){
+  for(let i=3;i>=0;i--){
+    const ox=cx-i*1.5,oy=cy-i*1.5;
+    x.save();x.translate(ox,oy);x.rotate(-.04);
+    rr(-31,-44,62,88,7);x.fillStyle='#f4efe2';x.fill();x.strokeStyle='#8a7a52';x.lineWidth=1.5;x.stroke();
+    rr(-25,-38,50,76,5);x.fillStyle='#7d1f2d';x.fill();
+    x.strokeStyle='#e8cf9a';x.lineWidth=1;x.stroke();
+    x.fillStyle='#e8cf9a';x.font='700 17px Georgia';x.textAlign='center';x.fillText('🂠',0,7);
+    x.restore();
+  }
+  x.fillStyle=`rgba(232,207,154,${.55+.25*Math.sin(t*2.2)})`;x.font='700 12px system-ui';x.textAlign='center';
+  x.fillText('52 LÁ',cx,cy+72);
+}
+function drawSeat(cx,cy,label,me){
+  x.beginPath();x.arc(cx,cy,26,0,7);x.fillStyle=me?'#c9a44f':'#123524';x.fill();
+  x.lineWidth=2;x.strokeStyle=me?'#f6dfa8':'#3f7a55';x.stroke();
+  x.fillStyle=me?'#23160a':'#cfe0cd';x.font='700 13px system-ui';x.textAlign='center';x.fillText(label,cx,cy+4);
+}
+let T=0,lastTs=0;
+function frame(ts){
+  const dtR=Math.min((ts-lastTs)/1000||0,.05);lastTs=ts;T+=dtR;
+  const g=x.createRadialGradient(W/2,H/2,60,W/2,H/2,W*.62);
+  g.addColorStop(0,'#14633d');g.addColorStop(.6,'#0b4027');g.addColorStop(1,'#052315');
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.strokeStyle='#c9a44f55';x.lineWidth=3;x.strokeRect(14,14,W-28,H-28);
+  drawDeck(W/2,H/2,T);
+  if(state==='table'){
+    drawSeat(W/2,H-46,'BẠN',true);
+    drawSeat(W/2,46,'ĐỐI THỦ',false);
+    drawSeat(52,H/2,'ĐỐI THỦ',false);
+    drawSeat(W-52,H/2,'ĐỐI THỦ',false);
+    x.fillStyle='#e8cf9a';x.font='700 13px system-ui';x.textAlign='center';
+    x.fillText('KHUNG BÀN CHƠI — LUẬT TIẾN LÊN SẼ LÊN Ở BẢN TIẾP THEO',W/2,H/2+104);
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+document.getElementById('start').onclick=()=>{document.getElementById('overlay').style.display='none';state='table'};
+})();
+</script>
+</body></html>
