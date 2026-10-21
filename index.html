@@ -7,10 +7,10 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a2615">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r13">
+    <link rel="stylesheet" href="style.css?v=r14">
 <script>
-window.__TLV = 'r13';
-(function () {
+window.__TLV = 'r14';
+function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
             .then(function (r) { return r.text(); })
@@ -23,7 +23,10 @@ window.__TLV = 'r13';
             })
             .catch(function () {});
     } catch (e) {}
-})();
+}
+tlvCheck();
+// Kiểm tra lại mỗi khi quay lại app (app mở treo qua đợt cập nhật vẫn tự bắt kịp)
+document.addEventListener('visibilitychange', function () { if (!document.hidden) tlvCheck(); });
 </script>
 </head>
 <body>
@@ -101,6 +104,6 @@ window.__TLV = 'r13';
         </div>
     </div>
 
-    <script src="game.js?v=r13"></script>
+    <script src="game.js?v=r14"></script>
 </body>
 </html>
