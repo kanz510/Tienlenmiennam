@@ -319,7 +319,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     font-size: 16px;
 }
 
-.card .corner.bottom { transform: rotate(180deg); }
 .card.red { color: #e74c3c; }
 .card.black { color: #2c3e50; }
 

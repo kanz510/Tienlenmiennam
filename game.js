@@ -415,10 +415,6 @@ function createCardEl(card) {
             <span>${card.suit}</span>
         </div>
         <div class="suit-big">${card.suit}</div>
-        <div class="corner bottom">
-            <span>${card.rank}</span>
-            <span>${card.suit}</span>
-        </div>
     `;
     return div;
 }
