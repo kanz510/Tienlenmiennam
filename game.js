@@ -22,7 +22,6 @@ let state = {
     lastPlay: null,
     passCount: 0,
     hasPassed: false,
-    finishOrder: [],
     selected: new Set(),
     gameOver: false
 };
@@ -30,7 +29,7 @@ state.timer = null;
 state.timeLeft = 15;
 
 // ============================================================
-//  RUNG / ÂM THANH / LƯU VÁN / THỨ HẠNG
+//  RUNG / ÂM THANH / LƯU VÁN
 // ============================================================
 function vibrate(pattern) {
     try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
@@ -111,7 +110,6 @@ function saveGame() {
             lastPlay: state.lastPlay,
             passCount: state.passCount,
             hasPassed: state.hasPassed,
-            finishOrder: state.finishOrder,
             selected: [...state.selected]
         }));
     } catch (e) {}
@@ -132,15 +130,12 @@ function loadGame() {
         state.lastPlay = d.lastPlay || null;
         state.passCount = d.passCount || 0;
         state.hasPassed = !!d.hasPassed;
-        state.finishOrder = d.finishOrder || [];
         state.selected = new Set(d.selected || []);
         state.gameOver = false;
         return true;
     } catch (e) { return false; }
 }
 
-function activeCount() { return 4 - state.finishOrder.length; }
-function passesToClose() { return activeCount() - 1; }
 
 // ============================================================
 //  TIMER — đếm ngược 15s cho lượt người chơi
@@ -473,7 +468,6 @@ function newGame() {
     state.lastPlay = null;
     state.passCount = 0;
     state.hasPassed = false;
-    state.finishOrder = [];
     state.selected.clear();
     state.gameOver = false;
 
@@ -725,7 +719,7 @@ function playerPlay() {
     render();
 
     if (state.hands.player.length === 0) {
-        return handleFinish(0);
+        return endGame(0);
     }
 
     showMessage(`Bạn đánh ${formatCombo(combo)}`);
@@ -749,13 +743,7 @@ function playerPass() {
 function nextTurn() {
     state.turn = (state.turn + 1) % 4;
 
-    // Bỏ qua người đã về đích
-    let skipGuard = 0;
-    while (state.finishOrder.includes(state.turn) && skipGuard++ < 4) {
-        state.turn = (state.turn + 1) % 4;
-    }
-
-    if (state.passCount >= passesToClose()) {
+    if (state.passCount >= 3) {
         state.lastPlay = null;
         state.passCount = 0;
         state.hasPassed = false;
@@ -794,7 +782,7 @@ function nextTurn() {
 
 function doPass() {
     state.passCount++;
-    if (state.passCount >= passesToClose()) {
+    if (state.passCount >= 3) {
         state.lastPlay = null;
         state.passCount = 0;
         state.hasPassed = false;
@@ -817,7 +805,7 @@ function botPlay() {
     let cardsToPlay = null;
 
     // Đối thủ đang còn chơi chỉ còn 1 lá -> phải chặn
-    const danger = [0, 1, 2, 3].some(i => i !== state.turn && !state.finishOrder.includes(i) && state.hands[PLAYERS[i]].length === 1);
+    const danger = [0, 1, 2, 3].some(i => i !== state.turn && state.hands[PLAYERS[i]].length === 1);
     // Nước dùng lá 2 hoặc hàng chặt (tứ quý/đôi thông) là "hàng dự trữ": giữ lại, chỉ dùng khi cần
     const usesReserve = c => c.combo.type === 'quad' || c.combo.type === 'double_straight' || c.cards.some(card => rankValue(card) === RANK_2);
 
@@ -879,7 +867,7 @@ function botPlay() {
     showMessage(`${PLAYER_NAMES[who]} đánh ${formatCombo(combo)}`);
 
     if (hand.length === 0) {
-        return handleFinish(state.turn);
+        return endGame(state.turn);
     }
 
     if (state.gameOver) return;
@@ -994,35 +982,17 @@ function formatCombo(combo) {
 // ============================================================
 //  END GAME
 // ============================================================
-function handleFinish(playerIdx) {
-    if (!state.finishOrder.includes(playerIdx)) state.finishOrder.push(playerIdx);
-    const place = ['Nhất', 'Nhì', 'Ba'][state.finishOrder.length - 1];
-    showMessage(`${PLAYER_NAMES[PLAYERS[playerIdx]]} về ${place}!`);
-    render();
-
-    if (state.finishOrder.length >= 3) {
-        // Người còn lại cuối cùng là Bét
-        const last = [0, 1, 2, 3].find(i => !state.finishOrder.includes(i));
-        state.finishOrder.push(last);
-        return endGame();
-    }
-    nextTurn();
-}
-
-function endGame() {
+function endGame(winnerIdx) {
     stopTimer();
     state.gameOver = true;
     clearSave();
     playWin();
-    showMessage('Ván đấu kết thúc!');
+    const name = PLAYER_NAMES[PLAYERS[winnerIdx]];
+    showMessage(`${name} thắng!`);
 
-    const medals = ['🥇 Nhất', '🥈 Nhì', '🥉 Ba', '💩 Bét'];
-    const lines = state.finishOrder.map((p, i) => `${medals[i]}: ${PLAYER_NAMES[PLAYERS[p]]}`);
-    const first = state.finishOrder[0];
     const overlay = document.getElementById('overlay');
     const title = document.getElementById('overlay-title');
-    title.innerHTML = (first === 0 ? '🎉 Bạn về Nhất! 🎉' : `${PLAYER_NAMES[PLAYERS[first]]} về Nhất`)
-        + '<br><span style="font-size:16px;line-height:2">' + lines.join('<br>') + '</span>';
+    title.textContent = winnerIdx === 0 ? '🎉 Bạn thắng! 🎉' : `😢 ${name} thắng!`;
     overlay.classList.remove('hidden');
 
     updateButtons();
