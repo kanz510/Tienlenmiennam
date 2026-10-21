@@ -361,3 +361,43 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     padding: 14px 40px;
     font-size: 16px;
 }
+
+/* ============ CO THEO CHIỀU CAO (màn thấp / trình duyệt trong app) ============ */
+@media (max-height: 440px) {
+    #game-container { grid-template-rows: 64px 1fr auto; gap: 5px; padding: 5px; }
+    .bot-info { font-size: 11px; padding: 4px 10px; }
+    .bot-top .bot-cards .back-card { width: 26px; height: 36px; margin-left: -16px; }
+    .bot-left .bot-cards .back-card, .bot-right .bot-cards .back-card { width: 34px; height: 46px; margin-top: -36px; }
+    #played-cards { min-height: 56px; }
+    #played-cards .card { width: 44px; height: 64px; }
+    #played-cards .card .corner { font-size: 12px; }
+    #played-cards .card .suit-big { font-size: 16px; }
+    #message { font-size: 13px; margin-top: 8px; }
+    .player-cards { min-height: 64px; padding: 14px 10px 2px; }
+    .player-cards .card { width: 56px; height: 82px; margin-left: -22px; }
+    .player-cards .card.selected { transform: translateY(-16px); }
+    .btn-play { padding: 10px 30px; font-size: 16px; }
+    .btn-pass { padding: 10px 22px; font-size: 14px; }
+    .btn-new-game { padding: 10px 16px; font-size: 12px; }
+    .timer-box { font-size: 16px; padding: 5px 14px; min-width: 58px; }
+}
+
+@media (max-height: 350px) {
+    #game-container { grid-template-rows: 52px 1fr auto; gap: 4px; padding: 4px; }
+    .bot-info { font-size: 10px; padding: 3px 8px; }
+    .bot-top .bot-cards .back-card { width: 22px; height: 30px; margin-left: -14px; }
+    .bot-left .bot-cards .back-card, .bot-right .bot-cards .back-card { width: 28px; height: 38px; margin-top: -29px; }
+    #played-cards { min-height: 44px; }
+    #played-cards .card { width: 36px; height: 52px; }
+    #played-cards .card .corner { font-size: 10px; }
+    #played-cards .card .suit-big { font-size: 13px; }
+    #message { font-size: 11px; margin-top: 5px; padding: 4px 10px; }
+    .player-cards { min-height: 52px; padding: 10px 10px 0; }
+    .player-cards .card { width: 47px; height: 68px; margin-left: -18px; }
+    .player-cards .card.selected { transform: translateY(-12px); }
+    .btn-play { padding: 8px 24px; font-size: 14px; }
+    .btn-pass { padding: 8px 18px; font-size: 13px; }
+    .btn-new-game { padding: 8px 12px; font-size: 11px; }
+    .timer-box { font-size: 14px; padding: 4px 10px; min-width: 50px; }
+    .player-info { font-size: 12px; padding: 4px 10px; }
+}
