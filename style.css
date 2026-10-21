@@ -410,3 +410,31 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 /* Khi tự xoay: đệm theo cạnh đã xoay — chừa chỗ tai thỏ ở phía thanh người chơi, bỏ env() ở cạnh ngắn */
 #game-container.rotate-90 { padding-top: 10px; padding-bottom: 30px; }
 #game-container.rotate-90 .player-bar { margin-bottom: 0; padding-bottom: 8px; }
+
+/* Nút góc: âm thanh + xóa ván đã lưu */
+#btn-sound, #btn-clear-save {
+    position: absolute;
+    top: 8px;
+    z-index: 60;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,202,40,.7);
+    background: rgba(0,0,0,.55);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+#btn-sound { right: 8px; }
+#btn-clear-save { right: 52px; }
+#btn-overlay-clear {
+    margin-top: 10px;
+    padding: 10px 22px;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 25px;
+    background: #e53935;
+    color: #fff;
+    cursor: pointer;
+}

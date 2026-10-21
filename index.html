@@ -7,9 +7,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a2615">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r17">
+    <link rel="stylesheet" href="style.css?v=r18">
 <script>
-window.__TLV = 'r17';
+window.__TLV = 'r18';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -42,6 +42,8 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 
     <!-- Game -->
     <div id="game-container" class="hidden">
+        <button id="btn-sound" title="Bật/tắt âm thanh">🔊</button>
+        <button id="btn-clear-save" title="Xóa ván đã lưu">🗑️</button>
 
         <!-- Bot Bắc (trên) -->
         <div class="bot-area bot-top">
@@ -101,9 +103,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <div id="overlay-content">
             <h2 id="overlay-title"></h2>
             <button id="btn-overlay-new">Chơi lại</button>
+            <button id="btn-overlay-clear">Xóa ván đã lưu</button>
         </div>
     </div>
 
-    <script src="game.js?v=r17"></script>
+    <script src="game.js?v=r18"></script>
 </body>
 </html>
