@@ -399,6 +399,24 @@ function handleCardClick(idx) {
         if (state.selected.size === 1) state.selected.delete(idx);
         else { state.selected.clear(); state.selected.add(idx); }
     } else {
+        // Ưu tiên sảnh: các lá đang chọn (không trùng số) đều thuộc cùng một sảnh với lá
+        // vừa click -> chọn cả sảnh dài nhất đó, thay vì gom đôi/sám của lá vừa click
+        const runFirst = straightRunThrough(rv);
+        if (runFirst && state.selected.size > 0) {
+            const runSet = new Set(runFirst);
+            const selRankList = [...state.selected].map(i => rankValue(hand[i]));
+            const noDup = new Set(selRankList).size === selRankList.length;
+            if (noDup && selRankList.every(r => runSet.has(r))) {
+                runFirst.forEach(r => {
+                    if (selRankList.includes(r)) return; // giữ lá đã chọn của số này
+                    const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
+                    if (i >= 0) state.selected.add(i);
+                });
+                renderPlayerHand();
+                updateButtons();
+                return;
+            }
+        }
         const sameRank = [];
         hand.forEach((c, i) => { if (rankValue(c) === rv) sameRank.push(i); });
         if (sameRank.length > 1) {
