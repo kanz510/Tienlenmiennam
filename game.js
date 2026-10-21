@@ -3,7 +3,7 @@
 // ============================================================
 
 // ==== CONSTANTS ====
-const SUITS = ['♠', '♣', '♥', '♦'];
+const SUITS = ['♠', '♣', '♦', '♥'];
 const RANKS = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
 const RANK_2 = 12; // index của '2'
 
@@ -234,7 +234,12 @@ function canBeat(newCombo, oldCombo) {
     }
 
     if (nc.type === 'single' || nc.type === 'pair' || nc.type === 'triple') {
-        return nc.rank > oc.rank;
+        if (nc.rank > oc.rank) return true;
+        if (nc.rank < oc.rank) return false;
+        // Cùng số: so chất của lá lớn nhất (lá cuối cùng sau khi sắp xếp)
+        const nTop = nc.cards[nc.cards.length - 1];
+        const oTop = oc.cards[oc.cards.length - 1];
+        return suitValue(nTop) > suitValue(oTop);
     }
 
     return false;
