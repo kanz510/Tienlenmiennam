@@ -1,13 +1,17 @@
 # Tiến Lên Miền Nam
 
-Game bài Tiến Lên Miền Nam chạy trên trình duyệt điện thoại — một file `index.html` duy nhất, không cần cài đặt.
+Game bài Tiến Lên Miền Nam cho điện thoại (chỉ chơi màn hình ngang): bạn đấu với 3 bot (Tây, Đông, Bắc).
 
-## Trạng thái
+## Cấu trúc
 
-Khung khởi tạo: sân khấu ngang 960×540 tự xoay trên điện thoại, chống zoom iOS Safari, sẵn sàng ghim Màn hình chính (GitHub Pages). Luật chơi, chia bài và AI sẽ được xây ở các bản tiếp theo.
+- `index.html` — khung trang, bàn chơi, overlay thắng/thua
+- `style.css` — giao diện bàn xanh, lá bài, responsive theo chiều cao
+- `game.js` — luật Tiến Lên (đơn/đôi/sám/sảnh/tứ quý/đôi thông chặt heo), bot AI, chặn thiết bị (PC và màn dọc sẽ hiện thông báo)
 
 ## Chơi thử
 
-Bật GitHub Pages cho repo (Settings → Pages → Deploy from a branch → `main` / `(root)`), sau đó mở:
+Bật GitHub Pages cho repo (Settings → Pages → Deploy from a branch → `main` / `(root)`), sau đó mở trên điện thoại:
 
 https://kanz510.github.io/Tienlenmiennam/
+
+Xoay ngang máy là vào ván. Người giữ 3♠ đi trước.
