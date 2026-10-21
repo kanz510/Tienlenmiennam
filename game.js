@@ -198,6 +198,26 @@ function isLandscape() {
 
 let gameStarted = false;
 
+function applyRotation() {
+    const game = document.getElementById('game-container');
+    if (!game) return;
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    if (vh > vw) {
+        // Máy dọc → xoay game 90° thành landscape
+        game.classList.add('rotate-90');
+        game.style.width = vh + 'px';
+        game.style.height = vw + 'px';
+    } else {
+        // Máy ngang → bình thường
+        game.classList.remove('rotate-90');
+        game.style.width = '';
+        game.style.height = '';
+    }
+}
+
 function checkGate() {
     const blocker = document.getElementById('blocker');
     const game = document.getElementById('game-container');
@@ -215,18 +235,9 @@ function checkGate() {
         return false;
     }
 
-    if (!isLandscape()) {
-        blocker.classList.remove('hidden');
-        game.classList.add('hidden');
-        icon.textContent = '📱↻';
-        icon.style.animation = '';
-        title.textContent = 'Vui lòng xoay ngang';
-        text.textContent = 'Xoay điện thoại sang ngang để chơi game.';
-        return false;
-    }
-
     blocker.classList.add('hidden');
     game.classList.remove('hidden');
+    applyRotation();
     return true;
 }
 
@@ -627,10 +638,19 @@ document.getElementById('btn-overlay-new').addEventListener('click', () => {
 // Gate + resize
 window.addEventListener('resize', () => {
     clearTimeout(window._resizeTimer);
-    window._resizeTimer = setTimeout(initOrResume, 150);
+    window._resizeTimer = setTimeout(() => {
+        if (!document.getElementById('game-container').classList.contains('hidden')) {
+            applyRotation();
+        }
+    }, 150);
 });
+
 window.addEventListener('orientationchange', () => {
-    setTimeout(initOrResume, 250);
+    setTimeout(() => {
+        if (!document.getElementById('game-container').classList.contains('hidden')) {
+            applyRotation();
+        }
+    }, 250);
 });
 
 // Start

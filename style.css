@@ -406,3 +406,10 @@ body {
     .player-bar { padding: 2px 8px; }
     .bot-info { font-size: 9px; }
 }
+
+/* Xoay game khi máy đang dọc */
+#game-container.rotate-90 {
+    position: fixed;
+    transform-origin: top left;
+    transform: rotate(90deg) translateY(-100%);
+}
