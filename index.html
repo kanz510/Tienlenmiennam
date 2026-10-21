@@ -7,9 +7,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a2615">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r24">
+    <link rel="stylesheet" href="style.css?v=r25">
 <script>
-window.__TLV = 'r24';
+window.__TLV = 'r25';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -48,8 +48,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Bắc (trên) -->
         <div class="bot-area bot-top">
             <div class="bot-info">
+                <div class="avatar">🐻</div>
                 <span class="bot-name">Bot Bắc</span>
                 <span class="card-count" id="count-top">13</span>
+                <span class="money" id="money-top">💰 1000</span>
             </div>
             <div class="bot-cards" id="cards-top"></div>
         </div>
@@ -57,8 +59,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Tây (trái) -->
         <div class="bot-area bot-left">
             <div class="bot-info">
+                <div class="avatar">🐯</div>
                 <span class="bot-name">Bot Tây</span>
                 <span class="card-count" id="count-left">13</span>
+                <span class="money" id="money-left">💰 1000</span>
             </div>
             <div class="bot-cards" id="cards-left"></div>
         </div>
@@ -72,8 +76,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Đông (phải) -->
         <div class="bot-area bot-right">
             <div class="bot-info">
+                <div class="avatar">🦊</div>
                 <span class="bot-name">Bot Đông</span>
                 <span class="card-count" id="count-right">13</span>
+                <span class="money" id="money-right">💰 1000</span>
             </div>
             <div class="bot-cards" id="cards-right"></div>
         </div>
@@ -84,8 +90,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <div class="player-bar">
                 <button id="btn-new" class="btn-new-game">Ván mới</button>
                 <div class="player-info">
+                    <div class="avatar">🧑</div>
                     <span class="bot-name">Bạn</span>
                     <span class="card-count" id="count-player">13</span>
+                    <span class="money" id="money-player">💰 1000</span>
                 </div>
                 <div class="timer-box">
                     <span id="timer-text">15</span>s
@@ -102,11 +110,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
     <div id="overlay" class="hidden">
         <div id="overlay-content">
             <h2 id="overlay-title"></h2>
+            <div id="overlay-money"></div>
             <button id="btn-overlay-new">Chơi lại</button>
             <button id="btn-overlay-clear">Xóa ván đã lưu</button>
         </div>
     </div>
 
-    <script src="game.js?v=r24"></script>
+    <script src="game.js?v=r25"></script>
 </body>
 </html>

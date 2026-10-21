@@ -22,6 +22,7 @@ let state = {
     lastPlay: null,
     passCount: 0,
     hasPassed: false,
+    money: { player: 1000, left: 1000, right: 1000, top: 1000 },
     selected: new Set(),
     gameOver: false
 };
@@ -93,6 +94,47 @@ function playWin() {
     });
 }
 
+// ===== GIỌNG ĐỌC CÀ KHỊA (Text-to-Speech) =====
+const TAUNTS = {
+    single: ['Xấu nè', 'Đánh nè', 'Lẻ nè', 'Nhỏ thôi', 'Chặn nè', 'Đỡ nè', 'Ngon thì đỡ nè', 'Qua được không nè'],
+    pair: ['Đôi nè', 'Cặp nè', 'Đè nè', 'Cặp đôi hoàn cảnh nè', 'To chưa nè', 'Đè chết nè'],
+    straight: ['Sảnh nè', 'Dài nè', 'Nguyên dây nè', 'Một đường thẳng nè', 'Trôi nè'],
+    big: ['Tứ quý nè', 'Chặt nè', 'Nữa đi con', 'Chết mày chưa', 'Hàng khủng ra lò', 'Đỡ đi con trai', 'Hết hồn chưa', 'To chưa'],
+    pass: ['Sợ rồi hả', 'Chạy đâu cho thoát', 'Bỏ lượt nha', 'Thua rồi à', 'Khóc chưa', 'Nhường nè']
+};
+const VOICE_PITCH = { player: 1.0, left: 0.8, right: 1.2, top: 0.95 };
+
+function tauntFor(type) {
+    const arr = type === 'pass' ? TAUNTS.pass
+        : (type === 'pair' || type === 'triple') ? TAUNTS.pair
+        : type === 'straight' ? TAUNTS.straight
+        : (type === 'quad' || type === 'double_straight') ? TAUNTS.big
+        : TAUNTS.single;
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function speak(text, actorIdx) {
+    try {
+        if (!soundOn) return;
+        if (typeof window === 'undefined' || !window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'vi-VN';
+        const vi = window.speechSynthesis.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith('vi'));
+        if (vi) u.voice = vi;
+        u.pitch = VOICE_PITCH[PLAYERS[actorIdx || 0]] || 1;
+        u.rate = 1.05;
+        window.speechSynthesis.speak(u);
+    } catch (e) {}
+}
+
+function updateMoneyUI() {
+    PLAYERS.forEach(k => {
+        const el = document.getElementById('money-' + k);
+        if (el) el.textContent = '💰 ' + state.money[k];
+    });
+}
+
 function toggleSound() {
     soundOn = !soundOn;
     try { localStorage.setItem('tlSound', soundOn ? 'on' : 'off'); } catch (e) {}
@@ -110,6 +152,7 @@ function saveGame() {
             lastPlay: state.lastPlay,
             passCount: state.passCount,
             hasPassed: state.hasPassed,
+            money: state.money,
             selected: [...state.selected]
         }));
     } catch (e) {}
@@ -130,6 +173,7 @@ function loadGame() {
         state.lastPlay = d.lastPlay || null;
         state.passCount = d.passCount || 0;
         state.hasPassed = !!d.hasPassed;
+        if (d.money) state.money = d.money;
         state.selected = new Set(d.selected || []);
         state.gameOver = false;
         return true;
@@ -476,6 +520,12 @@ function newGame() {
 
     render();
     updateTurnIndicator();
+    if (document.querySelectorAll) {
+        document.querySelectorAll('.player-cards .card').forEach((el, i) => {
+            el.classList.add('card-deal-anim');
+            el.style.animationDelay = (i * 0.05) + 's';
+        });
+    }
     showMessage(`${PLAYER_NAMES[PLAYERS[state.turn]]} đi trước`);
 
     if (state.turn !== 0) {
@@ -509,6 +559,7 @@ function render() {
     renderBotHand('top', 'cards-top', 'count-top');
     renderLastPlay();
     updateButtons();
+    updateMoneyUI();
     saveGame();
 }
 
@@ -654,7 +705,9 @@ function renderLastPlay() {
     if (!state.lastPlay) return;
     const sorted = [...state.lastPlay.cards].sort(compareCards);
     sorted.forEach(card => {
-        el.appendChild(createCardEl(card));
+        const c = createCardEl(card);
+        c.classList.add('card-play-anim');
+        el.appendChild(c);
     });
 }
 
@@ -706,6 +759,7 @@ function playerPlay() {
     stopTimer();
     vibrate(40);
     playClick();
+    speak(tauntFor(combo.type), 0);
 
     // Xóa bài khỏi tay (từ index lớn xuống)
     for (let i = indices.length - 1; i >= 0; i--) {
@@ -781,6 +835,7 @@ function nextTurn() {
 }
 
 function doPass() {
+    speak(tauntFor('pass'), state.turn);
     state.passCount++;
     if (state.passCount >= 3) {
         state.lastPlay = null;
@@ -863,6 +918,7 @@ function botPlay() {
     state.passCount = 0;
 
     playClick();
+    speak(tauntFor(combo.type), state.turn);
     render();
     showMessage(`${PLAYER_NAMES[who]} đánh ${formatCombo(combo)}`);
 
@@ -987,12 +1043,22 @@ function endGame(winnerIdx) {
     state.gameOver = true;
     clearSave();
     playWin();
+    const winnerKey = PLAYERS[winnerIdx];
+    PLAYERS.forEach(k => { state.money[k] += (k === winnerKey ? 300 : -100); });
+    updateMoneyUI();
     const name = PLAYER_NAMES[PLAYERS[winnerIdx]];
     showMessage(`${name} thắng!`);
 
     const overlay = document.getElementById('overlay');
     const title = document.getElementById('overlay-title');
     title.textContent = winnerIdx === 0 ? '🎉 Bạn thắng! 🎉' : `😢 ${name} thắng!`;
+    const om = document.getElementById('overlay-money');
+    if (om) {
+        om.textContent = winnerIdx === 0 ? '💰 +300' : '💸 -100';
+        om.classList.remove('coin-pop');
+        void om.offsetWidth;
+        om.classList.add('coin-pop');
+    }
     overlay.classList.remove('hidden');
 
     updateButtons();

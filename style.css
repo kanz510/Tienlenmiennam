@@ -194,13 +194,13 @@ body {
     display: flex;
     justify-content: flex-start;
     align-items: flex-end;
-    padding: 0 10px 5px calc(50% - 225px);
+    padding: 0 10px 5px calc(50% - 193px);
 }
 
 /* --- Kích thước lá bài trên tay --- */
 .player-cards .card {
-    width: 55px;
-    height: 82px;
+    width: 50px;
+    height: 74px;
     margin-left: -22px;
     cursor: pointer;
     transition: transform 0.15s ease-out, box-shadow 0.15s;
@@ -278,11 +278,11 @@ button:active:not(:disabled) { transform: scale(0.92); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-new-game {
-    background: rgba(52,152,219,.5);
+    background: rgba(70,165,240,.58);
     border: 1px solid rgba(255,255,255,.45);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
-    box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    box-shadow: 0 5px 0 rgba(27,90,140,.5), 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.45);
     padding: 12px 20px;
     font-size: 14px;
     border-radius: 20px;
@@ -292,21 +292,21 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     gap: 10px;
 }
 .btn-play {
-    background: rgba(0,168,150,.55);
+    background: rgba(0,185,165,.62);
     border: 1px solid rgba(255,255,255,.45);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
-    box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    box-shadow: 0 5px 0 rgba(0,105,92,.5), 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.45);
     padding: 12px 35px;
     font-size: 18px;
     border-radius: 20px;
 }
 .btn-pass {
-    background: rgba(201,111,46,.55);
+    background: rgba(216,122,52,.62);
     border: 1px solid rgba(255,255,255,.45);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
-    box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
+    box-shadow: 0 5px 0 rgba(146,74,20,.5), 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.45);
     padding: 12px 25px;
     font-size: 16px;
     border-radius: 20px;
@@ -316,8 +316,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .card {
     background: #fff;
     border-radius: 8px;
-    border: 1px solid #999;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 3px rgba(0,0,0,.12), 0 2px 3px rgba(0,0,0,.35), 0 7px 14px rgba(0,0,0,.4);
+    border: 1px solid rgba(0,0,0,.12);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 8px rgba(0,0,0,.22), 0 10px 24px rgba(0,0,0,.15);
     font-weight: 700;
     display: flex;
     flex-direction: column;
@@ -344,7 +344,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     line-height: 1;
 }
 
-#played-cards .card { width: 55px; height: 80px; padding: 3px; }
+#played-cards .card { width: 50px; height: 72px; padding: 3px; }
 #played-cards .card .corner { font-size: 14px; }
 #played-cards .card .suit-big { font-size: 20px; }
 
@@ -392,12 +392,12 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short .bot-top .bot-cards { width: 146px; }
 #game-container.tier-short .bot-left .bot-cards, #game-container.tier-short .bot-right .bot-cards { height: 166px; }
 #game-container.tier-short #played-cards { min-height: 56px; }
-#game-container.tier-short #played-cards .card { width: 44px; height: 64px; }
+#game-container.tier-short #played-cards .card { width: 40px; height: 58px; }
 #game-container.tier-short #played-cards .card .corner { font-size: 12px; }
 #game-container.tier-short #played-cards .card .suit-big { font-size: 16px; }
 #game-container.tier-short #message { font-size: 13px; margin-top: 8px; }
-#game-container.tier-short .player-cards { bottom: 68px; padding: 0 10px 5px calc(50% - 204px); }
-#game-container.tier-short .player-cards .card { width: 56px; height: 82px; margin-left: -22px; }
+#game-container.tier-short .player-cards { bottom: 68px; padding: 0 10px 5px calc(50% - 193px); }
+#game-container.tier-short .player-cards .card { width: 50px; height: 74px; margin-left: -22px; }
 #game-container.tier-short .player-cards .card.selected { transform: translateY(-16px) scale(1.05); }
 #game-container.tier-short .btn-play { padding: 10px 30px; font-size: 16px; }
 #game-container.tier-short .btn-pass { padding: 10px 22px; font-size: 14px; }
@@ -413,12 +413,12 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-tiny .bot-left .bot-cards, #game-container.tier-tiny .bot-right .bot-cards { margin-top: 6px; height: 146px; }
 #game-container.tier-tiny .bot-top .bot-cards { width: 118px; }
 #game-container.tier-tiny #played-cards { min-height: 44px; }
-#game-container.tier-tiny #played-cards .card { width: 36px; height: 52px; }
+#game-container.tier-tiny #played-cards .card { width: 32px; height: 47px; }
 #game-container.tier-tiny #played-cards .card .corner { font-size: 10px; }
 #game-container.tier-tiny #played-cards .card .suit-big { font-size: 13px; }
 #game-container.tier-tiny #message { font-size: 11px; margin-top: 5px; padding: 4px 10px; }
-#game-container.tier-tiny .player-cards { bottom: 60px; padding: 0 10px 5px calc(50% - 183px); }
-#game-container.tier-tiny .player-cards .card { width: 47px; height: 68px; margin-left: -18px; }
+#game-container.tier-tiny .player-cards { bottom: 60px; padding: 0 10px 5px calc(50% - 165px); }
+#game-container.tier-tiny .player-cards .card { width: 42px; height: 61px; margin-left: -18px; }
 #game-container.tier-tiny .player-cards .card.selected { transform: translateY(-12px) scale(1.05); }
 #game-container.tier-tiny .btn-play { padding: 8px 24px; font-size: 14px; }
 #game-container.tier-tiny .btn-pass { padding: 8px 18px; font-size: 13px; }
@@ -438,7 +438,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    border: 2px solid rgba(255,202,40,.7);
+    border: 1px solid #ffd700;
     background: rgba(0,0,0,.55);
     font-size: 16px;
     line-height: 1;
@@ -446,6 +446,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 #btn-sound { right: 8px; }
 #btn-clear-save { right: 52px; }
+#btn-sound:hover, #btn-clear-save:hover { box-shadow: 0 0 14px rgba(255,215,0,.85); }
 #btn-overlay-clear {
     margin-top: 10px;
     padding: 10px 22px;
@@ -469,3 +470,38 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     0%, 100% { box-shadow: 0 0 0 2px rgba(255,235,150,.9), 0 0 12px 4px rgba(255,215,64,.45); }
     50% { box-shadow: 0 0 0 2px rgba(255,235,150,1), 0 0 24px 10px rgba(255,215,64,.75); }
 }
+
+/* Avatar + tiền trong bảng tên */
+.avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #ffd700;
+    background: rgba(0,0,0,.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+#game-container.tier-short .avatar { width: 24px; height: 24px; font-size: 13px; }
+#game-container.tier-tiny .avatar { width: 20px; height: 20px; font-size: 11px; }
+.money { color: #ffd700; font-weight: bold; font-size: 12px; white-space: nowrap; }
+#overlay-money { font-size: 24px; min-height: 30px; margin: 6px 0 2px; }
+
+/* Animation: bài bay ra bàn / bài chia rơi xuống / nhận tiền */
+@keyframes flyToTable {
+    from { transform: scale(0.5) translateY(100px); opacity: .4; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.card-play-anim { animation: flyToTable .3s ease-out; }
+@keyframes dealCard {
+    from { transform: translateY(-120px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.card-deal-anim { animation: dealCard .45s ease-out both; }
+@keyframes coinPop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.35); }
+}
+.coin-pop { animation: coinPop .5s ease-in-out 3; color: #ffd700; font-weight: bold; }
