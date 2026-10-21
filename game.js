@@ -734,15 +734,21 @@ function renderBotHand(who, elId, countId) {
     document.getElementById(countId).textContent = count;
 }
 
+let lastPlayAnimKey = null;
+
 function renderLastPlay() {
     const el = document.getElementById('played-cards');
     el.innerHTML = '';
-    if (!state.lastPlay) return;
+    if (!state.lastPlay) { lastPlayAnimKey = null; return; }
+    // Chỉ bay khi nước đánh thay đổi thật; các lần render lại (qua lượt/bỏ lượt) thì đứng yên
+    const key = state.lastPlay.player + '|' + state.lastPlay.cards.map(c => c.rank + c.suit).join(',');
+    const animate = key !== lastPlayAnimKey;
+    lastPlayAnimKey = key;
     const dir = ['from-bottom', 'from-left', 'from-right', 'from-top'][state.lastPlay.player] || 'from-bottom';
     const sorted = [...state.lastPlay.cards].sort(compareCards);
     sorted.forEach(card => {
         const c = createCardEl(card);
-        c.classList.add('card-play-anim', dir);
+        if (animate) c.classList.add('card-play-anim', dir);
         el.appendChild(c);
     });
 }
