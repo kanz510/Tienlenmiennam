@@ -394,13 +394,10 @@ function handleCardClick(idx) {
     const rv = rankValue(hand[idx]);
 
     if (state.selected.has(idx)) {
-        // Bỏ chọn: toàn bộ lá cùng số + toàn bộ lá thuộc sảnh chứa lá này
-        const run = straightRunThrough(rv);
-        const runSet = run ? new Set(run) : null;
-        hand.forEach((c, i) => {
-            const crv = rankValue(c);
-            if (crv === rv || (runSet && runSet.has(crv))) state.selected.delete(i);
-        });
+        // Click lại 1 lá trong cụm đang chọn: thu gọn còn đúng lá đó (để đánh lẻ);
+        // nếu đang chỉ chọn đúng 1 lá thì bỏ chọn hẳn
+        if (state.selected.size === 1) state.selected.delete(idx);
+        else { state.selected.clear(); state.selected.add(idx); }
     } else {
         const sameRank = [];
         hand.forEach((c, i) => { if (rankValue(c) === rv) sameRank.push(i); });
