@@ -372,19 +372,65 @@ function render() {
     updateButtons();
 }
 
+// Dãy sảnh dài nhất chứa rank rv (không tính lá 2); trả về mảng rankValue hoặc null
+function straightRunThrough(rv) {
+    if (rv >= RANK_2) return null;
+    const present = new Set(state.hands.player.map(c => rankValue(c)).filter(v => v < RANK_2));
+    if (!present.has(rv)) return null;
+    let lo = rv, hi = rv;
+    while (present.has(lo - 1)) lo--;
+    while (present.has(hi + 1)) hi++;
+    if (hi - lo + 1 < 3) return null;
+    const run = [];
+    for (let r = lo; r <= hi; r++) run.push(r);
+    return run;
+}
+
+// Chọn bài nhanh: click lá chưa chọn -> chọn cả nhóm cùng số / cả sảnh (nếu ở đầu mút);
+// click lá đã chọn -> bỏ chọn cả nhóm / cả sảnh chứa nó
+function handleCardClick(idx) {
+    if (state.gameOver || state.turn !== 0) return;
+    const hand = state.hands.player;
+    const rv = rankValue(hand[idx]);
+
+    if (state.selected.has(idx)) {
+        // Bỏ chọn: toàn bộ lá cùng số + toàn bộ lá thuộc sảnh chứa lá này
+        const run = straightRunThrough(rv);
+        const runSet = run ? new Set(run) : null;
+        hand.forEach((c, i) => {
+            const crv = rankValue(c);
+            if (crv === rv || (runSet && runSet.has(crv))) state.selected.delete(i);
+        });
+    } else {
+        const sameRank = [];
+        hand.forEach((c, i) => { if (rankValue(c) === rv) sameRank.push(i); });
+        if (sameRank.length > 1) {
+            // Có đôi/sám/tứ: chọn cả nhóm cùng số
+            sameRank.forEach(i => state.selected.add(i));
+        } else {
+            const run = straightRunThrough(rv);
+            if (run && (rv === run[0] || rv === run[run.length - 1])) {
+                // Lá đơn ở đầu mút sảnh: chọn toàn bộ sảnh dài nhất chứa nó
+                run.forEach(r => {
+                    const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
+                    if (i >= 0) state.selected.add(i);
+                });
+            } else {
+                state.selected.add(idx);
+            }
+        }
+    }
+    renderPlayerHand();
+    updateButtons();
+}
+
 function renderPlayerHand() {
     const el = document.getElementById('cards-player');
     el.innerHTML = '';
     state.hands.player.forEach((card, i) => {
         const c = createCardEl(card);
         if (state.selected.has(i)) c.classList.add('selected');
-        c.addEventListener('click', () => {
-            if (state.gameOver || state.turn !== 0) return;
-            if (state.selected.has(i)) state.selected.delete(i);
-            else state.selected.add(i);
-            renderPlayerHand();
-            updateButtons();
-        });
+        c.addEventListener('click', () => handleCardClick(i));
         el.appendChild(c);
     });
     document.getElementById('count-player').textContent = state.hands.player.length;
