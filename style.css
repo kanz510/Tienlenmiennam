@@ -116,7 +116,7 @@ body {
 
 /* Bài úp */
 .bot-cards { display: flex; position: relative; }
-.bot-top .bot-cards { flex-direction: row; }
+.bot-top .bot-cards { flex-direction: row; width: 176px; }
 .bot-top .bot-cards .back-card { width: 32px; height: 44px; margin-left: -20px; }
 .bot-top .bot-cards .back-card:first-child { margin-left: 0; }
 
@@ -127,7 +127,7 @@ body {
     margin-top: -42px;
 }
 .bot-left .bot-cards .back-card:first-child, .bot-right .bot-cards .back-card:first-child { margin-top: 0; }
-.bot-left .bot-cards, .bot-right .bot-cards { margin-top: 15px; }
+.bot-left .bot-cards, .bot-right .bot-cards { margin-top: 15px; height: 198px; }
 
 .back-card {
     background: linear-gradient(135deg, #b71c1c, #7a1f14);
@@ -389,6 +389,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short .bot-left .bot-cards .back-card, #game-container.tier-short .bot-right .bot-cards .back-card { width: 34px; height: 46px; margin-top: -36px; }
 #game-container.tier-short .bot-left .bot-cards .back-card:first-child, #game-container.tier-short .bot-right .bot-cards .back-card:first-child { margin-top: 0; }
 #game-container.tier-short .bot-top .bot-cards .back-card:first-child { margin-left: 0; }
+#game-container.tier-short .bot-top .bot-cards { width: 146px; }
+#game-container.tier-short .bot-left .bot-cards, #game-container.tier-short .bot-right .bot-cards { height: 166px; }
 #game-container.tier-short #played-cards { min-height: 56px; }
 #game-container.tier-short #played-cards .card { width: 44px; height: 64px; }
 #game-container.tier-short #played-cards .card .corner { font-size: 12px; }
@@ -408,7 +410,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-tiny .bot-left .bot-cards .back-card, #game-container.tier-tiny .bot-right .bot-cards .back-card { width: 28px; height: 38px; margin-top: -29px; }
 #game-container.tier-tiny .bot-left .bot-cards .back-card:first-child, #game-container.tier-tiny .bot-right .bot-cards .back-card:first-child { margin-top: 0; }
 #game-container.tier-tiny .bot-top .bot-cards .back-card:first-child { margin-left: 0; }
-#game-container.tier-tiny .bot-left .bot-cards, #game-container.tier-tiny .bot-right .bot-cards { margin-top: 6px; }
+#game-container.tier-tiny .bot-left .bot-cards, #game-container.tier-tiny .bot-right .bot-cards { margin-top: 6px; height: 146px; }
+#game-container.tier-tiny .bot-top .bot-cards { width: 118px; }
 #game-container.tier-tiny #played-cards { min-height: 44px; }
 #game-container.tier-tiny #played-cards .card { width: 36px; height: 52px; }
 #game-container.tier-tiny #played-cards .card .corner { font-size: 10px; }
