@@ -274,6 +274,11 @@ function applyRotation() {
         game.style.width = '';
         game.style.height = '';
     }
+
+    // Mức co theo chiều cao KHUNG GAME sau xoay (không theo chiều cao máy)
+    const lh = vh > vw ? vw : vh;
+    game.classList.toggle('tier-short', lh <= 440);
+    game.classList.toggle('tier-tiny', lh <= 350);
 }
 
 function checkGate() {
