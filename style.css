@@ -52,7 +52,7 @@ body {
     height: 100%;
     display: grid;
     grid-template-columns: 100px 1fr 100px;
-    grid-template-rows: 80px 1fr auto;
+    grid-template-rows: 70px 1fr 140px;
     grid-template-areas:
         "top    top    top"
         "left   table  right"
@@ -171,27 +171,28 @@ body {
 /* ============ PLAYER ============ */
 .player-area {
     grid-area: player;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: relative;
     width: 100%;
+    height: 100%;
 }
 
 /* --- Khu vực chứa bài của người chơi --- */
 .player-cards {
+    position: absolute;
+    bottom: 52px;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    min-height: 80px;
-    padding: 20px 10px 5px;
-    width: 100%;
+    padding: 0 10px;
 }
 
 /* --- Kích thước lá bài trên tay --- */
 .player-cards .card {
-    width: 65px;
-    height: 95px;
-    margin-left: -25px;
+    width: 55px;
+    height: 82px;
+    margin-left: -22px;
     cursor: pointer;
     transition: transform 0.15s ease-out, box-shadow 0.15s;
     position: relative;
@@ -205,15 +206,16 @@ body {
 
 /* --- Thanh điều khiển dưới cùng --- */
 .player-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    max-width: 100%;
     padding: 0 15px;
-    margin-bottom: env(safe-area-inset-bottom, 10px);
-    box-sizing: border-box;
-    flex-shrink: 0;
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+    min-height: 50px;
 }
 
 .player-info {
@@ -363,7 +365,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 /* ============ CO THEO CHIỀU CAO KHUNG GAME (JS gắn class, đúng cả khi tự xoay) ============ */
-#game-container.tier-short { grid-template-rows: 64px 1fr auto; gap: 5px; padding: 5px; }
+#game-container.tier-short { grid-template-rows: 64px 1fr 128px; gap: 5px; padding: 5px; }
 #game-container.tier-short .bot-info { font-size: 11px; padding: 4px 10px; }
 #game-container.tier-short .bot-top .bot-cards .back-card { width: 26px; height: 36px; margin-left: -16px; }
 #game-container.tier-short .bot-left .bot-cards .back-card, #game-container.tier-short .bot-right .bot-cards .back-card { width: 34px; height: 46px; margin-top: -36px; }
@@ -372,7 +374,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short #played-cards .card .corner { font-size: 12px; }
 #game-container.tier-short #played-cards .card .suit-big { font-size: 16px; }
 #game-container.tier-short #message { font-size: 13px; margin-top: 8px; }
-#game-container.tier-short .player-cards { min-height: 64px; padding: 14px 10px 2px; }
+#game-container.tier-short .player-cards { bottom: 50px; padding: 0 10px; }
 #game-container.tier-short .player-cards .card { width: 56px; height: 82px; margin-left: -22px; }
 #game-container.tier-short .player-cards .card.selected { transform: translateY(-16px); }
 #game-container.tier-short .btn-play { padding: 10px 30px; font-size: 16px; }
@@ -380,7 +382,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short .btn-new-game { padding: 10px 16px; font-size: 12px; }
 #game-container.tier-short .timer-box { font-size: 16px; padding: 5px 14px; min-width: 58px; }
 
-#game-container.tier-tiny { grid-template-rows: 52px 1fr auto; gap: 4px; padding: 4px; }
+#game-container.tier-tiny { grid-template-rows: 52px 1fr 112px; gap: 4px; padding: 4px; }
 #game-container.tier-tiny .bot-info { font-size: 10px; padding: 3px 8px; }
 #game-container.tier-tiny .bot-top .bot-cards .back-card { width: 22px; height: 30px; margin-left: -14px; }
 #game-container.tier-tiny .bot-left .bot-cards .back-card, #game-container.tier-tiny .bot-right .bot-cards .back-card { width: 28px; height: 38px; margin-top: -29px; }
@@ -389,7 +391,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-tiny #played-cards .card .corner { font-size: 10px; }
 #game-container.tier-tiny #played-cards .card .suit-big { font-size: 13px; }
 #game-container.tier-tiny #message { font-size: 11px; margin-top: 5px; padding: 4px 10px; }
-#game-container.tier-tiny .player-cards { min-height: 52px; padding: 10px 10px 0; }
+#game-container.tier-tiny .player-cards { bottom: 46px; padding: 0 10px; }
 #game-container.tier-tiny .player-cards .card { width: 47px; height: 68px; margin-left: -18px; }
 #game-container.tier-tiny .player-cards .card.selected { transform: translateY(-12px); }
 #game-container.tier-tiny .btn-play { padding: 8px 24px; font-size: 14px; }
@@ -400,4 +402,4 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Khi tự xoay: đệm theo cạnh đã xoay — chừa chỗ tai thỏ ở phía thanh người chơi, bỏ env() ở cạnh ngắn */
 #game-container.rotate-90 { padding-top: 10px; padding-bottom: 30px; }
-#game-container.rotate-90 .player-bar { margin-bottom: 0; }
+#game-container.rotate-90 .player-bar { margin-bottom: 0; padding-bottom: 8px; }
