@@ -122,9 +122,44 @@ function speak(text, actorIdx) {
         u.lang = 'vi-VN';
         const vi = window.speechSynthesis.getVoices().find(v => v.lang && v.lang.toLowerCase().startsWith('vi'));
         if (vi) u.voice = vi;
-        u.pitch = VOICE_PITCH[PLAYERS[actorIdx || 0]] || 1;
-        u.rate = 1.05;
+        const basePitch = VOICE_PITCH[PLAYERS[actorIdx || 0]] || 1;
+        u.pitch = Math.max(0.5, basePitch + (Math.random() * 0.1 - 0.05));
+        u.rate = 0.95 + Math.random() * 0.25;
         window.speechSynthesis.speak(u);
+    } catch (e) {}
+}
+
+const RANK_SPEECH = { '3': 'ba', '4': 'bốn', '5': 'năm', '6': 'sáu', '7': 'bảy', '8': 'tám', '9': 'chín', '10': 'mười', 'J': 'bồi', 'Q': 'đầm', 'K': 'già', 'A': 'ách', '2': 'heo' };
+const NUM_SPEECH = { 3: 'ba', 4: 'bốn', 5: 'năm', 6: 'sáu' };
+
+function cardSpeech(combo) {
+    if (!combo || !combo.cards || !combo.cards.length) return null;
+    const cards = combo.cards;
+    const hi = RANK_SPEECH[cards[cards.length - 1].rank];
+    const lo = RANK_SPEECH[cards[0].rank];
+    if (!hi || !lo) return null;
+    const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
+    switch (combo.type) {
+        case 'single': return cap(hi) + ' nè';
+        case 'pair': return 'Đôi ' + hi + ' nè';
+        case 'triple': return 'Sám ' + hi + ' nè';
+        case 'quad': return 'Tứ quý ' + hi + ' nè';
+        case 'double_straight': return cap(NUM_SPEECH[cards.length / 2] || String(cards.length / 2)) + ' đôi thông nè';
+        case 'straight':
+            if (cards.length <= 5) return cap(cards.map(c => RANK_SPEECH[c.rank]).join(' ')) + ' nè';
+            return 'Sảnh từ ' + lo + ' tới ' + hi + ' nè';
+        default: return null;
+    }
+}
+
+// Đánh bài: 50% đọc số lá, 50% bốc câu cà khịa
+function speakPlay(combo, actorIdx) {
+    try {
+        if (combo && Math.random() < 0.5) {
+            const line = cardSpeech(combo);
+            if (line) return speak(line, actorIdx);
+        }
+        speak(tauntFor(combo ? combo.type : 'single'), actorIdx);
     } catch (e) {}
 }
 
@@ -703,10 +738,11 @@ function renderLastPlay() {
     const el = document.getElementById('played-cards');
     el.innerHTML = '';
     if (!state.lastPlay) return;
+    const dir = ['from-bottom', 'from-left', 'from-right', 'from-top'][state.lastPlay.player] || 'from-bottom';
     const sorted = [...state.lastPlay.cards].sort(compareCards);
     sorted.forEach(card => {
         const c = createCardEl(card);
-        c.classList.add('card-play-anim');
+        c.classList.add('card-play-anim', dir);
         el.appendChild(c);
     });
 }
@@ -759,7 +795,7 @@ function playerPlay() {
     stopTimer();
     vibrate(40);
     playClick();
-    speak(tauntFor(combo.type), 0);
+    speakPlay(combo, 0);
 
     // Xóa bài khỏi tay (từ index lớn xuống)
     for (let i = indices.length - 1; i >= 0; i--) {
@@ -918,7 +954,7 @@ function botPlay() {
     state.passCount = 0;
 
     playClick();
-    speak(tauntFor(combo.type), state.turn);
+    speakPlay(combo, state.turn);
     render();
     showMessage(`${PLAYER_NAMES[who]} đánh ${formatCombo(combo)}`);
 
