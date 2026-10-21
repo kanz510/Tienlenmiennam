@@ -7,14 +7,14 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a2615">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=746a2f4">
+    <link rel="stylesheet" href="style.css?v=r3">
 </head>
 <body>
 
     <!-- Chặn PC hoặc màn hình dọc -->
     <div id="blocker">
         <div class="blocker-content">
-            <div class="rotate-icon" id="blocker-icon">📱↻</div>
+            <div class="blocker-icon" id="blocker-icon">📱↻</div>
             <h2 id="blocker-title">Đang kiểm tra...</h2>
             <p id="blocker-text"></p>
         </div>
@@ -60,14 +60,17 @@
         <div class="player-area">
             <div class="player-cards" id="cards-player"></div>
             <div class="player-bar">
+                <button id="btn-new" class="btn-new-game">Ván mới</button>
                 <div class="player-info">
                     <span class="bot-name">Bạn</span>
                     <span class="card-count" id="count-player">13</span>
                 </div>
+                <div class="timer-box">
+                    <span id="timer-text">15</span>s
+                </div>
                 <div class="controls">
-                    <button id="btn-pass">Bỏ lượt</button>
-                    <button id="btn-play">Đánh</button>
-                    <button id="btn-new">Ván mới</button>
+                    <button id="btn-pass" class="btn-pass">Bỏ lượt</button>
+                    <button id="btn-play" class="btn-play">Đánh</button>
                 </div>
             </div>
         </div>
@@ -81,6 +84,6 @@
         </div>
     </div>
 
-    <script src="game.js?v=746a2f4"></script>
+    <script src="game.js?v=r3"></script>
 </body>
 </html>

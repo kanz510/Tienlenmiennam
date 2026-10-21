@@ -24,6 +24,63 @@ let state = {
     selected: new Set(),
     gameOver: false
 };
+state.timer = null;
+state.timeLeft = 15;
+
+// ============================================================
+//  TIMER — đếm ngược 15s cho lượt người chơi
+// ============================================================
+function startTimer() {
+    stopTimer();
+    // Chỉ đếm ngược khi đến lượt người chơi
+    if (state.turn !== 0 || state.gameOver) {
+        document.querySelector('.timer-box').style.visibility = 'hidden';
+        return;
+    }
+
+    document.querySelector('.timer-box').style.visibility = 'visible';
+    state.timeLeft = 15;
+    updateTimerUI();
+
+    state.timer = setInterval(() => {
+        state.timeLeft--;
+        updateTimerUI();
+
+        if (state.timeLeft <= 0) {
+            stopTimer();
+            // Hết giờ: có bài trên bàn thì bỏ lượt; đang dẫn vòng thì tự đánh lá nhỏ nhất
+            if (state.turn === 0 && !state.gameOver) {
+                if (state.lastPlay) {
+                    showMessage('Hết giờ! Tự động bỏ lượt.');
+                    playerPass();
+                } else {
+                    showMessage('Hết giờ! Tự động đánh lá nhỏ nhất.');
+                    state.selected = new Set([0]);
+                    playerPlay();
+                }
+            }
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    if (state.timer) {
+        clearInterval(state.timer);
+        state.timer = null;
+    }
+}
+
+function updateTimerUI() {
+    const timerBox = document.querySelector('.timer-box');
+    const timerText = document.getElementById('timer-text');
+    timerText.textContent = state.timeLeft;
+
+    if (state.timeLeft <= 5) {
+        timerBox.classList.add('danger');
+    } else {
+        timerBox.classList.remove('danger');
+    }
+}
 
 // ============================================================
 //  CARD HELPERS
@@ -254,6 +311,7 @@ function initOrResume() {
 //  GAME FLOW
 // ============================================================
 function newGame() {
+    stopTimer();
     const deck = shuffle(createDeck());
     state.hands.player = sortHand(deck.slice(0, 13));
     state.hands.left   = sortHand(deck.slice(13, 26));
@@ -283,6 +341,7 @@ function newGame() {
     } else {
         updateButtons();
     }
+    startTimer();
 }
 
 // ============================================================
@@ -385,6 +444,8 @@ function playerPlay() {
         return;
     }
 
+    stopTimer();
+
     // Xóa bài khỏi tay (từ index lớn xuống)
     for (let i = indices.length - 1; i >= 0; i--) {
         state.hands.player.splice(indices[i], 1);
@@ -407,6 +468,7 @@ function playerPlay() {
 function playerPass() {
     if (state.turn !== 0 || state.gameOver) return;
     if (!state.lastPlay) return;
+    stopTimer();
     showMessage('Bạn bỏ lượt');
     doPass();
 }
@@ -429,8 +491,10 @@ function nextTurn() {
         setTimeout(() => {
             showMessage('Lượt của bạn!');
             render();
+            startTimer();
         }, 350);
     } else {
+        stopTimer();
         render();
         setTimeout(() => {
             showMessage(`Lượt của ${PLAYER_NAMES[PLAYERS[state.turn]]}`);
@@ -612,6 +676,7 @@ function formatCombo(combo) {
 //  END GAME
 // ============================================================
 function endGame(winnerIdx) {
+    stopTimer();
     state.gameOver = true;
     const name = PLAYER_NAMES[PLAYERS[winnerIdx]];
     showMessage(`${name} thắng!`);
