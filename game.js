@@ -32,28 +32,29 @@ state.timeLeft = 15;
 // ============================================================
 function startTimer() {
     stopTimer();
-    // Chỉ đếm ngược khi đến lượt người chơi
+    const timerBox = document.querySelector('.timer-box');
+
+    // Chỉ chạy đồng hồ khi đến lượt người chơi
     if (state.turn !== 0 || state.gameOver) {
-        document.querySelector('.timer-box').style.visibility = 'hidden';
+        if (timerBox) timerBox.style.visibility = 'hidden';
         return;
     }
 
-    document.querySelector('.timer-box').style.visibility = 'visible';
+    if (timerBox) timerBox.style.visibility = 'visible';
     state.timeLeft = 15;
     updateTimerUI();
 
     state.timer = setInterval(() => {
         state.timeLeft--;
         updateTimerUI();
-
         if (state.timeLeft <= 0) {
             stopTimer();
-            // Hết giờ: có bài trên bàn thì bỏ lượt; đang dẫn vòng thì tự đánh lá nhỏ nhất
             if (state.turn === 0 && !state.gameOver) {
                 if (state.lastPlay) {
                     showMessage('Hết giờ! Tự động bỏ lượt.');
                     playerPass();
                 } else {
+                    // Đang dẫn vòng: không bỏ lượt được — tự đánh lá nhỏ nhất
                     showMessage('Hết giờ! Tự động đánh lá nhỏ nhất.');
                     state.selected = new Set([0]);
                     playerPlay();
@@ -333,6 +334,9 @@ function newGame() {
     state.selected.clear();
     state.gameOver = false;
 
+    // Đảm bảo overlay thắng/thua không che nút Ván mới
+    document.getElementById('overlay').classList.add('hidden');
+
     render();
     showMessage(`${PLAYER_NAMES[PLAYERS[state.turn]]} đi trước`);
 
@@ -340,8 +344,8 @@ function newGame() {
         setTimeout(botPlay, 800);
     } else {
         updateButtons();
+        startTimer();
     }
-    startTimer();
 }
 
 // ============================================================
@@ -494,7 +498,7 @@ function nextTurn() {
             startTimer();
         }, 350);
     } else {
-        stopTimer();
+        startTimer();
         render();
         setTimeout(() => {
             showMessage(`Lượt của ${PLAYER_NAMES[PLAYERS[state.turn]]}`);

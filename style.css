@@ -177,40 +177,43 @@ body {
     width: 100%;
 }
 
+/* --- Khu vực chứa bài của người chơi --- */
 .player-cards {
     display: flex;
     justify-content: center;
     align-items: flex-end;
-    min-height: 100px;
-    padding: 25px 10px 5px;
+    min-height: 80px;
+    padding: 20px 10px 5px;
     width: 100%;
 }
 
+/* --- Kích thước lá bài trên tay --- */
 .player-cards .card {
-    width: 60px;
-    height: 88px;
+    width: 65px;
+    height: 95px;
     margin-left: -25px;
     cursor: pointer;
     transition: transform 0.15s ease-out, box-shadow 0.15s;
     position: relative;
 }
 .player-cards .card:first-child { margin-left: 0; }
-
 .player-cards .card.selected {
-    transform: translateY(-22px);
+    transform: translateY(-20px);
     box-shadow: 0 0 0 3px #ffd700, 0 8px 15px rgba(0,0,0,0.6);
     z-index: 20;
 }
 
-/* Thanh điều khiển dưới cùng */
+/* --- Thanh điều khiển dưới cùng --- */
 .player-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    max-width: 800px;
-    padding: 0 10px;
-    margin-bottom: 5px;
+    max-width: 100%;
+    padding: 0 15px;
+    margin-bottom: env(safe-area-inset-bottom, 10px);
+    box-sizing: border-box;
+    flex-shrink: 0;
 }
 
 .player-info {
@@ -225,23 +228,31 @@ body {
     border: 1px solid rgba(255,255,255,0.2);
 }
 
-/* Đồng hồ */
+/* --- Đồng hồ --- */
 .timer-box {
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.8);
     color: #ffd700;
     font-weight: bold;
-    font-size: 18px;
-    padding: 6px 18px;
-    border-radius: 20px;
+    font-size: 20px;
+    padding: 6px 20px;
+    border-radius: 25px;
     border: 2px solid #ffd700;
-    box-shadow: 0 0 10px rgba(255,215,0,0.3);
-    min-width: 60px;
+    min-width: 70px;
     text-align: center;
+    box-shadow: 0 0 15px rgba(255,215,0,0.5);
 }
-.timer-box.danger { color: #ff4757; border-color: #ff4757; animation: pulse 1s infinite; }
-@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+.timer-box.danger {
+    color: #ff4757;
+    border-color: #ff4757;
+    animation: pulse 0.8s infinite;
+}
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
 
-/* Nút bấm */
+/* --- Các nút bấm (theo class) --- */
 button {
     border: none;
     font-weight: bold;
@@ -260,22 +271,25 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     box-shadow: 0 4px 0 #1f618d;
     padding: 12px 20px;
     font-size: 14px;
+    border-radius: 20px;
 }
-
-.controls { display: flex; gap: 12px; }
-
+.controls {
+    display: flex;
+    gap: 10px;
+}
 .btn-play {
     background: linear-gradient(180deg, #2ecc71, #27ae60);
     box-shadow: 0 4px 0 #1e8449;
-    padding: 14px 40px;
+    padding: 12px 35px;
     font-size: 18px;
+    border-radius: 20px;
 }
-
 .btn-pass {
     background: linear-gradient(180deg, #f39c12, #d35400);
     box-shadow: 0 4px 0 #a04000;
-    padding: 14px 30px;
+    padding: 12px 25px;
     font-size: 16px;
+    border-radius: 20px;
 }
 
 /* ============ CARD ============ */
