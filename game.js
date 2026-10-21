@@ -481,6 +481,7 @@ function newGame() {
     document.getElementById('overlay').classList.add('hidden');
 
     render();
+    updateTurnIndicator();
     showMessage(`${PLAYER_NAMES[PLAYERS[state.turn]]} đi trước`);
 
     if (state.turn !== 0) {
@@ -494,6 +495,19 @@ function newGame() {
 // ============================================================
 //  RENDER
 // ============================================================
+function updateTurnIndicator() {
+    const targets = {
+        player: document.querySelector('.player-info'),
+        left: document.querySelector('.bot-left .bot-info'),
+        top: document.querySelector('.bot-top .bot-info'),
+        right: document.querySelector('.bot-right .bot-info')
+    };
+    Object.values(targets).forEach(el => { if (el) el.classList.remove('active-turn'); });
+    if (state.gameOver) return;
+    const el = targets[PLAYERS[state.turn]];
+    if (el) el.classList.add('active-turn');
+}
+
 function render() {
     renderPlayerHand();
     renderBotHand('left', 'cards-left', 'count-left');
@@ -775,6 +789,7 @@ function nextTurn() {
         }, 300);
         setTimeout(botPlay, 900);
     }
+    updateTurnIndicator();
 }
 
 function doPass() {

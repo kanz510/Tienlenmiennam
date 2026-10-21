@@ -18,7 +18,13 @@ html, body {
 }
 
 body {
-    background: radial-gradient(ellipse at center, #1a5d38 0%, #0a2615 100%);
+    background:
+        radial-gradient(ellipse at 50% 28%, rgba(255,255,230,.16), rgba(255,255,230,0) 55%),
+        radial-gradient(ellipse at center, #2f8652 0%, #1a5d38 55%, #0a2e1a 100%);
+    box-shadow:
+        inset 0 0 0 12px #4a2e1b,
+        inset 0 0 0 16px #6f452a,
+        inset 0 0 90px rgba(0,0,0,.6);
 }
 
 .hidden { display: none !important; }
@@ -202,8 +208,8 @@ body {
 }
 .player-cards .card:first-child { margin-left: 0; }
 .player-cards .card.selected {
-    transform: translateY(-20px);
-    box-shadow: 0 0 0 3px #ffd700, 0 8px 15px rgba(0,0,0,0.6);
+    transform: translateY(-20px) scale(1.05);
+    box-shadow: 0 0 18px 5px rgba(255,215,0,.85), 0 10px 18px rgba(0,0,0,.55);
     z-index: 20;
 }
 
@@ -272,8 +278,11 @@ button:active:not(:disabled) { transform: scale(0.92); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-new-game {
-    background: linear-gradient(180deg, #3498db, #2980b9);
-    box-shadow: 0 4px 0 #1f618d;
+    background: rgba(52,152,219,.5);
+    border: 1px solid rgba(255,255,255,.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
     padding: 12px 20px;
     font-size: 14px;
     border-radius: 20px;
@@ -283,15 +292,21 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     gap: 10px;
 }
 .btn-play {
-    background: linear-gradient(180deg, #2ecc71, #27ae60);
-    box-shadow: 0 4px 0 #1e8449;
+    background: rgba(0,168,150,.55);
+    border: 1px solid rgba(255,255,255,.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
     padding: 12px 35px;
     font-size: 18px;
     border-radius: 20px;
 }
 .btn-pass {
-    background: linear-gradient(180deg, #f39c12, #d35400);
-    box-shadow: 0 4px 0 #a04000;
+    background: rgba(201,111,46,.55);
+    border: 1px solid rgba(255,255,255,.45);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
     padding: 12px 25px;
     font-size: 16px;
     border-radius: 20px;
@@ -302,7 +317,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     background: #fff;
     border-radius: 8px;
     border: 1px solid #999;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), inset 0 -2px 3px rgba(0,0,0,.12), 0 2px 3px rgba(0,0,0,.35), 0 7px 14px rgba(0,0,0,.4);
+    font-weight: 700;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -380,7 +396,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short #message { font-size: 13px; margin-top: 8px; }
 #game-container.tier-short .player-cards { bottom: 68px; padding: 0 10px 5px; }
 #game-container.tier-short .player-cards .card { width: 56px; height: 82px; margin-left: -22px; }
-#game-container.tier-short .player-cards .card.selected { transform: translateY(-16px); }
+#game-container.tier-short .player-cards .card.selected { transform: translateY(-16px) scale(1.05); }
 #game-container.tier-short .btn-play { padding: 10px 30px; font-size: 16px; }
 #game-container.tier-short .btn-pass { padding: 10px 22px; font-size: 14px; }
 #game-container.tier-short .btn-new-game { padding: 10px 16px; font-size: 12px; }
@@ -400,7 +416,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-tiny #message { font-size: 11px; margin-top: 5px; padding: 4px 10px; }
 #game-container.tier-tiny .player-cards { bottom: 60px; padding: 0 10px 5px; }
 #game-container.tier-tiny .player-cards .card { width: 47px; height: 68px; margin-left: -18px; }
-#game-container.tier-tiny .player-cards .card.selected { transform: translateY(-12px); }
+#game-container.tier-tiny .player-cards .card.selected { transform: translateY(-12px) scale(1.05); }
 #game-container.tier-tiny .btn-play { padding: 8px 24px; font-size: 14px; }
 #game-container.tier-tiny .btn-pass { padding: 8px 18px; font-size: 13px; }
 #game-container.tier-tiny .btn-new-game { padding: 8px 12px; font-size: 11px; }
@@ -437,4 +453,16 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     background: #e53935;
     color: #fff;
     cursor: pointer;
+}
+
+.btn-play:active:not(:disabled), .btn-pass:active:not(:disabled), .btn-new-game:active:not(:disabled) { transform: scale(0.95); }
+
+/* Báo lượt: bảng tên của người đang có lượt phát sáng nhấp nháy nhẹ */
+.active-turn {
+    box-shadow: 0 0 0 2px rgba(255,235,150,.9), 0 0 18px 6px rgba(255,215,64,.55);
+    animation: turnPulse 1.1s ease-in-out infinite;
+}
+@keyframes turnPulse {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(255,235,150,.9), 0 0 12px 4px rgba(255,215,64,.45); }
+    50% { box-shadow: 0 0 0 2px rgba(255,235,150,1), 0 0 24px 10px rgba(255,215,64,.75); }
 }
