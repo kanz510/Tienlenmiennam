@@ -21,6 +21,7 @@ let state = {
     turn: 0,
     lastPlay: null,
     passCount: 0,
+    hasPassed: false,
     selected: new Set(),
     gameOver: false
 };
@@ -336,6 +337,7 @@ function newGame() {
 
     state.lastPlay = null;
     state.passCount = 0;
+    state.hasPassed = false;
     state.selected.clear();
     state.gameOver = false;
 
@@ -425,8 +427,8 @@ function showMessage(msg) {
 
 function updateButtons() {
     const isMyTurn = (state.turn === 0) && !state.gameOver;
-    document.getElementById('btn-play').disabled = !isMyTurn || state.selected.size === 0;
-    document.getElementById('btn-pass').disabled = !isMyTurn || !state.lastPlay;
+    document.getElementById('btn-play').disabled = !isMyTurn || state.hasPassed || state.selected.size === 0;
+    document.getElementById('btn-pass').disabled = !isMyTurn || state.hasPassed || !state.lastPlay;
 }
 
 // ============================================================
@@ -434,6 +436,7 @@ function updateButtons() {
 // ============================================================
 function playerPlay() {
     if (state.turn !== 0 || state.gameOver) return;
+    if (state.hasPassed) return; // Đã bỏ lượt trong vòng này thì không được đánh lại
 
     const indices = [...state.selected].sort((a, b) => a - b);
     const cards = indices.map(i => state.hands.player[i]);
@@ -473,6 +476,9 @@ function playerPlay() {
 function playerPass() {
     if (state.turn !== 0 || state.gameOver) return;
     if (!state.lastPlay) return;
+    state.hasPassed = true;
+    document.getElementById('btn-play').disabled = true;
+    document.getElementById('btn-pass').disabled = true;
     stopTimer();
     showMessage('Bạn bỏ lượt');
     doPass();
@@ -487,12 +493,23 @@ function nextTurn() {
     if (state.passCount >= 3) {
         state.lastPlay = null;
         state.passCount = 0;
+        state.hasPassed = false;
         renderLastPlay();
     }
 
     if (state.gameOver) return;
 
     if (state.turn === 0) {
+        if (state.hasPassed && state.lastPlay) {
+            // Đã bỏ lượt trong vòng này → tự động bỏ qua
+            render();
+            setTimeout(() => {
+                if (state.gameOver) return;
+                showMessage('Bạn đã bỏ lượt vòng này!');
+                doPass();
+            }, 350);
+            return;
+        }
         setTimeout(() => {
             showMessage('Lượt của bạn!');
             render();
@@ -513,6 +530,7 @@ function doPass() {
     if (state.passCount >= 3) {
         state.lastPlay = null;
         state.passCount = 0;
+        state.hasPassed = false;
         renderLastPlay();
     }
     nextTurn();
