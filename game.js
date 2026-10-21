@@ -531,6 +531,44 @@ function handleCardClick(idx) {
         if (state.selected.size === 1) state.selected.delete(idx);
         else { state.selected.clear(); state.selected.add(idx); }
     } else {
+        // Ưu tiên theo bài trên bàn: phải theo vòng thì gom đúng loại bộ của đối thủ trước
+        if (state.lastPlay && state.lastPlay.combo) {
+            const tType = state.lastPlay.combo.type;
+            const sameRankIdx = [];
+            hand.forEach((c, i) => { if (rankValue(c) === rv) sameRankIdx.push(i); });
+            if (tType === 'pair' && sameRankIdx.length >= 2) {
+                // Bàn là đôi -> chọn đúng 1 đôi của số này (lá vừa click + lá cùng số chất cao nhất)
+                const others = sameRankIdx.filter(i => i !== idx);
+                state.selected.add(idx);
+                state.selected.add(others[others.length - 1]);
+                renderPlayerHand();
+                updateButtons();
+                return;
+            }
+            if (tType === 'triple' && sameRankIdx.length >= 3) {
+                // Bàn là sám -> chọn đúng 1 sám của số này (lá vừa click + 2 lá cùng số chất cao nhất)
+                const others = sameRankIdx.filter(i => i !== idx);
+                state.selected.add(idx);
+                state.selected.add(others[others.length - 1]);
+                state.selected.add(others[others.length - 2]);
+                renderPlayerHand();
+                updateButtons();
+                return;
+            }
+            if (tType === 'straight') {
+                // Bàn là sảnh -> chọn cả sảnh chứa lá này, không gom đôi
+                const runT = straightRunThrough(rv);
+                if (runT) {
+                    runT.forEach(r => {
+                        const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
+                        if (i >= 0) state.selected.add(i);
+                    });
+                    renderPlayerHand();
+                    updateButtons();
+                    return;
+                }
+            }
+        }
         // Ưu tiên sảnh: các lá đang chọn (không trùng số) đều thuộc cùng một sảnh với lá
         // vừa click -> chọn cả sảnh dài nhất đó, thay vì gom đôi/sám của lá vừa click
         const runFirst = straightRunThrough(rv);
