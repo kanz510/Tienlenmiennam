@@ -534,6 +534,13 @@ function handleCardClick(idx) {
         // Ưu tiên theo bài trên bàn: phải theo vòng thì gom đúng loại bộ của đối thủ trước
         if (state.lastPlay && state.lastPlay.combo) {
             const tType = state.lastPlay.combo.type;
+            if (tType === 'single') {
+                // Bàn là lá đơn -> chỉ chọn đúng lá vừa click
+                state.selected.add(idx);
+                renderPlayerHand();
+                updateButtons();
+                return;
+            }
             const sameRankIdx = [];
             hand.forEach((c, i) => { if (rankValue(c) === rv) sameRankIdx.push(i); });
             if (tType === 'pair' && sameRankIdx.length >= 2) {
