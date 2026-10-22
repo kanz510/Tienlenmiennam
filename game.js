@@ -621,6 +621,7 @@ function playerPlay() {
     playClick();
     speakPlay(combo, 0);
 
+    const flySrc = captureFlySource('player', cards); // chụp vị trí lá đã chọn trước khi cắt bài
     // Xóa bài khỏi tay (từ index lớn xuống)
     for (let i = indices.length - 1; i >= 0; i--) {
         state.hands.player.splice(indices[i], 1);
@@ -634,6 +635,7 @@ function playerPlay() {
     state.selected.clear();
 
     render();
+    playFlyAnimation('player', flySrc);
 
     if (state.hands.player.length === 0) {
         return endGame(0);

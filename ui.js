@@ -346,12 +346,10 @@ function renderLastPlay() {
     }
     lastPlayAnimKey = key;
     el.innerHTML = '';
-    const dir = ['from-bottom', 'from-left', 'from-right', 'from-top'][state.lastPlay.player] || 'from-bottom';
     const sorted = [...state.lastPlay.cards].sort(compareCards);
     const midIdx = (sorted.length - 1) / 2;
     sorted.forEach((card, i) => {
         const c = createCardEl(card);
-        if (animate) c.classList.add('card-play-anim', dir);
         // Xòe quạt ra 2 phía theo vị trí (lá giữa thẳng, ra rìa nghiêng dần, tối đa ±14°) để góc số không đè nhau
         const tilt = Math.max(-14, Math.min(14, (i - midIdx) * 4));
         c.style.transform = 'rotate(' + tilt + 'deg)';
@@ -361,6 +359,139 @@ function renderLastPlay() {
         info.textContent = PLAYER_NAMES[PLAYERS[state.lastPlay.player]] + ' · ' + (COMBO_LABELS[state.lastPlay.combo.type] || '');
         info.classList.add('show');
     }
+}
+
+// ===== r68: BAY BÀI TỪ VỊ TRÍ THẬT + NHẤN SÁNG NGƯỜI VỪA ĐÁNH =====
+// Tọa độ đo bằng chuỗi offset trong HỆ THIẾT KẾ của #game-container: offsetLeft/Top/
+// Width là số đo layout (chưa qua transform) nên đúng tuyệt đối kể cả khi khung bị
+// xoay 90°/scale trên máy dọc — không dùng tọa độ viewport.
+function posInGame(el) {
+    const game = document.getElementById('game-container');
+    let x = 0, y = 0, n = el;
+    while (n && n !== game) { x += n.offsetLeft || 0; y += n.offsetTop || 0; n = n.offsetParent; }
+    return { x: x, y: y, w: el.offsetWidth || 0, h: el.offsetHeight || 0 };
+}
+
+// Chụp vị trí các lá SẮP bay trên tay người đánh — phải gọi TRƯỚC khi tay bị cắt/render
+// lại. Trả về [{card, x, y, w, h}] sắp theo đúng thứ tự lá hiển thị trên bàn.
+function captureFlySource(who, cards) {
+    try {
+        const sorted = [...cards].sort(compareCards);
+        if (who === 'player') {
+            const wrap = document.getElementById('cards-player');
+            if (!wrap) return null;
+            const out = [];
+            sorted.forEach(card => {
+                const el = wrap.children[state.hands.player.indexOf(card)];
+                if (el) { const p = posInGame(el); out.push({ card: card, x: p.x, y: p.y, w: p.w, h: p.h }); }
+            });
+            return out.length ? out : null;
+        }
+        const wrapB = document.getElementById('cards-' + who);
+        if (!wrapB || !wrapB.children.length) return null;
+        const kids = [...wrapB.children].slice(-sorted.length);
+        return sorted.map((card, i) => {
+            const p = posInGame(kids[Math.min(i, kids.length - 1)]);
+            return { card: card, x: p.x, y: p.y, w: p.w, h: p.h };
+        });
+    } catch (e) { return null; }
+}
+
+let flyCleanup = null; // hàm dọn của lượt bay đang chạy (để hủy an toàn khi lượt mới đến)
+
+// Bay các lá từ vị trí đã chụp ra đúng vị trí cuối trên bàn bằng Web Animations API.
+// Lá đích thật bị ẩn trong lúc bay (không nhân đôi); dọn clone bằng finished promise.
+function playFlyAnimation(who, srcList) {
+    try {
+        flashJustPlayed(who);
+        if (!srcList || !srcList.length) return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const probe = document.createElement('div');
+        if (!probe.animate) return; // môi trường không hỗ trợ WAAPI: hiện bài ngay, không bay
+        const layer = document.getElementById('fly-layer');
+        const dest = document.getElementById('played-cards');
+        if (!layer || !dest || !dest.children.length) return;
+        if (flyCleanup) flyCleanup(); // hủy lượt bay trước nếu còn đang chạy
+        const destEls = [...dest.children];
+        const n = Math.min(srcList.length, destEls.length);
+        const clones = [];
+        const anims = [];
+        let cleaned = false;
+        const cleanup = () => {
+            if (cleaned) return;
+            cleaned = true;
+            clones.forEach(c => c.remove());
+            destEls.forEach(el => { el.style.visibility = ''; });
+            if (flyCleanup === cleanup) flyCleanup = null;
+        };
+        flyCleanup = cleanup;
+        for (let i = 0; i < n; i++) {
+            const dEl = destEls[i];
+            const d = posInGame(dEl);
+            const s = srcList[i];
+            if (!s.w || !s.h || !d.w || !d.h) continue;
+            const clone = createCardEl(s.card);
+            clone.style.position = 'absolute';
+            clone.style.left = s.x + 'px';
+            clone.style.top = s.y + 'px';
+            clone.style.width = s.w + 'px';
+            clone.style.height = s.h + 'px';
+            clone.style.margin = '0';
+            clone.style.zIndex = 10 + i;
+            layer.appendChild(clone);
+            clones.push(clone);
+            dEl.style.visibility = 'hidden';
+            const dx = (d.x + d.w / 2) - (s.x + s.w / 2);
+            const dy = (d.y + d.h / 2) - (s.y + s.h / 2);
+            const m = /rotate\((-?[\d.]+)deg\)/.exec(dEl.style.transform || '');
+            const tilt = m ? parseFloat(m[1]) : 0;
+            anims.push(clone.animate([
+                { transform: 'translate(0px, 0px) scale(1, 1) rotate(0deg)', opacity: 1 },
+                { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + (d.w / s.w) + ', ' + (d.h / s.h) + ') rotate(' + tilt + 'deg)', opacity: 1 }
+            ], { duration: 380, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
+        }
+        if (!anims.length) { cleanup(); return; }
+        Promise.allSettled(anims.map(a => a.finished)).then(cleanup);
+    } catch (e) { /* hiệu ứng phụ: lỗi thì bỏ qua, bài trên bàn vẫn hiển thị bình thường */ }
+}
+
+// Nhấn sáng xấp bài vừa đánh + vòng avatar của đúng người đánh + nhãn VỪA ĐÁNH (~1,1s).
+// Lượt mới đến thì hủy hiệu ứng cũ trước để không chồng chéo.
+function flashJustPlayed(who) {
+    try {
+        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const played = document.getElementById('played-cards');
+        if (played && played.animate && !reduced) {
+            played.getAnimations().forEach(a => a.cancel());
+            played.animate([
+                { boxShadow: '0 0 0 3px rgba(255,215,0,.95), 0 0 28px rgba(255,215,0,.6)' },
+                { boxShadow: '0 0 0 0 rgba(255,215,0,0), 0 0 0 rgba(255,215,0,0)' }
+            ], { duration: 750, easing: 'ease-out' });
+        }
+        const wrap = document.getElementById(AVATAR_WRAP_IDS[who]);
+        if (wrap && wrap.animate && !reduced) {
+            wrap.getAnimations().forEach(a => a.cancel());
+            wrap.animate([
+                { boxShadow: '0 0 0 3px rgba(255,215,0,.95), 0 0 18px rgba(255,215,0,.7)' },
+                { boxShadow: '0 0 0 0 rgba(255,215,0,0), 0 0 0 rgba(255,215,0,0)' }
+            ], { duration: 750, easing: 'ease-out' });
+        }
+        ['player', 'left', 'top', 'right'].forEach(k => {
+            const b = document.getElementById('just-' + k);
+            if (b) { if (b.getAnimations) b.getAnimations().forEach(a => a.cancel()); b.classList.add('hidden'); }
+        });
+        const badge = document.getElementById('just-' + who);
+        if (badge && badge.animate && !reduced) {
+            badge.classList.remove('hidden');
+            const a = badge.animate([
+                { opacity: 0, transform: 'scale(.7) translateY(3px)' },
+                { opacity: 1, transform: 'scale(1) translateY(0)', offset: .18 },
+                { opacity: 1, transform: 'scale(1) translateY(0)', offset: .78 },
+                { opacity: 0, transform: 'scale(.92) translateY(-2px)' }
+            ], { duration: 1100, easing: 'ease-out', fill: 'forwards' });
+            a.finished.then(() => badge.classList.add('hidden')).catch(() => {});
+        }
+    } catch (e) {}
 }
 
 // Hình mặt J/Q/K cổ điển: mỗi rank một hình dùng cho cả 4 chất (chất phân biệt ở góc số)

@@ -108,6 +108,7 @@ function botCommit(who, cardsToPlay) {
         setTimeout(() => doPass(), 400);
         return;
     }
+    const flySrc = captureFlySource(who, cardsToPlay); // chụp vị trí tay bot trước khi cắt bài
     const hand = state.hands[who];
     const idx = cardsToPlay.map(c => hand.indexOf(c));
     idx.sort((a, b) => b - a).forEach(i => hand.splice(i, 1));
@@ -122,6 +123,7 @@ function botCommit(who, cardsToPlay) {
     playClick();
     speakPlay(combo, state.turn);
     render();
+    playFlyAnimation(who, flySrc);
     if (!state.lastPlayWasChop) showMessage(`${PLAYER_NAMES[who]} đánh ${formatCombo(combo)}`);
 
     if (hand.length === 0) {

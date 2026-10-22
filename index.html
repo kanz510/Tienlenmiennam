@@ -56,7 +56,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Bắc (trên) -->
         <div class="bot-area bot-top">
             <div class="bot-info">
-                <div class="avatar-wrap" id="awrap-top"><div class="avatar">🐻</div></div>
+                <div class="avatar-wrap" id="awrap-top"><div class="avatar">🐻</div><span class="just-badge hidden" id="just-top">VỪA ĐÁNH</span></div>
                 <span class="bot-name">Bot Bắc · Giữ bài</span>
                 <span class="pass-label" id="pass-top">BỎ LƯỢT</span>
                 <div class="bubble" id="bubble-top"></div>
@@ -69,7 +69,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Tây (trái) -->
         <div class="bot-area bot-left">
             <div class="bot-info">
-                <div class="avatar-wrap" id="awrap-left"><div class="avatar">🐯</div></div>
+                <div class="avatar-wrap" id="awrap-left"><div class="avatar">🐯</div><span class="just-badge hidden" id="just-left">VỪA ĐÁNH</span></div>
                 <span class="bot-name">Bot Tây · Hung hăng</span>
                 <span class="pass-label" id="pass-left">BỎ LƯỢT</span>
                 <div class="bubble" id="bubble-left"></div>
@@ -90,7 +90,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Đông (phải) -->
         <div class="bot-area bot-right">
             <div class="bot-info">
-                <div class="avatar-wrap" id="awrap-right"><div class="avatar">🦊</div></div>
+                <div class="avatar-wrap" id="awrap-right"><div class="avatar">🦊</div><span class="just-badge hidden" id="just-right">VỪA ĐÁNH</span></div>
                 <span class="bot-name">Bot Đông · Chuyên chặn</span>
                 <span class="pass-label" id="pass-right">BỎ LƯỢT</span>
                 <div class="bubble" id="bubble-right"></div>
@@ -106,7 +106,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <div class="player-bar">
                 <button id="btn-new" class="btn-new-game">🃏 Ván mới</button>
                 <div class="player-info">
-                    <div class="avatar-wrap" id="awrap-player"><div class="avatar">🧑</div></div>
+                    <div class="avatar-wrap" id="awrap-player"><div class="avatar">🧑</div><span class="just-badge hidden" id="just-player">VỪA ĐÁNH</span></div>
                     <span class="bot-name">Bạn</span>
                     <span id="level-badge">⭐1</span>
                     <span class="pass-label" id="pass-player">BỎ LƯỢT</span>
@@ -122,6 +122,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
                 </div>
             </div>
         </div>
+        <div id="fly-layer"></div>
     </div>
 
     <!-- Overlay thắng/thua -->

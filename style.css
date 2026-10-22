@@ -508,15 +508,6 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #overlay-money { font-size: 24px; min-height: 30px; margin: 6px 0 2px; }
 
 /* Animation: bài bay ra bàn / bài chia rơi xuống / nhận tiền */
-@keyframes flyFromBottom { from { transform: scale(0.5) translate(0, 110px); opacity: .4; } to { transform: scale(1) translate(0, 0); opacity: 1; } }
-@keyframes flyFromTop { from { transform: scale(0.5) translate(0, -110px); opacity: .4; } to { transform: scale(1) translate(0, 0); opacity: 1; } }
-@keyframes flyFromLeft { from { transform: scale(0.5) translate(-110px, 0); opacity: .4; } to { transform: scale(1) translate(0, 0); opacity: 1; } }
-@keyframes flyFromRight { from { transform: scale(0.5) translate(110px, 0); opacity: .4; } to { transform: scale(1) translate(0, 0); opacity: 1; } }
-.card-play-anim { animation-duration: .65s; animation-timing-function: ease-out; }
-.from-bottom { animation-name: flyFromBottom; }
-.from-top { animation-name: flyFromTop; }
-.from-left { animation-name: flyFromLeft; }
-.from-right { animation-name: flyFromRight; }
 @keyframes dealCard {
     from { transform: translateY(-150px) scale(.4); opacity: 0; }
     to { transform: translateY(0) scale(1); opacity: 1; }
@@ -812,3 +803,9 @@ body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
     .lobby-sub-btn { padding: 9px 6px; font-size: 14px; }
     #btn-gift { padding: 9px 16px; font-size: 14px; }
 }
+
+/* ===== r68: lớp bay bài (clone chạy bằng WAAPI trong ui.js) + nhãn VỪA ĐÁNH ===== */
+#fly-layer { position: absolute; inset: 0; pointer-events: none; z-index: 60; }
+.avatar-wrap { position: relative; }
+.just-badge { position: absolute; top: -9px; right: -18px; z-index: 30; background: linear-gradient(180deg, #ffe082, #ffb300); color: #4e342e; border: 1px solid rgba(120,72,0,.55); font-size: 9px; font-weight: 900; letter-spacing: .4px; padding: 2px 7px; border-radius: 999px; box-shadow: 0 3px 8px rgba(0,0,0,.4); white-space: nowrap; pointer-events: none; }
+#played-cards { border-radius: 14px; }
