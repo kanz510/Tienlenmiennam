@@ -270,7 +270,6 @@ function renderBotHand(who, elId, countId) {
 }
 
 const COMBO_LABELS = { single: 'đơn', pair: 'đôi', triple: 'sám', straight: 'sảnh', quad: 'tứ quý', double_straight: 'đôi thông' };
-function cardTilt(card) { return ((rankValue(card) * 7 + suitValue(card) * 3) % 9) - 4; }
 
 let lastPlayAnimKey = null;
 
@@ -303,10 +302,13 @@ function renderLastPlay() {
     el.innerHTML = '';
     const dir = ['from-bottom', 'from-left', 'from-right', 'from-top'][state.lastPlay.player] || 'from-bottom';
     const sorted = [...state.lastPlay.cards].sort(compareCards);
-    sorted.forEach(card => {
+    const midIdx = (sorted.length - 1) / 2;
+    sorted.forEach((card, i) => {
         const c = createCardEl(card);
         if (animate) c.classList.add('card-play-anim', dir);
-        c.style.transform = 'rotate(' + cardTilt(card) + 'deg)';
+        // Xòe quạt ra 2 phía theo vị trí (lá giữa thẳng, ra rìa nghiêng dần, tối đa ±14°) để góc số không đè nhau
+        const tilt = Math.max(-14, Math.min(14, (i - midIdx) * 4));
+        c.style.transform = 'rotate(' + tilt + 'deg)';
         el.appendChild(c);
     });
     if (info) {

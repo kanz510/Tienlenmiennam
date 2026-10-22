@@ -357,7 +357,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     line-height: 1;
 }
 
-#played-cards .card { width: 60px; height: 86px; padding: 3px; }
+#played-cards .card { width: 60px; height: 86px; padding: 3px; transform-origin: 50% 100%; }
 #played-cards .card .corner { font-size: 22px; }
 #played-cards .card .suit-big { font-size: 34px; }
 
