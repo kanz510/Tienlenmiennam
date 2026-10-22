@@ -468,6 +468,7 @@ function syncSettingsForm() {
     setV('set-bet', settings.bet);
     setV('set-table', settings.tableColor);
     setV('set-back', settings.backStyle);
+    setV('set-select', settings.selectMode);
     const rf = document.getElementById('btn-refill');
     if (rf) rf.disabled = state.money.player > 0;
 }
