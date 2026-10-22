@@ -375,7 +375,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 #overlay-content {
     background: linear-gradient(145deg, #fff, #e8e8e8);
-    padding: 30px 50px;
+    max-height: 94vh;
+    display: flex;
+    flex-direction: column;
+    padding: 14px 28px;
     border-radius: 20px;
     text-align: center;
     box-shadow: 0 15px 50px rgba(0,0,0,0.8);
@@ -614,8 +617,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Màn thắng/thua + confetti */
 #overlay-content { border: 3px solid #ffd700; }
-#overlay-title { font-size: 32px; margin: 0 0 6px; }
-#btn-overlay-new { background: linear-gradient(180deg, #2ecc71, #27ae60); color: #fff; border: 1px solid rgba(255,255,255,.4); box-shadow: 0 4px 0 #1e8449, 0 8px 16px rgba(0,0,0,.3); padding: 12px 34px; font-size: 17px; font-weight: 800; border-radius: 999px; cursor: pointer; }
+#overlay-content #overlay-title { font-size: 24px; margin: 0 0 4px; }
+#btn-overlay-new { background: linear-gradient(180deg, #2ecc71, #27ae60); color: #fff; border: 1px solid rgba(255,255,255,.4); box-shadow: 0 4px 0 #1e8449, 0 8px 16px rgba(0,0,0,.3); padding: 12px 34px; font-size: 17px; font-weight: 800; border-radius: 999px; cursor: pointer; flex-shrink: 0; margin-top: 10px; }
 #confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .confetti-piece { position: absolute; top: -14px; width: 8px; height: 14px; border-radius: 2px; opacity: .95; animation-name: confettiFall; animation-timing-function: linear; animation-fill-mode: forwards; }
 @keyframes confettiFall { to { transform: translateY(105vh) rotate(680deg); } }
@@ -635,7 +638,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .modal-actions .modal-btn { flex: 1; }
 .rules-text { text-align: left; font-size: 14px; line-height: 1.5; color: #243b2e; }
 .rules-text p { margin: 7px 0; }
-#overlay-breakdown { margin-top: 10px; text-align: left; }
+#overlay-breakdown { margin-top: 10px; text-align: left; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 .bd-row { display: flex; justify-content: space-between; gap: 14px; padding: 3px 2px; border-bottom: 1px dashed #cfcfcf; font-size: 13px; color: #333; }
 .bd-row b { white-space: nowrap; }
 .bd-total { margin-top: 7px; border-top: 2px solid #999; padding-top: 5px; }
