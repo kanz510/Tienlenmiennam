@@ -588,17 +588,20 @@ function playFlyAnimation(who, srcList) {
             const dy = d.cy - s.cy;
             const m = /rotate\((-?[\d.]+)deg\)/.exec(dEl.style.transform || '');
             const tilt = m ? parseFloat(m[1]) : 0;
-            // r71: thêm điểm giữa nhấc nhẹ + phóng hơi lớn để quỹ đạo thành cung bay
-            // tự nhiên; điểm đầu và điểm cuối giữ nguyên như đã đối chiếu ở r69.
-            // Tỉ lệ co giãn tính theo khung hộp của chính lá bay (boxW/boxH): với
-            // bot khung hộp đã bằng kích thước đích nên tỉ lệ cuối = 1 (không méo).
+            // r71: điểm giữa nhấc nhẹ để quỹ đạo thành cung bay tự nhiên; điểm đầu
+            // và điểm cuối giữ nguyên như đã đối chiếu ở r69.
+            // r74: co giãn ĐỒNG ĐỀU bằng một hệ số duy nhất cho cả hai trục trong
+            // suốt chuyến bay để tỉ lệ lá không bao giờ đổi (trước đây hai trục co
+            // giãn độc lập lệch nhau ~1% làm lá hơi méo, và điểm giữa còn phồng
+            // thêm 5%). Hệ số cuối là trung bình nhân của hai tỉ lệ trục, nên
+            // kích thước lúc hạ cánh chỉ lệch dưới nửa điểm ảnh — mắt không thấy.
             const startRot = fromBot ? 0 : (s.ang || 0);
-            const endSx = d.w / boxW, endSy = d.h / boxH;
-            const midSx = (1 + endSx) / 2 * 1.05, midSy = (1 + endSy) / 2 * 1.05;
+            const uniK = Math.sqrt((d.w / boxW) * (d.h / boxH));
+            const midK = (1 + uniK) / 2;
             anims.push(clone.animate([
-                { transform: 'translate(0px, 0px) scale(1, 1) rotate(' + startRot + 'deg)', opacity: 1 },
-                { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midSx + ', ' + midSy + ') rotate(' + (startRot + (tilt - startRot) * .55) + 'deg)', opacity: 1, offset: .55 },
-                { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + endSx + ', ' + endSy + ') rotate(' + tilt + 'deg)', opacity: 1 }
+                { transform: 'translate(0px, 0px) scale(1) rotate(' + startRot + 'deg)', opacity: 1 },
+                { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midK + ') rotate(' + (startRot + (tilt - startRot) * .55) + 'deg)', opacity: 1, offset: .55 },
+                { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + uniK + ') rotate(' + tilt + 'deg)', opacity: 1 }
             ], { duration: 430, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
         }
         if (!anims.length) { cleanup(); return; }
