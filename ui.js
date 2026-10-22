@@ -211,16 +211,33 @@ function handleCardClick(idx) {
                 return;
             }
             if (tType === 'straight') {
-                // Bàn là sảnh -> chọn cả sảnh chứa lá này, không gom đôi
-                const runT = straightRunThrough(rv);
-                if (runT) {
-                    runT.forEach(r => {
+                // Bàn là sảnh -> phải chọn sảnh ĐÚNG ĐỘ DÀI của sảnh trên bàn (r67):
+                // xét mọi "cửa sổ" dài bằng sảnh bàn nằm trong dãy liên tục chứa lá vừa
+                // chạm, lấy cửa sổ yếu nhất mà vẫn đè được; không có thì chỉ chọn lá đó.
+                const need = state.lastPlay.combo.cards.length;
+                const runFull = straightRunThrough(rv);
+                let bestWin = null, bestRank = Infinity;
+                if (runFull && runFull.length >= need) {
+                    const pos = runFull.indexOf(rv);
+                    for (let st = Math.max(0, pos - need + 1); st <= Math.min(pos, runFull.length - need); st++) {
+                        const win = runFull.slice(st, st + need);
+                        const cards = win.map(r => (r === rv) ? hand[idx] : hand.find(c => rankValue(c) === r));
+                        const combo = getCombo(cards);
+                        if (combo && combo.type === 'straight' && canBeat(combo, state.lastPlay.combo) && combo.rank < bestRank) {
+                            bestRank = combo.rank; bestWin = win;
+                        }
+                    }
+                }
+                if (bestWin) {
+                    bestWin.forEach(r => {
                         const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
                         if (i >= 0) state.selected.add(i);
                     });
-                    syncSelectedUI();
-                    return;
+                } else {
+                    state.selected.add(idx);
                 }
+                syncSelectedUI();
+                return;
             }
         }
         // Ưu tiên sảnh: các lá đang chọn (không trùng số) đều thuộc cùng một sảnh với lá

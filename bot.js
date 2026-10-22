@@ -8,7 +8,7 @@ function botDelay() {
 }
 
 function botPlay() {
-    if (state.gameOver) return;
+    if (state.gameOver || inLobby) return; // ở sảnh chờ thì bot không chạy nền (r67)
     const who0 = PLAYERS[state.turn];
     if (who0 === 'player') return;
     // Đã bỏ lượt trong vòng này thì bị khóa như người chơi: tự bỏ qua cho đến hết vòng

@@ -379,6 +379,7 @@ function isLandscape() {
 }
 
 let gameStarted = false;
+let inLobby = false; // đang ở sảnh chờ: chặn bot chạy nền (r67)
 let lastWinnerIdx = -1; // người thắng ván trước trong phiên này (-1 = chưa có ván nào xong)
 
 
@@ -421,6 +422,7 @@ function initOrResume() {
 
 // Sảnh chờ: Bắt đầu = ván đầu của phiên (3♠ đi trước); Chơi tiếp = vào ván đã lưu
 function showLobby(hasSave) {
+    inLobby = true;
     const lobby = document.getElementById('lobby');
     if (lobby) lobby.classList.remove('hidden');
     if (typeof renderLobbyMeta === 'function') renderLobbyMeta();
@@ -438,6 +440,7 @@ function backToLobby() {
 }
 
 function enterGame(fromSave) {
+    inLobby = false;
     const lobby = document.getElementById('lobby');
     if (lobby) lobby.classList.add('hidden');
     gameStarted = true;
@@ -465,6 +468,7 @@ function resumeSavedGame() {
 function newGame() {
     stopTimer();
     levelUpNote = '';
+    lastXpGain = 0;
     const deck = shuffle(createDeck());
     playShuffle();
     state.hands.player = sortHand(deck.slice(0, 13));
@@ -857,7 +861,7 @@ document.getElementById('btn-refill').addEventListener('click', () => {
     saveMoney();
     saveGame();
     syncSettingsForm();
-    showMessage('Đã nạp lại 1000 xu!');
+    showMessage('Đã nạp lại 500 xu!');
 });
 function bindSetting(id, fn) {
     const el = document.getElementById(id);
