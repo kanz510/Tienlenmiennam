@@ -800,6 +800,8 @@ function endGame(winnerIdx) {
     renderBreakdown(totalDelta);
     render();
     if (winnerIdx === 0) spawnConfetti();
+    const oc = document.getElementById('overlay-content');
+    if (oc) oc.classList.toggle('player-won', winnerIdx === 0);
     toggleReview(false);
     overlay.classList.remove('hidden');
 

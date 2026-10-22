@@ -46,8 +46,8 @@ function spawnConfetti() {
     const box = document.getElementById('confetti');
     if (!box) return;
     box.innerHTML = '';
-    const colors = ['#ffd700', '#2ecc71', '#e74c3c', '#3498db', '#ff8fab', '#ffffff'];
-    for (let i = 0; i < 28; i++) {
+    const colors = ['#ffd700', '#f3d27a', '#fff6cf', '#1db981', '#e9c767', '#ffffff'];
+    for (let i = 0; i < 34; i++) {
         const p = document.createElement('div');
         p.className = 'confetti-piece';
         p.style.left = (Math.random() * 100) + '%';
@@ -326,7 +326,7 @@ function renderLastPlay() {
     if (!state.lastPlay) {
         el.innerHTML = '';
         if (ghost) ghost.innerHTML = '';
-        if (info) { info.textContent = ''; info.classList.remove('show'); }
+        if (info) { info.textContent = ''; info.classList.remove('show', 'big-play'); }
         lastPlayAnimKey = null;
         return;
     }
@@ -358,6 +358,7 @@ function renderLastPlay() {
     if (info) {
         info.textContent = PLAYER_NAMES[PLAYERS[state.lastPlay.player]] + ' · ' + (COMBO_LABELS[state.lastPlay.combo.type] || '');
         info.classList.add('show');
+        info.classList.toggle('big-play', isBigPlay(state.lastPlay.combo, state.lastPlayWasChop));
     }
 }
 
@@ -439,6 +440,65 @@ function captureFlySource(who, cards) {
 
 let flyCleanup = null; // hàm dọn của lượt bay đang chạy (để hủy an toàn khi lượt mới đến)
 
+// r70: bộ "lớn" đáng hiệu ứng mạnh: tứ quý, đôi thông, hoặc bất kỳ nước chặt heo nào
+function isBigPlay(combo, wasChop) {
+    return !!wasChop || !!(combo && (combo.type === 'quad' || combo.type === 'double_straight'));
+}
+
+// r70: hiệu ứng khi lá HẠ CÁNH tự nhiên (không chạy khi lượt bay bị hủy giữa chừng):
+// lá đích nảy nhẹ về vị trí, một vòng sáng lan ra tại tâm đống bài, và nếu là bộ lớn
+// thì bung 14 hạt vàng. Mọi phần tử tự xóa bằng finished promise.
+function onFlyLanded(destEls, center, big) {
+    try {
+        if (!center) return;
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const probe = document.createElement('div');
+        if (!probe.animate) return;
+        const layer = document.getElementById('fly-layer');
+        const dest = document.getElementById('played-cards');
+        destEls.forEach(el => {
+            if (!dest || el.parentNode !== dest || !el.animate) return;
+            const base = el.style.transform || '';
+            el.animate([
+                { transform: base + ' scale(1.09) translateY(2px)' },
+                { transform: base }
+            ], { duration: 180, easing: 'ease-out' });
+        });
+        if (!layer) return;
+        const ring = document.createElement('div');
+        ring.className = 'fx-ring';
+        ring.style.left = (center.cx - 16) + 'px';
+        ring.style.top = (center.cy - 16) + 'px';
+        ring.style.width = '32px';
+        ring.style.height = '32px';
+        layer.appendChild(ring);
+        const ra = ring.animate([
+            { transform: 'scale(.5)', opacity: .8 },
+            { transform: 'scale(2.6)', opacity: 0 }
+        ], { duration: 380, easing: 'ease-out' });
+        ra.finished.then(() => ring.remove()).catch(() => ring.remove());
+        if (big) {
+            for (let i = 0; i < 14; i++) {
+                const sp = document.createElement('div');
+                sp.className = 'fx-spark';
+                const sz = 5 + Math.random() * 4;
+                sp.style.width = sz + 'px';
+                sp.style.height = sz + 'px';
+                sp.style.left = (center.cx - sz / 2) + 'px';
+                sp.style.top = (center.cy - sz / 2) + 'px';
+                layer.appendChild(sp);
+                const ang = (Math.PI * 2 * i) / 14 + (Math.random() - .5) * .5;
+                const r = 46 + Math.random() * 38;
+                const sa = sp.animate([
+                    { transform: 'translate(0px, 0px) scale(1)', opacity: 1 },
+                    { transform: 'translate(' + Math.cos(ang) * r + 'px, ' + (Math.sin(ang) * r - 12) + 'px) scale(.4)', opacity: 0 }
+                ], { duration: 480 + Math.random() * 180, easing: 'cubic-bezier(.15,.7,.4,1)' });
+                sa.finished.then(() => sp.remove()).catch(() => sp.remove());
+            }
+        }
+    } catch (e) { /* hiệu ứng phụ */ }
+}
+
 // Bay các lá từ vị trí đã chụp ra đúng vị trí cuối trên bàn bằng Web Animations API.
 // Lá đích thật bị ẩn trong lúc bay (không nhân đôi); dọn clone bằng finished promise.
 function playFlyAnimation(who, srcList) {
@@ -500,7 +560,12 @@ function playFlyAnimation(who, srcList) {
             ], { duration: 380, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
         }
         if (!anims.length) { cleanup(); return; }
-        Promise.allSettled(anims.map(a => a.finished)).then(cleanup);
+        const destCenter = measureFly(dest, mDest);
+        const big = isBigPlay(state.lastPlay && state.lastPlay.combo, state.lastPlayWasChop);
+        Promise.allSettled(anims.map(a => a.finished)).then(() => {
+            cleanup();
+            onFlyLanded(destEls, destCenter, big);
+        });
     } catch (e) { /* hiệu ứng phụ: lỗi thì bỏ qua, bài trên bàn vẫn hiển thị bình thường */ }
 }
 

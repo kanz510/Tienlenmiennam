@@ -809,3 +809,144 @@ body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
 .avatar-wrap { position: relative; }
 .just-badge { position: absolute; top: -9px; right: -18px; z-index: 30; background: linear-gradient(180deg, #ffe082, #ffb300); color: #4e342e; border: 1px solid rgba(120,72,0,.55); font-size: 9px; font-weight: 900; letter-spacing: .4px; padding: 2px 7px; border-radius: 999px; box-shadow: 0 3px 8px rgba(0,0,0,.4); white-space: nowrap; pointer-events: none; }
 #played-cards { border-radius: 14px; }
+
+/* ===== r70: PREMIUM OVERHAUL — emerald / navy / vàng ấm / ngà ===== */
+/* Bảng màu: emerald đậm #0b3d2e, navy sâu #06182b, vàng ấm #d4af37/#f3d27a, ngà #f7f1e3.
+   Khối này phủ lên các rule cũ theo đúng thứ tự cascade; các theme bàn/lưng bài mua ở
+   Cửa hàng có selector riêng mạnh hơn nên vẫn giữ nguyên nhận diện. */
+body {
+    background: radial-gradient(120% 95% at 50% 0%, #0a2e3f 0%, #06182b 55%, #030d18 100%);
+    box-shadow: inset 0 0 120px rgba(0,0,0,.65);
+}
+#game-container {
+    background:
+        repeating-linear-gradient(45deg, rgba(255,255,255,.016) 0 14px, transparent 14px 28px),
+        repeating-linear-gradient(-45deg, rgba(0,0,0,.022) 0 14px, transparent 14px 28px),
+        radial-gradient(ellipse 135% 62% at 50% 124%, #503214 0 57%, #7a5326 57.5% 59%, rgba(212,175,55,.45) 59.5% 60%, rgba(0,0,0,0) 61%),
+        radial-gradient(ellipse at 50% 38%, #14755c 0%, #0b4a38 55%, #062a20 82%, #041a13 100%);
+}
+/* Vệt sáng môi trường trôi rất chậm qua mặt bàn + vignette tạo chiều sâu */
+#game-container::before {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    background: linear-gradient(115deg, transparent 42%, rgba(255,236,170,.055) 50%, transparent 58%);
+    background-size: 260% 100%;
+    animation: ambientSheen 26s linear infinite;
+}
+@keyframes ambientSheen { from { background-position: 130% 0; } to { background-position: -130% 0; } }
+#game-container::after {
+    content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    box-shadow: inset 0 0 90px rgba(0,0,0,.48), inset 0 0 22px rgba(0,0,0,.30);
+}
+.bot-area, .player-area { position: relative; z-index: 1; }
+.table-area {
+    z-index: 1;
+    background:
+        radial-gradient(ellipse at 50% 42%, rgba(255,240,190,.10) 0%, rgba(255,255,255,.03) 38%, rgba(0,0,0,.14) 82%),
+        radial-gradient(ellipse at center, rgba(0,0,0,.08) 58%, rgba(0,0,0,.20) 100%);
+    box-shadow: inset 0 0 0 1px rgba(212,175,55,.16), inset 0 0 44px rgba(0,0,0,.30);
+    border-radius: 30px;
+}
+
+/* --- Lá bài: mặt ngà bóng kính, mực đỏ trầm/xanh navy, bóng đổ nhiều lớp --- */
+.card {
+    background: linear-gradient(165deg, #ffffff 0%, #fdfaf1 58%, #f3ecd9 100%);
+    border: 1px solid #cdbf9d;
+    box-shadow: 0 7px 14px rgba(0,0,0,.38), 0 2px 4px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.9), inset 0 -2px 5px rgba(120,96,40,.10);
+}
+.card::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 46%;
+    background: linear-gradient(180deg, rgba(255,255,255,.32), rgba(255,255,255,0));
+    z-index: 2; pointer-events: none;
+}
+.card.red { color: #cf1f38; }
+.card.black { color: #1c2836; }
+.card .corner { font-weight: 900; text-shadow: 0 1px 0 rgba(255,255,255,.55); }
+.card .suit-big { text-shadow: 0 3px 5px rgba(0,0,0,.20); }
+.player-cards .card { transition: transform .18s ease, box-shadow .18s ease; }
+.player-cards .card.selected {
+    box-shadow: 0 0 0 2px rgba(243,210,122,.95), 0 0 22px 6px rgba(255,205,64,.75), 0 14px 22px rgba(0,0,0,.5);
+}
+/* Lưng bài mặc định: emerald + lưới kim cương vàng (các lưng mua ở Cửa hàng không đổi) */
+.back-card {
+    background:
+        radial-gradient(circle at 50% 50%, rgba(243,210,122,.20) 0 26%, transparent 27%),
+        repeating-linear-gradient(45deg, rgba(212,175,55,.34) 0 2px, transparent 2px 9px),
+        repeating-linear-gradient(-45deg, rgba(212,175,55,.34) 0 2px, transparent 2px 9px),
+        linear-gradient(150deg, #0e5c46, #07382a 70%, #052a1f);
+    border: 2px solid #d4af37;
+    box-shadow: 0 3px 6px rgba(0,0,0,.5), inset 0 0 0 1px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.back-card::after { border-color: rgba(243,210,122,.40); }
+
+/* --- HUD: kính navy viền vàng, ribbon tên vàng/emerald, chip số lá bordeaux --- */
+.bot-info, .player-info {
+    background: linear-gradient(180deg, rgba(8,34,27,.88), rgba(4,20,16,.93));
+    border: 1px solid rgba(212,175,55,.55);
+    box-shadow: 0 6px 16px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.14);
+    transition: box-shadow .25s ease;
+}
+.bot-name { background: linear-gradient(180deg, #c39a2e, #8a6414); color: #fff8e1; box-shadow: 0 2px 5px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.4); }
+.player-info .bot-name { background: linear-gradient(180deg, #159a74, #0a5f47); color: #eafff5; }
+.avatar { background: radial-gradient(circle at 35% 30%, #274b63, #0a2233); border-color: #e9c767; }
+.avatar-wrap { background: rgba(6,24,18,.5); border-color: #e9c767; box-shadow: 0 0 0 2px rgba(90,62,8,.85), 0 4px 10px rgba(0,0,0,.5); }
+.card-count { background: linear-gradient(180deg, #93333f, #671c28); border-color: #f3d27a; color: #fff3d6; }
+.money { background: rgba(3,16,12,.65); border-color: rgba(212,175,55,.6); color: #ffd968; }
+.pass-label { background: linear-gradient(180deg, #93333f, #671c28); border: 1px solid rgba(243,210,122,.65); color: #ffe9c9; }
+.timer-box { color: #ffe9a8; }
+#message { background: rgba(4,20,16,.72); border: 1px solid rgba(212,175,55,.35); color: #ffe082; }
+#last-play-info { background: rgba(4,20,16,.66); border: 1px solid rgba(212,175,55,.35); color: #ffe9a8; }
+#last-play-info.big-play { background: linear-gradient(180deg, #ffe082, #ffb300); color: #4e342e; border-color: #fff3c4; box-shadow: 0 0 18px rgba(255,193,7,.65); font-weight: 900; }
+
+/* --- Nút bấm: Đánh emerald viền vàng, Bỏ lượt bordeaux, nút góc kính navy --- */
+.btn-play {
+    background: linear-gradient(180deg, #1db981, #0a7a54);
+    border: 1.5px solid #d4af37;
+    color: #fffdf4;
+    box-shadow: 0 6px 16px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.18);
+}
+.btn-play.ready {
+    background: linear-gradient(180deg, #25cf8e, #0b8a5c);
+    border-color: #ffe9a8;
+    box-shadow: 0 0 24px rgba(255,205,64,.55), 0 6px 16px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.4);
+    filter: none; opacity: 1;
+}
+.btn-pass {
+    background: linear-gradient(180deg, #93333f, #671c28);
+    border: 1.5px solid rgba(212,175,55,.55);
+    color: #ffe9c9;
+    box-shadow: 0 6px 16px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.22), inset 0 -3px 0 rgba(0,0,0,.2);
+}
+.btn-new-game { background: rgba(4,20,16,.6); border-color: rgba(212,175,55,.5); color: #ffe9a8; }
+#btn-sound, #btn-clear-save, #btn-settings, #btn-hint, #btn-sort, #btn-shop-ingame {
+    background: linear-gradient(180deg, rgba(10,40,31,.92), rgba(4,20,16,.94));
+    border-color: rgba(212,175,55,.5);
+    box-shadow: 0 4px 10px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.16);
+}
+
+/* --- Sảnh chờ / modal / bảng kết ván --- */
+#lobby {
+    background:
+        radial-gradient(ellipse 135% 55% at 50% 125%, #503214 0 57%, #7a5326 57.5% 59%, rgba(212,175,55,.4) 59.5% 60%, rgba(0,0,0,0) 61%),
+        radial-gradient(ellipse at center, #12634c 0%, #082f24 62%, #04160f 100%);
+}
+#lobby-content { background: linear-gradient(160deg, rgba(8,40,30,.62), rgba(3,18,14,.78)); border-color: rgba(212,175,55,.5); }
+#lobby-title { color: #f3d27a; }
+#btn-start { background: linear-gradient(180deg, #1db981, #0a7a54); border: 1px solid #d4af37; box-shadow: 0 5px 0 #07563c, 0 12px 24px rgba(0,0,0,.4); }
+.modal-box { border-color: #b98a1e; }
+.modal-box h3 { color: #0a4a38; }
+.modal-btn.primary { background: linear-gradient(180deg, #1db981, #0a7a54); box-shadow: 0 4px 0 #07563c; }
+#btn-overlay-new { background: linear-gradient(180deg, #1db981, #0a7a54); border: 1px solid rgba(243,210,122,.7); box-shadow: 0 4px 0 #07563c, 0 10px 22px rgba(16,185,129,.4); }
+#overlay-content.player-won #overlay-title { color: #ffe082; animation: winGlow 1.6s ease-in-out infinite; }
+@keyframes winGlow {
+    0%, 100% { text-shadow: 0 0 12px rgba(255,205,64,.45), 0 2px 14px rgba(0,0,0,.45); }
+    50% { text-shadow: 0 0 28px rgba(255,205,64,.95), 0 2px 14px rgba(0,0,0,.45); }
+}
+
+/* --- Hiệu ứng phụ của lượt đánh (phần tử do ui.js tạo trong #fly-layer) --- */
+.fx-spark { position: absolute; border-radius: 50%; background: radial-gradient(circle, #fff6cf 0%, #ffd54f 55%, rgba(255,170,0,0) 100%); pointer-events: none; }
+.fx-ring { position: absolute; border: 2px solid rgba(255,213,79,.8); border-radius: 50%; pointer-events: none; }
+
+/* --- Tôn trọng giảm chuyển động --- */
+@media (prefers-reduced-motion: reduce) {
+    #game-container::before, #overlay-content::before, .active-turn, .card-deal-anim, .back-card.deal-anim, #awrap-player.frame-lua, #overlay-content.player-won #overlay-title { animation: none !important; }
+}
