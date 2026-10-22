@@ -261,11 +261,26 @@ function initOrResume() {
     loadStats();
     if (checkGate()) {
         if (!gameStarted) {
-            gameStarted = true;
-            if (loadGame()) resumeSavedGame();
-            else newGame();
+            // Hiện sảnh chờ trước; có ván dở thì nạp sẵn state và cho nút Chơi tiếp
+            const hasSave = loadGame();
+            showLobby(!!hasSave);
         }
     }
+}
+
+// Sảnh chờ: Bắt đầu = ván đầu của phiên (3♠ đi trước); Chơi tiếp = vào ván đã lưu
+function showLobby(hasSave) {
+    const lobby = document.getElementById('lobby');
+    if (lobby) lobby.classList.remove('hidden');
+    const cont = document.getElementById('btn-continue');
+    if (cont) cont.classList.toggle('hidden', !hasSave);
+}
+function enterGame(fromSave) {
+    const lobby = document.getElementById('lobby');
+    if (lobby) lobby.classList.add('hidden');
+    gameStarted = true;
+    if (fromSave) resumeSavedGame();
+    else { clearSave(); newGame(); }
 }
 
 function resumeSavedGame() {
@@ -627,6 +642,8 @@ document.getElementById('btn-clear-save').addEventListener('click', () => {
 document.getElementById('btn-hint').addEventListener('click', hintMove);
 document.getElementById('btn-sort').addEventListener('click', toggleSort);
 document.getElementById('btn-selmode').addEventListener('click', cycleSelectMode);
+document.getElementById('btn-start').addEventListener('click', () => enterGame(false));
+document.getElementById('btn-continue').addEventListener('click', () => enterGame(true));
 document.getElementById('btn-settings').addEventListener('click', () => { syncSettingsForm(); openModal('settings-modal'); });
 document.getElementById('btn-close-settings').addEventListener('click', () => closeModal('settings-modal'));
 document.getElementById('btn-open-stats').addEventListener('click', () => { renderStats(); openModal('stats-modal'); });

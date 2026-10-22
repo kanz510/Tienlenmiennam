@@ -654,3 +654,12 @@ body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
 #game-container.theme-duong .table-area { background: repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 14px, transparent 14px 28px), repeating-linear-gradient(-45deg, rgba(0,0,0,.03) 0 14px, transparent 14px 28px), radial-gradient(ellipse at center, #2f639a 0%, #24507a 55%, #16324d 100%); }
 #game-container.back-soc .back-card { background: repeating-linear-gradient(90deg, #b71c1c 0 6px, #8e1414 6px 12px); }
 #game-container.back-cham .back-card { background: radial-gradient(circle, rgba(255,202,40,.55) 2.2px, transparent 3px) 0 0 / 11px 11px, linear-gradient(135deg, #1f4e79, #123452); }
+
+/* ===== r40: sảnh chờ ===== */
+#lobby { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse at center, #2d6a4f 0%, #123524 70%, #081f14 100%); padding: 16px; }
+#lobby-content { text-align: center; max-width: 92vw; animation: popIn .3s ease-out; }
+#lobby-logo { width: 74px; height: 96px; margin: 0 auto 12px; background: linear-gradient(145deg, #fff, #e8e8e8); border: 3px solid #ffd700; border-radius: 10px; color: #c62828; font-size: 52px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 30px rgba(0,0,0,.5); transform: rotate(-6deg); }
+#lobby-title { color: #ffd700; font-size: 32px; font-weight: 900; letter-spacing: 1px; margin: 0 0 8px; text-shadow: 0 3px 10px rgba(0,0,0,.6); line-height: 1.15; }
+#lobby-sub { color: rgba(255,255,255,.88); font-size: 14px; margin: 0 auto 20px; max-width: 430px; line-height: 1.5; }
+#btn-start { display: block; margin: 0 auto; background: linear-gradient(180deg, #2ecc71, #27ae60); color: #fff; border: 1px solid rgba(255,255,255,.4); box-shadow: 0 5px 0 #1e8449, 0 12px 24px rgba(0,0,0,.4); padding: 14px 46px; font-size: 20px; font-weight: 800; border-radius: 999px; cursor: pointer; }
+#btn-continue { display: block; margin: 12px auto 0; background: rgba(255,255,255,.12); color: #ffe082; border: 1.5px solid rgba(255,215,0,.6); padding: 10px 26px; font-size: 15px; font-weight: 700; border-radius: 999px; cursor: pointer; }
