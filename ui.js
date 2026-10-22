@@ -95,6 +95,25 @@ function applyRotation() {
     game.style.transform = portrait
         ? `translate(${vw - offY}px, ${offX}px) rotate(90deg) scale(${s})`
         : `translate(${offX}px, ${offY}px) scale(${s})`;
+
+    // r65: bảng kết ván (#overlay là phần tử fixed riêng, không nằm trong khung game)
+    // phải xoay CÙNG khung với bàn chơi khi máy dọc: sao chép nguyên bề rộng + transform
+    // của khung game sang overlay (cùng gốc tọa độ top-left, cùng hệ số scale).
+    // Máy ngang/desktop: xóa sạch style đã gán để overlay trở lại full-screen như cũ.
+    const overlay = document.getElementById('overlay');
+    if (overlay) {
+        if (portrait) {
+            overlay.classList.add('ov-rot');
+            overlay.style.width = designW + 'px';
+            overlay.style.height = '440px';
+            overlay.style.transform = game.style.transform;
+        } else {
+            overlay.classList.remove('ov-rot');
+            overlay.style.width = '';
+            overlay.style.height = '';
+            overlay.style.transform = '';
+        }
+    }
 }
 
 
