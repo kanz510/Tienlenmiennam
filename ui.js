@@ -554,10 +554,14 @@ function playFlyAnimation(who, srcList) {
             const dy = d.cy - s.cy;
             const m = /rotate\((-?[\d.]+)deg\)/.exec(dEl.style.transform || '');
             const tilt = m ? parseFloat(m[1]) : 0;
+            // r71: thêm điểm giữa nhấc nhẹ + phóng hơi lớn để quỹ đạo thành cung bay
+            // tự nhiên; điểm đầu và điểm cuối giữ nguyên như đã đối chiếu ở r69.
+            const midSx = (1 + d.w / s.w) / 2 * 1.05, midSy = (1 + d.h / s.h) / 2 * 1.05;
             anims.push(clone.animate([
                 { transform: 'translate(0px, 0px) scale(1, 1) rotate(0deg)', opacity: 1 },
+                { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midSx + ', ' + midSy + ') rotate(' + (tilt * .55) + 'deg)', opacity: 1, offset: .55 },
                 { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + (d.w / s.w) + ', ' + (d.h / s.h) + ') rotate(' + tilt + 'deg)', opacity: 1 }
-            ], { duration: 380, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
+            ], { duration: 430, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
         }
         if (!anims.length) { cleanup(); return; }
         const destCenter = measureFly(dest, mDest);

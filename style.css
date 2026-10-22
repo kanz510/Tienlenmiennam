@@ -950,3 +950,24 @@ body {
 @media (prefers-reduced-motion: reduce) {
     #game-container::before, #overlay-content::before, .active-turn, .card-deal-anim, .back-card.deal-anim, #awrap-player.frame-lua, #overlay-content.player-won #overlay-title { animation: none !important; }
 }
+
+/* ===== r71: tinh chỉnh theo ảnh chụp thật ===== */
+/* 1) Panel bot hai bên hết bị cắt mép: kẹp bề rộng theo cột 100px và cho tên bot
+   (kèm tính cách) tự xuống dòng trong panel thay vì tràn ra ngoài khung. */
+.bot-left .bot-info, .bot-right .bot-info { max-width: 98px; }
+.bot-left .bot-name, .bot-right .bot-name { white-space: normal; text-align: center; line-height: 1.3; padding: 3px 8px; }
+.bot-left .money, .bot-right .money { max-width: 92px; overflow: hidden; text-overflow: ellipsis; }
+
+/* 2) Chiều sâu bàn: vignette đậm hơn ở mép, chỉ vàng quanh vùng bàn rõ hơn,
+   lá trên bàn đổ bóng sâu để nổi hẳn khỏi mặt nỉ. */
+#game-container::after { box-shadow: inset 0 0 110px rgba(0,0,0,.55), inset 0 0 26px rgba(0,0,0,.35); }
+.table-area { box-shadow: inset 0 0 0 1px rgba(212,175,55,.22), inset 0 0 52px rgba(0,0,0,.34); }
+#played-cards .card { box-shadow: 0 10px 20px rgba(0,0,0,.5), 0 3px 6px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.9), inset 0 -2px 5px rgba(120,96,40,.10); }
+
+/* 3) Bảng kết ván: bề rộng cân đối, các nút đủ cao để bấm trên iPhone,
+   khi xoay dọc (ov-rot) thì đệm gọn lại cho bảng kê có thêm chỗ cuộn. */
+#overlay-content { width: min(520px, 94%); }
+.overlay-actions button { min-height: 48px; }
+#overlay.ov-rot #overlay-content { padding: 10px 16px; }
+#overlay.ov-rot #overlay-title { font-size: 21px; }
+#overlay.ov-rot .overlay-actions button { min-height: 44px; padding-top: 8px; padding-bottom: 8px; }
