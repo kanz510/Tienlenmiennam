@@ -110,7 +110,7 @@ function botCommit(who, cardsToPlay) {
     playClick();
     speakPlay(combo, state.turn);
     render();
-    showMessage(`${PLAYER_NAMES[who]} đánh ${formatCombo(combo)}`);
+    if (!state.lastPlayWasChop) showMessage(`${PLAYER_NAMES[who]} đánh ${formatCombo(combo)}`);
 
     if (hand.length === 0) {
         return endGame(state.turn);

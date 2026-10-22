@@ -306,6 +306,7 @@ function newGame() {
     state.playedCards = [];
     state.ledger = [];
     state.lastPlayWasChop = false;
+    state.sortMode = 'rank';
     state.hintsLeft = 3;
     state.toiTrang = null;
 
@@ -423,7 +424,7 @@ function playerPlay() {
         return endGame(0);
     }
 
-    showMessage(`Bạn đánh ${formatCombo(combo)}`);
+    if (!state.lastPlayWasChop) showMessage(`Bạn đánh ${formatCombo(combo)}`);
     nextTurn();
 }
 
