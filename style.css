@@ -18,13 +18,8 @@ html, body {
 }
 
 body {
-    background:
-        radial-gradient(ellipse at 50% 28%, rgba(255,255,230,.16), rgba(255,255,230,0) 55%),
-        radial-gradient(ellipse at center, #2f8652 0%, #1a5d38 55%, #0a2e1a 100%);
-    box-shadow:
-        inset 0 0 0 12px #4a2e1b,
-        inset 0 0 0 16px #6f452a,
-        inset 0 0 90px rgba(0,0,0,.6);
+    background: radial-gradient(circle, #2d6a4f 0%, #1b4332 100%);
+    box-shadow: inset 0 0 90px rgba(0,0,0,.5);
 }
 
 .hidden { display: none !important; }
@@ -88,9 +83,11 @@ body {
 .bot-info {
     position: relative;
     z-index: 10;
-    background: rgba(0,0,0,0.7);
-    padding: 6px 14px;
-    border-radius: 20px;
+    background: rgba(0,0,0,0.6);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    padding: 5px 15px;
+    border-radius: 50px;
     color: white;
     display: flex;
     gap: 8px;
@@ -203,7 +200,7 @@ body {
     height: 74px;
     margin-left: -22px;
     cursor: pointer;
-    transition: transform 0.15s ease-out, box-shadow 0.15s;
+    transition: all 0.2s ease-out;
     position: relative;
 }
 .player-cards .card:first-child { margin-left: 0; }
@@ -234,9 +231,11 @@ body {
     color: white;
     font-size: 14px;
     background: rgba(0,0,0,0.6);
-    padding: 6px 16px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.2);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    padding: 5px 15px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,215,0,0.4);
 }
 
 /* --- Đồng hồ --- */
@@ -278,11 +277,9 @@ button:active:not(:disabled) { transform: scale(0.92); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-new-game {
-    background: rgba(70,165,240,.58);
-    border: 1px solid rgba(255,255,255,.45);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-    box-shadow: 0 5px 0 rgba(27,90,140,.5), 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.45);
+    background: linear-gradient(180deg, #3498db, #2980b9);
+    border: 1px solid rgba(255,255,255,.25);
+    box-shadow: 0 4px 0 #1f618d, 0 8px 16px rgba(0,0,0,.3);
     padding: 12px 20px;
     font-size: 14px;
     border-radius: 20px;
@@ -292,21 +289,17 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     gap: 10px;
 }
 .btn-play {
-    background: rgba(0,185,165,.62);
-    border: 1px solid rgba(255,255,255,.45);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-    box-shadow: 0 5px 0 rgba(0,105,92,.5), 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.45);
+    background: linear-gradient(180deg, #2ecc71, #27ae60);
+    border: 1px solid rgba(255,255,255,.25);
+    box-shadow: 0 4px 0 #1e8449, 0 8px 16px rgba(0,0,0,.3);
     padding: 12px 35px;
     font-size: 18px;
     border-radius: 20px;
 }
 .btn-pass {
-    background: rgba(216,122,52,.62);
-    border: 1px solid rgba(255,255,255,.45);
-    -webkit-backdrop-filter: blur(6px);
-    backdrop-filter: blur(6px);
-    box-shadow: 0 5px 0 rgba(146,74,20,.5), 0 12px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.45);
+    background: linear-gradient(180deg, #f39c12, #e67e22);
+    border: 1px solid rgba(255,255,255,.25);
+    box-shadow: 0 4px 0 #a04000, 0 8px 16px rgba(0,0,0,.3);
     padding: 12px 25px;
     font-size: 16px;
     border-radius: 20px;
@@ -315,9 +308,11 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 /* ============ CARD ============ */
 .card {
     background: #fff;
-    border-radius: 8px;
-    border: 1px solid rgba(0,0,0,.12);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 3px 8px rgba(0,0,0,.22), 0 10px 24px rgba(0,0,0,.15);
+    border-radius: 10px;
+    border: 1px solid #d9d9d9;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    font-family: Arial, sans-serif;
+    color: #000;
     font-weight: 700;
     display: flex;
     flex-direction: column;
@@ -335,7 +330,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     font-size: 16px;
 }
 
-.card.red { color: #e74c3c; }
+.card.red { color: #ff2020; }
 .card.black { color: #2c3e50; }
 
 .card .suit-big {
@@ -384,7 +379,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ============ CO THEO CHIỀU CAO KHUNG GAME (JS gắn class, đúng cả khi tự xoay) ============ */
 #game-container.tier-short { grid-template-rows: 64px 1fr 128px; gap: 5px; padding: 5px; }
-#game-container.tier-short .bot-info { font-size: 11px; padding: 4px 10px; }
+#game-container.tier-short .bot-info { font-size: 11px; padding: 4px 12px; }
 #game-container.tier-short .bot-top .bot-cards .back-card { width: 26px; height: 36px; margin-left: -16px; }
 #game-container.tier-short .bot-left .bot-cards .back-card, #game-container.tier-short .bot-right .bot-cards .back-card { width: 34px; height: 46px; margin-top: -36px; }
 #game-container.tier-short .bot-left .bot-cards .back-card:first-child, #game-container.tier-short .bot-right .bot-cards .back-card:first-child { margin-top: 0; }
@@ -405,7 +400,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short .timer-box { font-size: 16px; padding: 5px 14px; min-width: 58px; }
 
 #game-container.tier-tiny { grid-template-rows: 52px 1fr 112px; gap: 4px; padding: 4px; }
-#game-container.tier-tiny .bot-info { font-size: 10px; padding: 3px 8px; }
+#game-container.tier-tiny .bot-info { font-size: 10px; padding: 3px 10px; }
 #game-container.tier-tiny .bot-top .bot-cards .back-card { width: 22px; height: 30px; margin-left: -14px; }
 #game-container.tier-tiny .bot-left .bot-cards .back-card, #game-container.tier-tiny .bot-right .bot-cards .back-card { width: 28px; height: 38px; margin-top: -29px; }
 #game-container.tier-tiny .bot-left .bot-cards .back-card:first-child, #game-container.tier-tiny .bot-right .bot-cards .back-card:first-child { margin-top: 0; }
@@ -424,7 +419,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-tiny .btn-pass { padding: 8px 18px; font-size: 13px; }
 #game-container.tier-tiny .btn-new-game { padding: 8px 12px; font-size: 11px; }
 #game-container.tier-tiny .timer-box { font-size: 14px; padding: 4px 10px; min-width: 50px; }
-#game-container.tier-tiny .player-info { font-size: 12px; padding: 4px 10px; }
+#game-container.tier-tiny .player-info { font-size: 12px; padding: 4px 12px; }
 
 /* Khi tự xoay: đệm theo cạnh đã xoay — chừa chỗ tai thỏ ở phía thanh người chơi, bỏ env() ở cạnh ngắn */
 #game-container.rotate-90 { padding-top: 10px; padding-bottom: 30px; }
@@ -459,7 +454,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     cursor: pointer;
 }
 
-.btn-play:active:not(:disabled), .btn-pass:active:not(:disabled), .btn-new-game:active:not(:disabled) { transform: scale(0.95); }
+.btn-play, .btn-pass, .btn-new-game { transition: transform .08s ease, box-shadow .08s ease; }
+.btn-play:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #1e8449, 0 4px 8px rgba(0,0,0,.3); }
+.btn-pass:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #a04000, 0 4px 8px rgba(0,0,0,.3); }
+.btn-new-game:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #1f618d, 0 4px 8px rgba(0,0,0,.3); }
 
 /* Báo lượt: bảng tên của người đang có lượt phát sáng nhấp nháy nhẹ */
 .active-turn {
@@ -473,8 +471,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Avatar + tiền trong bảng tên */
 .avatar {
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
     border: 2px solid #ffd700;
     background: rgba(0,0,0,.35);
@@ -484,9 +483,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     font-size: 16px;
     flex-shrink: 0;
 }
-#game-container.tier-short .avatar { width: 24px; height: 24px; font-size: 13px; }
-#game-container.tier-tiny .avatar { width: 20px; height: 20px; font-size: 11px; }
-.money { color: #ffd700; font-weight: bold; font-size: 12px; white-space: nowrap; }
+#game-container.tier-short .avatar { width: 22px; height: 22px; font-size: 12px; }
+#game-container.tier-tiny .avatar { width: 18px; height: 18px; font-size: 10px; }
+.money { color: #ffd700; font-weight: bold; font-size: 12px; line-height: 1; white-space: nowrap; }
 #overlay-money { font-size: 24px; min-height: 30px; margin: 6px 0 2px; }
 
 /* Animation: bài bay ra bàn / bài chia rơi xuống / nhận tiền */
