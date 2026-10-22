@@ -17,6 +17,7 @@ let state = {
     playedCards: [],
     ledger: [],
     lastPlayWasChop: false,
+    lastChop: null,
     hintsLeft: 3,
     sortMode: 'rank',
     toiTrang: null
@@ -107,6 +108,7 @@ function saveGame() {
             playedCards: state.playedCards,
             ledger: state.ledger,
             lastPlayWasChop: state.lastPlayWasChop,
+            lastChop: state.lastChop,
             hintsLeft: state.hintsLeft,
             sortMode: state.sortMode
         }));
@@ -135,6 +137,7 @@ function loadGame() {
         state.playedCards = d.playedCards || [];
         state.ledger = d.ledger || [];
         state.lastPlayWasChop = !!d.lastPlayWasChop;
+        state.lastChop = d.lastChop || null;
         state.hintsLeft = (typeof d.hintsLeft === 'number') ? d.hintsLeft : 3;
         state.sortMode = d.sortMode || 'rank';
         state.toiTrang = null;
@@ -311,6 +314,7 @@ function newGame() {
     state.playedCards = [];
     state.ledger = [];
     state.lastPlayWasChop = false;
+    state.lastChop = null;
     state.sortMode = 'rank';
     state.hintsLeft = 3;
     state.toiTrang = null;
@@ -361,26 +365,42 @@ function newGame() {
 function trackPlay(whoKey, cards, combo, prevPlay) {
     state.playedAny[whoKey] = true;
     cards.forEach(c => state.playedCards.push(c));
+    let chopped = false;
     if (prevPlay && (combo.type === 'quad' || combo.type === 'double_straight')) {
+        const victimKey = PLAYERS[prevPlay.player];
+        // CHẶT CHỒNG: bộ bị đè chính là nước vừa chặt heo -> người chặt trước trả lại gấp đôi khoản vừa thu:
+        // người chặt sau nhận lại đúng khoản đó, người bị chặt đầu tiên được hoàn lại tiền heo.
+        if (state.lastPlayWasChop && state.lastChop) {
+            const prev = state.lastChop;
+            state.money[prev.chopper] -= prev.amount * 2;
+            state.money[whoKey] += prev.amount;
+            state.money[prev.victim] += prev.amount;
+            state.ledger.push({ type: 'chat-chong', from: prev.chopper, to: whoKey, amount: prev.amount, note: 'thu lại khoản chặt heo vòng trước' });
+            state.ledger.push({ type: 'chat-chong', from: prev.chopper, to: prev.victim, amount: prev.amount, note: 'hoàn tiền heo cho người bị chặt đầu tiên' });
+            updateMoneyUI();
+            floatMoney(whoKey, '+' + prev.amount, true);
+            floatMoney(prev.victim, '+' + prev.amount, true);
+            floatMoney(prev.chopper, '−' + (prev.amount * 2), false);
+            showMessage('⚔️ ' + PLAYER_NAMES[whoKey] + ' chặt CHỒNG! ' + PLAYER_NAMES[prev.chopper] + ' trả lại ' + (prev.amount * 2) + ' xu.');
+            chopped = true;
+            state.lastChop = { amount: prev.amount, chopper: whoKey, victim: prev.chopper };
+        }
         const heos = prevPlay.cards.filter(c => c.rank === '2');
         if (heos.length) {
-            const victimKey = PLAYERS[prevPlay.player];
-            let amount = heos.reduce((sum, c) => sum + heoValue(c), 0);
-            const chong = !!state.lastPlayWasChop;
-            if (chong) amount *= 2;
-            amount *= betFactor();
+            const amount = heos.reduce((sum, c) => sum + heoValue(c), 0) * betFactor();
             state.money[whoKey] += amount;
             state.money[victimKey] -= amount;
-            state.ledger.push({ type: chong ? 'chat-chong' : 'chat', from: victimKey, to: whoKey, amount });
+            state.ledger.push({ type: 'chat', from: victimKey, to: whoKey, amount });
             updateMoneyUI();
             floatMoney(whoKey, '+' + amount, true);
             floatMoney(victimKey, '−' + amount, false);
-            showMessage('⚔️ ' + PLAYER_NAMES[whoKey] + (chong ? ' chặt CHỒNG heo của ' : ' chặt heo của ') + PLAYER_NAMES[victimKey] + ' — đền ' + amount + ' xu!');
-            state.lastPlayWasChop = true;
-            return;
+            if (!chopped) showMessage('⚔️ ' + PLAYER_NAMES[whoKey] + ' chặt heo của ' + PLAYER_NAMES[victimKey] + ' — đền ' + amount + ' xu!');
+            chopped = true;
+            state.lastChop = { amount, chopper: whoKey, victim: victimKey };
         }
     }
-    state.lastPlayWasChop = false;
+    state.lastPlayWasChop = chopped;
+    if (!chopped) state.lastChop = null;
 }
 
 function playerPlay() {
