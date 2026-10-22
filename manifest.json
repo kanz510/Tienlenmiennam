@@ -1,0 +1,14 @@
+{
+  "name": "Tiến Lên Miền Nam",
+  "short_name": "Tiến Lên",
+  "description": "Game bài Tiến Lên Miền Nam: đấu 3 bot, tới trắng, chặt heo, thối heo, cóng.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#1b4332",
+  "theme_color": "#1b4332",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
