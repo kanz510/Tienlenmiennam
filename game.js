@@ -114,7 +114,54 @@ function tauntFor(type) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// ===== HIỂN THỊ PHỤ: vòng giờ, nhãn bỏ lượt, bong bóng, tiền bay, confetti =====
+const AVATAR_WRAP_IDS = { player: 'awrap-player', left: 'awrap-left', top: 'awrap-top', right: 'awrap-right' };
+function setTurnRing(key, frac, danger) {
+    const el = document.getElementById(AVATAR_WRAP_IDS[key]);
+    if (!el) return;
+    if (frac === null || frac === undefined) { el.style.background = ''; return; }
+    const pct = Math.max(0, Math.min(100, frac * 100));
+    const col = danger ? '#ff5252' : '#ffd700';
+    el.style.background = 'conic-gradient(' + col + ' ' + pct + '%, rgba(255,255,255,.14) ' + pct + '%)';
+}
+function clearTurnRings() { PLAYERS.forEach(k => setTurnRing(k, null)); }
+
+const PASS_LABEL_IDS = { player: 'pass-player', left: 'pass-left', top: 'pass-top', right: 'pass-right' };
+function showPassLabel(key) { const el = document.getElementById(PASS_LABEL_IDS[key]); if (el) el.classList.add('show'); }
+function clearPassLabels() { PLAYERS.forEach(k => { const el = document.getElementById(PASS_LABEL_IDS[k]); if (el) el.classList.remove('show'); }); }
+
+const BUBBLE_IDS = { left: 'bubble-left', top: 'bubble-top', right: 'bubble-right' };
+const bubbleTimers = {};
+function showBubble(actorIdx, text) {
+    const key = PLAYERS[actorIdx || 0];
+    const id = BUBBLE_IDS[key];
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.classList.add('show');
+    clearTimeout(bubbleTimers[key]);
+    bubbleTimers[key] = setTimeout(() => { el.classList.remove('show'); }, 2000);
+}
+
+function spawnConfetti() {
+    const box = document.getElementById('confetti');
+    if (!box) return;
+    box.innerHTML = '';
+    const colors = ['#ffd700', '#2ecc71', '#e74c3c', '#3498db', '#ff8fab', '#ffffff'];
+    for (let i = 0; i < 28; i++) {
+        const p = document.createElement('div');
+        p.className = 'confetti-piece';
+        p.style.left = (Math.random() * 100) + '%';
+        p.style.background = colors[i % colors.length];
+        p.style.animationDelay = (Math.random() * 0.6) + 's';
+        p.style.animationDuration = (2.2 + Math.random() * 1.6) + 's';
+        box.appendChild(p);
+    }
+}
+
 function speak(text, actorIdx) {
+    showBubble(actorIdx, text);
     try {
         if (!soundOn) return;
         if (typeof window === 'undefined' || !window.speechSynthesis) return;
@@ -283,6 +330,7 @@ function updateTimerUI() {
     } else {
         timerBox.classList.remove('danger');
     }
+    setTurnRing('player', state.timeLeft / 15, state.timeLeft <= 5);
 }
 
 // ============================================================
@@ -479,15 +527,20 @@ function applyRotation() {
     const availW = portrait ? vh : vw;
     const availH = portrait ? vw : vh;
 
-    // Khung thiết kế cố định 780x440: thu/phóng cả khung cho vừa màn hình
-    const s = Math.min(availW / 780, availH / 440);
-    const offX = (availW - 780 * s) / 2;
+    // Khung thiết kế: cao cố định 440px, rộng linh hoạt lấp đầy màn hình.
+    // Chừa lề an toàn 20px mỗi bên cho tai thỏ (trừ vào bề rộng hiệu dụng trước khi tính).
+    const effW = Math.max(0, availW - 40);
+    let s = availH / 440;
+    let designW = effW / s;
+    if (designW < 780) { s = effW / 780; designW = 780; }
+    designW = Math.round(designW);
+    const offX = (availW - designW * s) / 2;
     const offY = (availH - 440 * s) / 2;
 
     game.classList.add('tier-short');
     game.classList.remove('tier-tiny');
     game.classList.remove('rotate-90');
-    game.style.width = '780px';
+    game.style.width = designW + 'px';
     game.style.height = '440px';
     game.style.transform = portrait
         ? `translate(${vw - offY}px, ${offX}px) rotate(90deg) scale(${s})`
@@ -571,6 +624,9 @@ function newGame() {
 
     // Đảm bảo overlay thắng/thua không che nút Ván mới
     document.getElementById('overlay').classList.add('hidden');
+    clearPassLabels();
+    const cfBox = document.getElementById('confetti');
+    if (cfBox) cfBox.innerHTML = '';
 
     render();
     updateTurnIndicator();
@@ -578,6 +634,10 @@ function newGame() {
         document.querySelectorAll('.player-cards .card').forEach((el, i) => {
             el.classList.add('card-deal-anim');
             el.style.animationDelay = (i * 0.05) + 's';
+        });
+        document.querySelectorAll('.back-card').forEach((el, i) => {
+            el.classList.add('deal-anim');
+            el.style.animationDelay = (i * 0.03) + 's';
         });
     }
     showMessage(`${PLAYER_NAMES[PLAYERS[state.turn]]} đi trước`);
@@ -601,9 +661,12 @@ function updateTurnIndicator() {
         right: document.querySelector('.bot-right .bot-info')
     };
     Object.values(targets).forEach(el => { if (el) el.classList.remove('active-turn'); });
+    clearTurnRings();
     if (state.gameOver) return;
     const el = targets[PLAYERS[state.turn]];
     if (el) el.classList.add('active-turn');
+    // Bot không có đồng hồ riêng → vòng đầy khi tới lượt; vòng của người chơi do updateTimerUI chạy theo giây
+    if (state.turn !== 0) setTurnRing(PLAYERS[state.turn], 1, false);
 }
 
 function render() {
@@ -757,24 +820,53 @@ function renderBotHand(who, elId, countId) {
     document.getElementById(countId).textContent = count;
 }
 
+const COMBO_LABELS = { single: 'đơn', pair: 'đôi', triple: 'sám', straight: 'sảnh', quad: 'tứ quý', double_straight: 'đôi thông' };
+function cardTilt(card) { return ((rankValue(card) * 7 + suitValue(card) * 3) % 9) - 4; }
+
 let lastPlayAnimKey = null;
 
 function renderLastPlay() {
     const el = document.getElementById('played-cards');
-    el.innerHTML = '';
-    if (!state.lastPlay) { lastPlayAnimKey = null; return; }
+    const ghost = document.getElementById('played-ghost');
+    const info = document.getElementById('last-play-info');
+    if (!state.lastPlay) {
+        el.innerHTML = '';
+        if (ghost) ghost.innerHTML = '';
+        if (info) { info.textContent = ''; info.classList.remove('show'); }
+        lastPlayAnimKey = null;
+        return;
+    }
     // Chỉ bay khi nước đánh thay đổi thật; các lần render lại (qua lượt/bỏ lượt) thì đứng yên
     const key = state.lastPlay.player + '|' + state.lastPlay.cards.map(c => c.rank + c.suit).join(',');
     const animate = key !== lastPlayAnimKey;
+    // Nước cũ lùi xuống lớp mờ phía dưới đống bài
+    if (animate && ghost && el.children && el.children.length) {
+        ghost.innerHTML = '';
+        [...el.children].forEach(ch => {
+            if (!ch.cloneNode) return;
+            const cl = ch.cloneNode(true);
+            cl.classList.remove('card-play-anim', 'from-bottom', 'from-left', 'from-right', 'from-top');
+            cl.style.transform = '';
+            ghost.appendChild(cl);
+        });
+    }
     lastPlayAnimKey = key;
+    el.innerHTML = '';
     const dir = ['from-bottom', 'from-left', 'from-right', 'from-top'][state.lastPlay.player] || 'from-bottom';
     const sorted = [...state.lastPlay.cards].sort(compareCards);
     sorted.forEach(card => {
         const c = createCardEl(card);
         if (animate) c.classList.add('card-play-anim', dir);
+        c.style.transform = 'rotate(' + cardTilt(card) + 'deg)';
         el.appendChild(c);
     });
+    if (info) {
+        info.textContent = PLAYER_NAMES[PLAYERS[state.lastPlay.player]] + ' · ' + (COMBO_LABELS[state.lastPlay.combo.type] || '');
+        info.classList.add('show');
+    }
 }
+
+const FACE_SYMBOLS = { J: '♞', Q: '♛', K: '♚' };
 
 function createCardEl(card) {
     const div = document.createElement('div');
@@ -785,7 +877,12 @@ function createCardEl(card) {
             <span>${card.rank}</span>
             <span>${card.suit}</span>
         </div>
+        <div class="corner corner-br">
+            <span>${card.rank}</span>
+            <span>${card.suit}</span>
+        </div>
         <div class="suit-big">${card.suit}</div>
+        ${FACE_SYMBOLS[card.rank] ? `<div class="face-badge face-${card.rank}">${FACE_SYMBOLS[card.rank]}</div>` : ''}
     `;
     return div;
 }
@@ -796,8 +893,18 @@ function showMessage(msg) {
 
 function updateButtons() {
     const isMyTurn = (state.turn === 0) && !state.gameOver;
-    document.getElementById('btn-play').disabled = !isMyTurn || state.hasPassed || state.selected.size === 0;
+    const playBtn = document.getElementById('btn-play');
+    playBtn.disabled = !isMyTurn || state.hasPassed || state.selected.size === 0;
     document.getElementById('btn-pass').disabled = !isMyTurn || state.hasPassed || !state.lastPlay;
+    // Sáng nút Đánh khi bộ đang chọn hợp lệ và đè được (chỉ hiển thị — luật vẫn do playerPlay chốt)
+    let ready = false;
+    if (isMyTurn && !state.hasPassed && state.selected.size > 0) {
+        const cards = [...state.selected].map(i => state.hands.player[i]).sort(compareCards);
+        const combo = getCombo(cards);
+        ready = !!combo && (!state.lastPlay || canBeat(combo, state.lastPlay.combo));
+        if (ready && state.firstMove && !cards.some(c => c.rank === '3' && c.suit === '♠')) ready = false;
+    }
+    if (ready) playBtn.classList.add('ready'); else playBtn.classList.remove('ready');
 }
 
 // ============================================================
@@ -872,6 +979,7 @@ function nextTurn() {
         state.lastPlay = null;
         state.passCount = 0;
         state.hasPassed = false;
+        clearPassLabels();
         renderLastPlay();
     }
 
@@ -907,11 +1015,13 @@ function nextTurn() {
 
 function doPass() {
     speak(tauntFor('pass'), state.turn);
+    showPassLabel(PLAYERS[state.turn]);
     state.passCount++;
     if (state.passCount >= 3) {
         state.lastPlay = null;
         state.passCount = 0;
         state.hasPassed = false;
+        clearPassLabels();
         renderLastPlay();
     }
     nextTurn();
@@ -1183,6 +1293,15 @@ function endGame(winnerIdx) {
     const winnerKey = PLAYERS[winnerIdx];
     PLAYERS.forEach(k => { state.money[k] += (k === winnerKey ? 300 : -100); });
     updateMoneyUI();
+    PLAYERS.forEach(k => {
+        const wrap = document.getElementById(AVATAR_WRAP_IDS[k]);
+        if (!wrap) return;
+        const f = document.createElement('div');
+        f.className = 'money-float ' + (k === winnerKey ? 'win' : 'lose');
+        f.textContent = k === winnerKey ? '+300' : '−100';
+        wrap.appendChild(f);
+        setTimeout(() => { try { f.remove(); } catch (e) {} }, 1400);
+    });
     const name = PLAYER_NAMES[PLAYERS[winnerIdx]];
     showMessage(`${name} thắng!`);
 
@@ -1196,6 +1315,7 @@ function endGame(winnerIdx) {
         void om.offsetWidth;
         om.classList.add('coin-pop');
     }
+    if (winnerIdx === 0) spawnConfetti();
     overlay.classList.remove('hidden');
 
     updateButtons();

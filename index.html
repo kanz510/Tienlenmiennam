@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#1b4332">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23ffffff'/%3E%3Ctext x='50' y='72' font-size='64' text-anchor='middle' fill='%23222'%3E%E2%99%A0%3C/text%3E%3C/svg%3E">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a2615">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r33">
+    <link rel="stylesheet" href="style.css?v=r34">
 <script>
-window.__TLV = 'r33';
+window.__TLV = 'r34';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -48,8 +50,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Bắc (trên) -->
         <div class="bot-area bot-top">
             <div class="bot-info">
-                <div class="avatar">🐻</div>
+                <div class="avatar-wrap" id="awrap-top"><div class="avatar">🐻</div></div>
                 <span class="bot-name">Bot Bắc</span>
+                <span class="pass-label" id="pass-top">BỎ LƯỢT</span>
+                <div class="bubble" id="bubble-top"></div>
                 <span class="card-count" id="count-top">13</span>
                 <span class="money" id="money-top">💰 1000</span>
             </div>
@@ -59,8 +63,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Tây (trái) -->
         <div class="bot-area bot-left">
             <div class="bot-info">
-                <div class="avatar">🐯</div>
+                <div class="avatar-wrap" id="awrap-left"><div class="avatar">🐯</div></div>
                 <span class="bot-name">Bot Tây</span>
+                <span class="pass-label" id="pass-left">BỎ LƯỢT</span>
+                <div class="bubble" id="bubble-left"></div>
                 <span class="card-count" id="count-left">13</span>
                 <span class="money" id="money-left">💰 1000</span>
             </div>
@@ -69,6 +75,8 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 
         <!-- Bàn chơi -->
         <div class="table-area">
+            <div id="last-play-info"></div>
+            <div id="played-ghost"></div>
             <div id="played-cards"></div>
             <div id="message"></div>
         </div>
@@ -76,8 +84,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Bot Đông (phải) -->
         <div class="bot-area bot-right">
             <div class="bot-info">
-                <div class="avatar">🦊</div>
+                <div class="avatar-wrap" id="awrap-right"><div class="avatar">🦊</div></div>
                 <span class="bot-name">Bot Đông</span>
+                <span class="pass-label" id="pass-right">BỎ LƯỢT</span>
+                <div class="bubble" id="bubble-right"></div>
                 <span class="card-count" id="count-right">13</span>
                 <span class="money" id="money-right">💰 1000</span>
             </div>
@@ -88,10 +98,11 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <div class="player-area">
             <div class="player-cards" id="cards-player"></div>
             <div class="player-bar">
-                <button id="btn-new" class="btn-new-game">Ván mới</button>
+                <button id="btn-new" class="btn-new-game">🃏 Ván mới</button>
                 <div class="player-info">
-                    <div class="avatar">🧑</div>
+                    <div class="avatar-wrap" id="awrap-player"><div class="avatar">🧑</div></div>
                     <span class="bot-name">Bạn</span>
+                    <span class="pass-label" id="pass-player">BỎ LƯỢT</span>
                     <span class="card-count" id="count-player">13</span>
                     <span class="money" id="money-player">💰 1000</span>
                 </div>
@@ -99,8 +110,8 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
                     <span id="timer-text">15</span>s
                 </div>
                 <div class="controls">
-                    <button id="btn-pass" class="btn-pass">Bỏ lượt</button>
-                    <button id="btn-play" class="btn-play">Đánh</button>
+                    <button id="btn-pass" class="btn-pass">⏭ Bỏ lượt</button>
+                    <button id="btn-play" class="btn-play">▶ Đánh</button>
                 </div>
             </div>
         </div>
@@ -108,6 +119,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 
     <!-- Overlay thắng/thua -->
     <div id="overlay" class="hidden">
+        <div id="confetti"></div>
         <div id="overlay-content">
             <h2 id="overlay-title"></h2>
             <div id="overlay-money"></div>
@@ -115,6 +127,6 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="game.js?v=r33"></script>
+    <script src="game.js?v=r34"></script>
 </body>
 </html>

@@ -94,13 +94,20 @@ body {
 .bot-name { font-weight: bold; }
 
 .card-count {
-    background: linear-gradient(180deg, #ff9f43, #e67e22);
-    padding: 2px 8px;
-    border-radius: 12px;
+    background: linear-gradient(180deg, #ff5b5b, #d63031);
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border-radius: 50%;
+    border: 2px solid #fff;
     font-size: 12px;
     font-weight: bold;
     color: white;
-    box-shadow: inset 0 1px 3px rgba(255,255,255,0.4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,.35);
+    flex-shrink: 0;
 }
 
 /* Bài úp */
@@ -119,7 +126,10 @@ body {
 .bot-left .bot-cards, .bot-right .bot-cards { margin-top: 6px; height: 118px; }
 
 .back-card {
-    background: linear-gradient(135deg, #b71c1c, #7a1f14);
+    background:
+        repeating-linear-gradient(45deg, rgba(255,202,40,.28) 0 2px, transparent 2px 10px),
+        repeating-linear-gradient(-45deg, rgba(255,202,40,.28) 0 2px, transparent 2px 10px),
+        linear-gradient(135deg, #b71c1c, #7a1f14);
     border: 2px solid #ffca28;
     border-radius: 6px;
     box-shadow: 0 3px 5px rgba(0,0,0,0.5);
@@ -142,6 +152,14 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
+    margin: 2px;
+    border-radius: 26px;
+    border: 3px solid #c9a227;
+    background:
+        repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 14px, transparent 14px 28px),
+        repeating-linear-gradient(-45deg, rgba(0,0,0,.03) 0 14px, transparent 14px 28px),
+        radial-gradient(ellipse at center, #3a8a61 0%, #2d6a4f 55%, #1d4530 100%);
+    box-shadow: inset 0 0 55px rgba(0,0,0,.5), 0 0 0 5px #6d4420, 0 6px 18px rgba(0,0,0,.35);
 }
 
 #played-cards {
@@ -187,9 +205,9 @@ body {
 
 /* --- Kích thước lá bài trên tay --- */
 .player-cards .card {
-    width: 50px;
-    height: 74px;
-    margin-left: -22px;
+    width: 58px;
+    height: 84px;
+    margin-left: -27px;
     cursor: pointer;
     transition: all 0.2s ease-out;
     position: relative;
@@ -268,9 +286,12 @@ button:active:not(:disabled) { transform: scale(0.92); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-new-game {
-    background: linear-gradient(180deg, #3498db, #2980b9);
-    border: 1px solid rgba(255,255,255,.25);
-    box-shadow: 0 4px 0 #1f618d, 0 8px 16px rgba(0,0,0,.3);
+    background: rgba(255,255,255,.14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255,255,255,.45);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35);
     padding: 12px 20px;
     font-size: 14px;
     border-radius: 20px;
@@ -280,17 +301,23 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     gap: 10px;
 }
 .btn-play {
-    background: linear-gradient(180deg, #2ecc71, #27ae60);
-    border: 1px solid rgba(255,255,255,.25);
-    box-shadow: 0 4px 0 #1e8449, 0 8px 16px rgba(0,0,0,.3);
+    background: rgba(255,255,255,.14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255,255,255,.45);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35);
     padding: 12px 35px;
     font-size: 18px;
     border-radius: 20px;
 }
 .btn-pass {
-    background: linear-gradient(180deg, #f39c12, #e67e22);
-    border: 1px solid rgba(255,255,255,.25);
-    box-shadow: 0 4px 0 #a04000, 0 8px 16px rgba(0,0,0,.3);
+    background: rgba(255,255,255,.14);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(255,255,255,.45);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35);
     padding: 12px 25px;
     font-size: 16px;
     border-radius: 20px;
@@ -310,6 +337,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     justify-content: space-between;
     padding: 4px 5px;
     flex-shrink: 0;
+    position: relative;
 }
 
 .card .corner {
@@ -369,7 +397,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 /* ============ CO THEO CHIỀU CAO KHUNG GAME (JS gắn class, đúng cả khi tự xoay) ============ */
-#game-container.tier-short { grid-template-rows: 64px minmax(0,1fr) 128px; gap: 5px; padding: 5px; }
+#game-container.tier-short { gap: 5px; padding: 5px; }
 #game-container.tier-short .bot-info { font-size: 11px; padding: 4px 12px; }
 #game-container.tier-short .bot-top .bot-cards .back-card { width: 26px; height: 36px; margin-left: -16px; }
 #game-container.tier-short .bot-left .bot-cards .back-card, #game-container.tier-short .bot-right .bot-cards .back-card { width: 34px; height: 46px; margin-top: -40px; }
@@ -383,7 +411,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short #played-cards .card .suit-big { font-size: 16px; }
 #game-container.tier-short #message { font-size: 13px; margin-top: 8px; }
 #game-container.tier-short .player-cards { bottom: 68px; padding: 0 10px 5px; }
-#game-container.tier-short .player-cards .card { width: 50px; height: 74px; margin-left: -22px; }
+#game-container.tier-short .player-cards .card { width: 58px; height: 84px; margin-left: -27px; }
 #game-container.tier-short .player-cards .card.selected { transform: translateY(-16px) scale(1.05); }
 #game-container.tier-short .btn-play { padding: 10px 30px; font-size: 16px; }
 #game-container.tier-short .btn-pass { padding: 10px 22px; font-size: 14px; }
@@ -437,9 +465,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 .btn-play, .btn-pass, .btn-new-game { transition: transform .08s ease, box-shadow .08s ease; }
-.btn-play:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #1e8449, 0 4px 8px rgba(0,0,0,.3); }
-.btn-pass:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #a04000, 0 4px 8px rgba(0,0,0,.3); }
-.btn-new-game:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 #1f618d, 0 4px 8px rgba(0,0,0,.3); }
+.btn-play:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35); }
+.btn-pass:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35); }
+.btn-new-game:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35); }
 
 /* Báo lượt: bảng tên của người đang có lượt phát sáng nhấp nháy nhẹ */
 .active-turn {
@@ -453,8 +481,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Avatar + tiền trong bảng tên */
 .avatar {
-    width: 26px;
-    height: 26px;
+    width: 34px;
+    height: 34px;
     aspect-ratio: 1 / 1;
     border-radius: 50%;
     border: 2px solid #ffd700;
@@ -462,10 +490,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 20px;
     flex-shrink: 0;
 }
-#game-container.tier-short .avatar { width: 22px; height: 22px; font-size: 12px; }
+#game-container.tier-short .avatar { width: 30px; height: 30px; font-size: 17px; }
 #game-container.tier-tiny .avatar { width: 18px; height: 18px; font-size: 10px; }
 .money { color: #ffd700; font-weight: bold; font-size: 12px; line-height: 1; white-space: nowrap; }
 #overlay-money { font-size: 24px; min-height: 30px; margin: 6px 0 2px; }
@@ -481,8 +509,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .from-left { animation-name: flyFromLeft; }
 .from-right { animation-name: flyFromRight; }
 @keyframes dealCard {
-    from { transform: translateY(-120px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from { transform: translateY(-150px) scale(.4); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
 }
 .card-deal-anim { animation: dealCard .45s ease-out backwards; }
 @keyframes coinPop {
@@ -493,3 +521,98 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Bảng tên Bot Tây/Đông: xếp dọc để không tràn khỏi cột 100px ở hai bên */
 .bot-left .bot-info, .bot-right .bot-info { flex-direction: column; gap: 3px; padding: 8px 10px; }
+
+
+/* ===== r34: nâng cấp giao diện ===== */
+.player-info { position: relative; }
+
+/* Vòng đếm giờ quanh avatar */
+.avatar-wrap { position: relative; width: 40px; height: 40px; border-radius: 50%; padding: 3px; background: rgba(255,255,255,.14); flex-shrink: 0; }
+.avatar-wrap .avatar { width: 100%; height: 100%; }
+#game-container.tier-short .avatar-wrap { width: 36px; height: 36px; }
+
+/* Góc dưới-phải lật ngược + huy hiệu J/Q/K */
+.card .corner-br { position: absolute; right: 5px; bottom: 4px; transform: rotate(180deg); }
+.face-badge { position: absolute; left: 46%; bottom: 16px; transform: translateX(-50%); font-size: 13px; font-weight: 900; line-height: 1; padding: 2px 4px; border: 2px solid; border-radius: 6px; background: rgba(255,255,255,.88); z-index: 2; }
+.face-J { color: #1565c0; border-color: #1565c0; }
+.face-Q { color: #8e24aa; border-color: #8e24aa; }
+.face-K { color: #9c7200; border-color: #d4a017; background: rgba(255,215,0,.3); }
+#played-cards .face-badge { font-size: 10px; bottom: 11px; padding: 1px 3px; }
+#played-ghost .face-badge { display: none; }
+
+/* Đống bài: bảng tên nước đánh + nước cũ mờ dần */
+#last-play-info { min-height: 22px; padding: 2px 14px; margin-bottom: 6px; border-radius: 999px; background: rgba(0,0,0,.45); color: #ffe082; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity .2s; z-index: 3; }
+#last-play-info.show { opacity: 1; }
+#played-cards { position: relative; z-index: 2; }
+#played-ghost { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -30%) scale(.9); display: flex; gap: 6px; opacity: .3; filter: saturate(.55); pointer-events: none; z-index: 1; }
+#played-ghost .card { width: 50px; height: 72px; padding: 3px; }
+#game-container.tier-short #played-ghost .card { width: 40px; height: 58px; }
+#played-ghost .card .corner { font-size: 12px; }
+
+/* Bài bot xòe quạt */
+.bot-top .bot-cards .back-card:nth-child(1) { transform: rotate(-12deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(2) { transform: rotate(-10deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(3) { transform: rotate(-8deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(4) { transform: rotate(-6deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(5) { transform: rotate(-4deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(6) { transform: rotate(-2deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(7) { transform: rotate(0deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(8) { transform: rotate(2deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(9) { transform: rotate(4deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(10) { transform: rotate(6deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(11) { transform: rotate(8deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(12) { transform: rotate(10deg); transform-origin: 50% 100%; }
+.bot-top .bot-cards .back-card:nth-child(13) { transform: rotate(12deg); transform-origin: 50% 100%; }
+.bot-left .bot-cards .back-card:nth-child(1), .bot-right .bot-cards .back-card:nth-child(1) { transform: rotate(-6deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(2), .bot-right .bot-cards .back-card:nth-child(2) { transform: rotate(-5deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(3), .bot-right .bot-cards .back-card:nth-child(3) { transform: rotate(-4deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(4), .bot-right .bot-cards .back-card:nth-child(4) { transform: rotate(-3deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(5), .bot-right .bot-cards .back-card:nth-child(5) { transform: rotate(-2deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(6), .bot-right .bot-cards .back-card:nth-child(6) { transform: rotate(-1deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(7), .bot-right .bot-cards .back-card:nth-child(7) { transform: rotate(0deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(8), .bot-right .bot-cards .back-card:nth-child(8) { transform: rotate(1deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(9), .bot-right .bot-cards .back-card:nth-child(9) { transform: rotate(2deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(10), .bot-right .bot-cards .back-card:nth-child(10) { transform: rotate(3deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(11), .bot-right .bot-cards .back-card:nth-child(11) { transform: rotate(4deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(12), .bot-right .bot-cards .back-card:nth-child(12) { transform: rotate(5deg); transform-origin: 50% 0; }
+.bot-left .bot-cards .back-card:nth-child(13), .bot-right .bot-cards .back-card:nth-child(13) { transform: rotate(6deg); transform-origin: 50% 0; }
+
+/* Chia bài bot: bay từ giữa bàn về từng bot */
+.back-card.deal-anim { animation: dealFromTable .45s ease-out backwards; }
+.bot-top .back-card { --dy: 130px; }
+.bot-left .back-card { --dx: 130px; }
+.bot-right .back-card { --dx: -130px; }
+@keyframes dealFromTable { from { transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(.4); opacity: 0; } to { transform: translate(0, 0) scale(1); opacity: 1; } }
+
+/* Nhãn BỎ LƯỢT */
+.pass-label { display: none; background: #e63946; color: #fff; font-size: 10px; font-weight: 800; letter-spacing: .5px; padding: 2px 7px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.pass-label.show { display: inline-block; animation: popIn .2s ease-out; }
+
+/* Bong bóng cà khịa */
+.bubble { position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%) scale(.7); transform-origin: top center; background: #fff; color: #222; font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; white-space: nowrap; z-index: 80; }
+.bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
+.bubble::after { content: ''; position: absolute; left: 50%; top: -5px; transform: translateX(-50%); border: 5px solid transparent; border-bottom-color: #fff; border-top: 0; }
+.bot-left .bubble { left: calc(100% + 10px); top: 50%; transform: translateY(-50%) scale(.7); transform-origin: left center; }
+.bot-left .bubble.show { transform: translateY(-50%) scale(1); }
+.bot-left .bubble::after { left: -5px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: #fff; border-left: 0; }
+.bot-right .bubble { left: auto; right: calc(100% + 10px); top: 50%; transform: translateY(-50%) scale(.7); transform-origin: right center; }
+.bot-right .bubble.show { transform: translateY(-50%) scale(1); }
+.bot-right .bubble::after { left: auto; right: -5px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-left-color: #fff; border-right: 0; }
+
+/* Tiền bay lên khi thắng/thua */
+.money-float { position: absolute; left: 50%; top: -2px; transform: translateX(-50%); font-size: 15px; font-weight: 900; pointer-events: none; z-index: 90; text-shadow: 0 1px 3px rgba(0,0,0,.6); animation: moneyFloat 1.3s ease-out forwards; white-space: nowrap; }
+.money-float.win { color: #7cfc00; }
+.money-float.lose { color: #ff6b6b; }
+@keyframes moneyFloat { 0% { opacity: 0; transform: translate(-50%, 8px) scale(.8); } 18% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -36px) scale(1.12); } }
+
+/* Nút Đánh: sáng khi bộ đang chọn hợp lệ và đè được */
+.btn-play { filter: saturate(.55); opacity: .82; transition: all .2s ease; }
+.btn-play.ready { background: rgba(46,204,113,.8); border-color: #b9f6d2; filter: none; opacity: 1; box-shadow: 0 0 18px rgba(46,204,113,.75), inset 0 1px 0 rgba(255,255,255,.4); }
+
+/* Màn thắng/thua + confetti */
+#overlay-content { border: 3px solid #ffd700; }
+#overlay-title { font-size: 32px; margin: 0 0 6px; }
+#btn-overlay-new { background: linear-gradient(180deg, #2ecc71, #27ae60); color: #fff; border: 1px solid rgba(255,255,255,.4); box-shadow: 0 4px 0 #1e8449, 0 8px 16px rgba(0,0,0,.3); padding: 12px 34px; font-size: 17px; font-weight: 800; border-radius: 999px; cursor: pointer; }
+#confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.confetti-piece { position: absolute; top: -14px; width: 8px; height: 14px; border-radius: 2px; opacity: .95; animation-name: confettiFall; animation-timing-function: linear; animation-fill-mode: forwards; }
+@keyframes confettiFall { to { transform: translateY(105vh) rotate(680deg); } }
