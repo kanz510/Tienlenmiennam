@@ -48,7 +48,7 @@ body {
     height: 440px;
     display: grid;
     grid-template-columns: 100px minmax(0,1fr) 100px;
-    grid-template-rows: 64px minmax(0,1fr) 128px;
+    grid-template-rows: 64px minmax(0,1fr) 150px;
     grid-template-areas:
         "top    top    top"
         "left   table  right"
@@ -195,7 +195,7 @@ body {
 .player-cards {
     touch-action: none;
     position: absolute;
-    bottom: 40px;
+    bottom: 60px;
     left: 0;
     right: 0;
     display: flex;
@@ -414,7 +414,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short #played-cards .card .corner { font-size: 12px; }
 #game-container.tier-short #played-cards .card .suit-big { font-size: 16px; }
 #game-container.tier-short #message { font-size: 13px; margin-top: 8px; }
-#game-container.tier-short .player-cards { bottom: 40px; padding: 0 10px 5px; }
+#game-container.tier-short .player-cards { bottom: 60px; padding: 0 10px 5px; }
 #game-container.tier-short .player-cards .card { width: 58px; height: 84px; margin-left: -27px; }
 #game-container.tier-short .player-cards .card.selected { transform: translateY(-16px) scale(1.05); }
 #game-container.tier-short .btn-play { padding: 10px 30px; font-size: 16px; }
