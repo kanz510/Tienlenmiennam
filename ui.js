@@ -414,6 +414,20 @@ function measureFly(el, m) {
 // lại. Trả về [{card, cx, cy, w, h}] sắp theo đúng thứ tự lá hiển thị trên bàn.
 // Bot: bài đang úp không có định danh trên DOM -> lấy các lá úp cuối cùng của ĐÚNG
 // vùng bài của bot đó (#cards-<who>) làm điểm xuất phát.
+// Góc xoay cục bộ hiện tại của một phần tử (độ), đọc từ transform đã tính của
+// chính nó — dùng để lá bay bắt đầu đúng góc của lá gốc (xấp bài úp của bot
+// xòe quạt) thay vì bị dựng thẳng lại gây cảm giác biến hình.
+function elementAngle(el) {
+    try {
+        const t = window.getComputedStyle(el).transform;
+        if (!t || t === 'none') return 0;
+        const mt = /matrix\(([^)]+)\)/.exec(t);
+        if (!mt) return 0;
+        const p = mt[1].split(',').map(Number);
+        return Math.atan2(p[1], p[0]) * 180 / Math.PI;
+    } catch (e) { return 0; }
+}
+
 function captureFlySource(who, cards) {
     try {
         const m = flyMatrix();
@@ -424,7 +438,7 @@ function captureFlySource(who, cards) {
             const out = [];
             sorted.forEach(card => {
                 const el = wrap.children[state.hands.player.indexOf(card)];
-                if (el) { const p = measureFly(el, m); out.push({ card: card, cx: p.cx, cy: p.cy, w: p.w, h: p.h }); }
+                if (el) { const p = measureFly(el, m); out.push({ card: card, cx: p.cx, cy: p.cy, w: p.w, h: p.h, el: el, ang: elementAngle(el) }); }
             });
             return out.length ? out : null;
         }
@@ -432,8 +446,9 @@ function captureFlySource(who, cards) {
         if (!wrapB || !wrapB.children.length) return null;
         const kids = [...wrapB.children].slice(-sorted.length);
         return sorted.map((card, i) => {
-            const p = measureFly(kids[Math.min(i, kids.length - 1)], m);
-            return { card: card, cx: p.cx, cy: p.cy, w: p.w, h: p.h };
+            const kel = kids[Math.min(i, kids.length - 1)];
+            const p = measureFly(kel, m);
+            return { card: card, cx: p.cx, cy: p.cy, w: p.w, h: p.h, el: kel, ang: elementAngle(kel) };
         });
     } catch (e) { return null; }
 }
@@ -538,7 +553,16 @@ function playFlyAnimation(who, srcList) {
             const d = measureFly(dEl, mDest);
             const s = srcList[i];
             if (!s.w || !s.h || !d.w || !d.h) continue;
-            const clone = createCardEl(s.card);
+            // r72: nhân bản nguyên phần tử gốc bằng cloneNode(true) để lá bay giữ
+            // y hệt mặt bài/lưng bài, cỡ chữ, hoa văn và trạng thái của lá tại tay
+            // người đánh trong suốt chuyến bay — bot bay bằng chính lá ÚP của nó,
+            // không dựng lá mới (vốn làm lá trông như biến hình giữa chừng).
+            let clone = null;
+            if (s.el && typeof s.el.cloneNode === 'function') {
+                try { clone = s.el.cloneNode(true); } catch (e) { clone = null; }
+            }
+            if (!clone || !clone.classList) clone = createCardEl(s.card);
+            clone.classList.remove('selected', 'deal-anim', 'card-deal-anim', 'revealed', 'hint-glow');
             clone.style.position = 'absolute';
             clone.style.left = (s.cx - s.w / 2) + 'px';
             clone.style.top = (s.cy - s.h / 2) + 'px';
@@ -558,7 +582,7 @@ function playFlyAnimation(who, srcList) {
             // tự nhiên; điểm đầu và điểm cuối giữ nguyên như đã đối chiếu ở r69.
             const midSx = (1 + d.w / s.w) / 2 * 1.05, midSy = (1 + d.h / s.h) / 2 * 1.05;
             anims.push(clone.animate([
-                { transform: 'translate(0px, 0px) scale(1, 1) rotate(0deg)', opacity: 1 },
+                { transform: 'translate(0px, 0px) scale(1, 1) rotate(' + (s.ang || 0) + 'deg)', opacity: 1 },
                 { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midSx + ', ' + midSy + ') rotate(' + (tilt * .55) + 'deg)', opacity: 1, offset: .55 },
                 { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + (d.w / s.w) + ', ' + (d.h / s.h) + ') rotate(' + tilt + 'deg)', opacity: 1 }
             ], { duration: 430, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
