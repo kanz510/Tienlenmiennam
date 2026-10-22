@@ -426,12 +426,18 @@ function canBeat(newCombo, oldCombo) {
 
     if (nc.type === 'straight') {
         if (nc.length !== oc.length) return false;
-        return nc.rank > oc.rank;
+        if (nc.rank !== oc.rank) return nc.rank > oc.rank;
+        const nTopS = nc.cards[nc.cards.length - 1];
+        const oTopS = oc.cards[oc.cards.length - 1];
+        return suitValue(nTopS) > suitValue(oTopS);
     }
 
     if (nc.type === 'double_straight') {
         if (nc.pairs !== oc.pairs) return false;
-        return nc.rank > oc.rank;
+        if (nc.rank !== oc.rank) return nc.rank > oc.rank;
+        const nTopD = nc.cards[nc.cards.length - 1];
+        const oTopD = oc.cards[oc.cards.length - 1];
+        return suitValue(nTopD) > suitValue(oTopD);
     }
 
     if (nc.type === 'single' || nc.type === 'pair' || nc.type === 'triple') {
@@ -1101,9 +1107,12 @@ function findCandidates(hand, target) {
                 else break;
             }
             if (seq.length === len && !seq.includes(RANK_2)) {
-                const cards = seq.map(r => byRank[r][0].card);
-                const combo = getCombo(cards);
-                if (combo && canBeat(combo, target)) results.push({ cards, combo });
+                const topRank = seq[seq.length - 1];
+                byRank[topRank].forEach(topEntry => {
+                    const cards = seq.map(r => r === topRank ? topEntry.card : byRank[r][0].card);
+                    const combo = getCombo(cards);
+                    if (combo && canBeat(combo, target)) results.push({ cards, combo });
+                });
             }
         }
     }
@@ -1131,12 +1140,19 @@ function findCandidates(hand, target) {
         }
         for (let len = 3; len <= seq.length; len++) {
             if (seq.slice(0, len).includes(RANK_2)) continue;
-            const cards = [];
-            seq.slice(0, len).forEach(r => {
-                cards.push(byRank[r][0].card, byRank[r][1].card);
-            });
-            const combo = getCombo(cards);
-            if (combo && canBeat(combo, target)) results.push({ cards, combo });
+            const topR = seq[len - 1];
+            const topGroup = byRank[topR];
+            for (let i = 0; i < topGroup.length - 1; i++) {
+                for (let j = i + 1; j < topGroup.length; j++) {
+                    const cards = [];
+                    seq.slice(0, len).forEach(r => {
+                        if (r === topR) cards.push(topGroup[i].card, topGroup[j].card);
+                        else cards.push(byRank[r][0].card, byRank[r][1].card);
+                    });
+                    const combo = getCombo(cards);
+                    if (combo && canBeat(combo, target)) results.push({ cards, combo });
+                }
+            }
         }
     }
 
