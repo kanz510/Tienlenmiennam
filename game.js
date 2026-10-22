@@ -794,6 +794,7 @@ function endGame(winnerIdx) {
     renderBreakdown(totalDelta);
     render();
     if (winnerIdx === 0) spawnConfetti();
+    toggleReview(false);
     overlay.classList.remove('hidden');
 
     updateButtons();
@@ -809,6 +810,16 @@ document.getElementById('btn-overlay-new').addEventListener('click', () => {
     document.getElementById('overlay').classList.add('hidden');
     newGame();
 });
+// Xem lại bài: ẩn bảng kết ván + bỏ lớp mờ để soi bài đã ngửa của cả bàn
+function toggleReview(on) {
+    const ov = document.getElementById('overlay');
+    const back = document.getElementById('btn-review-back');
+    if (on) { ov.classList.add('review-mode'); if (back) back.classList.remove('hidden'); }
+    else { ov.classList.remove('review-mode'); if (back) back.classList.add('hidden'); }
+}
+
+document.getElementById('btn-overlay-review').addEventListener('click', () => toggleReview(true));
+document.getElementById('btn-review-back').addEventListener('click', () => toggleReview(false));
 document.getElementById('btn-overlay-lobby').addEventListener('click', () => {
     document.getElementById('overlay').classList.add('hidden');
     backToLobby();
