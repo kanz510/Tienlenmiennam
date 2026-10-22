@@ -249,6 +249,7 @@ function renderPlayerHand() {
     state.hands.player.forEach((card, i) => {
         const c = createCardEl(card);
         c.dataset.idx = i;
+        c.style.zIndex = i + 1; // lá sau nằm trên lá trước: góc số/chất bên trái luôn lộ rõ
         if (state.selected.has(i)) c.classList.add('selected');
         c.addEventListener('click', () => handleCardClick(i));
         el.appendChild(c);
