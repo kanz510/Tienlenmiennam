@@ -458,6 +458,28 @@ function initSwipeSelect() {
 function openModal(id) { const m = document.getElementById(id); if (m) m.classList.remove('hidden'); }
 function closeModal(id) { const m = document.getElementById(id); if (m) m.classList.add('hidden'); }
 
+// CHẾ ĐỘ CHỌN BÀI: auto (tự gom) / single (từng lá) / range (từ–đến)
+const SELECT_MODES = [
+    { id: 'auto', icon: '🎯', label: 'Chọn tự động' },
+    { id: 'single', icon: '☝️', label: 'Chọn từng lá' },
+    { id: 'range', icon: '↔️', label: 'Chọn từ–đến' }
+];
+function selectModeInfo() { return SELECT_MODES.find(m => m.id === settings.selectMode) || SELECT_MODES[0]; }
+function updateSelModeIcon() {
+    const b = document.getElementById('btn-selmode');
+    if (b) b.textContent = selectModeInfo().icon;
+}
+function cycleSelectMode() {
+    const i = SELECT_MODES.findIndex(m => m.id === settings.selectMode);
+    const next = SELECT_MODES[(i + 1) % SELECT_MODES.length];
+    settings.selectMode = next.id;
+    saveSettings();
+    state.selected.clear();
+    syncSelectedUI();
+    updateSelModeIcon();
+    showMessage(next.label);
+}
+
 function syncSettingsForm() {
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
     const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = String(v); };

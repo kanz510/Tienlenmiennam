@@ -626,6 +626,7 @@ document.getElementById('btn-clear-save').addEventListener('click', () => {
 // Tiện ích + cài đặt
 document.getElementById('btn-hint').addEventListener('click', hintMove);
 document.getElementById('btn-sort').addEventListener('click', toggleSort);
+document.getElementById('btn-selmode').addEventListener('click', cycleSelectMode);
 document.getElementById('btn-settings').addEventListener('click', () => { syncSettingsForm(); openModal('settings-modal'); });
 document.getElementById('btn-close-settings').addEventListener('click', () => closeModal('settings-modal'));
 document.getElementById('btn-open-stats').addEventListener('click', () => { renderStats(); openModal('stats-modal'); });
@@ -653,6 +654,7 @@ bindSetting('set-table', el => settings.tableColor = el.value);
 bindSetting('set-back', el => settings.backStyle = el.value);
 bindSetting('set-select', el => settings.selectMode = el.value);
 initSwipeSelect();
+updateSelModeIcon();
 
 // Gate + resize
 window.addEventListener('resize', () => {
