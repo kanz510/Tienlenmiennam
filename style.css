@@ -13,12 +13,12 @@ html, body {
     height: 100%;
     overflow: hidden;
     position: fixed;
-    background: #0a2615;
+    background: #063f42;
     touch-action: manipulation;
 }
 
 body {
-    background: radial-gradient(circle, #2d6a4f 0%, #1b4332 100%);
+    background: radial-gradient(circle, #159a94 0%, #0b6e6e 100%);
     box-shadow: inset 0 0 90px rgba(0,0,0,.5);
 }
 
@@ -59,6 +59,9 @@ body {
     overflow: hidden;
     position: absolute;
     top: 0; left: 0;
+    background:
+        radial-gradient(ellipse 135% 62% at 50% 124%, #7c4a21 0 57%, #a5713a 57.5% 59.5%, rgba(0,0,0,0) 60.5%),
+        radial-gradient(ellipse at 50% 36%, #1aaba2 0%, #0d7a76 58%, #075a5e 100%);
 }
 
 /* Xoay 90 độ khi màn hình dọc */
@@ -91,14 +94,16 @@ body {
     box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
 
-.bot-name { font-weight: bold; }
+.bot-name { font-weight: 800; color: #fff; background: linear-gradient(180deg, #e53935, #b71c1c); padding: 2px 11px; border-radius: 999px; box-shadow: 0 2px 5px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35); white-space: nowrap; }
+.player-info .bot-name { background: linear-gradient(180deg, #1e88e5, #0d47a1); }
 
 .card-count {
     background: linear-gradient(180deg, #ff5b5b, #d63031);
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 28px;
     padding: 0;
-    border-radius: 50%;
+    border-radius: 5px;
+    transform: rotate(-6deg);
     border: 2px solid #fff;
     font-size: 12px;
     font-weight: bold;
@@ -158,7 +163,7 @@ body {
     background:
         repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 14px, transparent 14px 28px),
         repeating-linear-gradient(-45deg, rgba(0,0,0,.03) 0 14px, transparent 14px 28px),
-        radial-gradient(ellipse at center, #3a8a61 0%, #2d6a4f 55%, #1d4530 100%);
+        radial-gradient(ellipse at center, #2bb3a3 0%, #159a94 55%, #0b6e6e 100%);
     box-shadow: inset 0 0 55px rgba(0,0,0,.5), 0 0 0 5px #6d4420, 0 6px 18px rgba(0,0,0,.35);
 }
 
@@ -250,20 +255,17 @@ body {
 
 /* --- Đồng hồ --- */
 .timer-box {
-    background: rgba(0,0,0,0.8);
-    color: #ffd700;
-    font-weight: bold;
-    font-size: 20px;
-    padding: 6px 20px;
-    border-radius: 25px;
-    border: 2px solid #ffd700;
-    min-width: 70px;
+    background: transparent;
+    color: #fff;
+    font-weight: 800;
+    font-size: 24px;
+    padding: 4px 6px;
+    min-width: 64px;
     text-align: center;
-    box-shadow: 0 0 15px rgba(255,215,0,0.5);
+    text-shadow: 0 2px 6px rgba(0,0,0,.55);
 }
 .timer-box.danger {
     color: #ff4757;
-    border-color: #ff4757;
     animation: pulse 0.8s infinite;
 }
 @keyframes pulse {
@@ -287,41 +289,37 @@ button:active:not(:disabled) { transform: scale(0.92); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .btn-new-game {
-    background: rgba(255,255,255,.14);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0,0,0,.45);
     border: 1.5px solid rgba(255,255,255,.45);
     color: #fff;
-    box-shadow: 0 4px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35);
+    box-shadow: 0 4px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.25);
     padding: 12px 20px;
     font-size: 14px;
-    border-radius: 20px;
+    border-radius: 999px;
 }
 .controls {
     display: flex;
     gap: 10px;
 }
 .btn-play {
-    background: rgba(255,255,255,.14);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1.5px solid rgba(255,255,255,.45);
+    background: linear-gradient(180deg, #66bb46, #3d8b26);
+    border: 1.5px solid #2e6b1e;
     color: #fff;
-    box-shadow: 0 4px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35);
-    padding: 12px 35px;
-    font-size: 18px;
-    border-radius: 20px;
+    box-shadow: 0 5px 14px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.35);
+    padding: 13px 38px;
+    font-size: 19px;
+    border-radius: 999px;
+    text-shadow: 0 1px 2px rgba(0,0,0,.35);
 }
 .btn-pass {
-    background: rgba(255,255,255,.14);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1.5px solid rgba(255,255,255,.45);
+    background: linear-gradient(180deg, #ef5350, #c62828);
+    border: 1.5px solid #8e1414;
     color: #fff;
-    box-shadow: 0 4px 14px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.35);
-    padding: 12px 25px;
-    font-size: 16px;
-    border-radius: 20px;
+    box-shadow: 0 5px 14px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.35);
+    padding: 13px 28px;
+    font-size: 17px;
+    border-radius: 999px;
+    text-shadow: 0 1px 2px rgba(0,0,0,.35);
 }
 
 /* ============ CARD ============ */
@@ -421,7 +419,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short .btn-play { padding: 10px 30px; font-size: 16px; }
 #game-container.tier-short .btn-pass { padding: 10px 22px; font-size: 14px; }
 #game-container.tier-short .btn-new-game { padding: 10px 16px; font-size: 12px; }
-#game-container.tier-short .timer-box { font-size: 16px; padding: 5px 14px; min-width: 58px; }
+#game-container.tier-short .timer-box { font-size: 20px; min-width: 56px; }
 
 #game-container.tier-tiny { grid-template-rows: 52px 1fr 112px; gap: 4px; padding: 4px; }
 #game-container.tier-tiny .bot-info { font-size: 10px; padding: 3px 10px; }
@@ -442,7 +440,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-tiny .btn-play { padding: 8px 24px; font-size: 14px; }
 #game-container.tier-tiny .btn-pass { padding: 8px 18px; font-size: 13px; }
 #game-container.tier-tiny .btn-new-game { padding: 8px 12px; font-size: 11px; }
-#game-container.tier-tiny .timer-box { font-size: 14px; padding: 4px 10px; min-width: 50px; }
+#game-container.tier-tiny .timer-box { font-size: 17px; min-width: 48px; }
 #game-container.tier-tiny .player-info { font-size: 12px; padding: 4px 12px; }
 
 /* Khi tự xoay: đệm theo cạnh đã xoay — chừa chỗ tai thỏ ở phía thanh người chơi, bỏ env() ở cạnh ngắn */
@@ -457,8 +455,9 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    border: 1px solid #ffd700;
+    border: 1px solid rgba(255,255,255,.4);
     background: rgba(0,0,0,.55);
+    box-shadow: 0 3px 8px rgba(0,0,0,.4);
     font-size: 18px;
     line-height: 1;
     cursor: pointer;
@@ -503,7 +502,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 #game-container.tier-short .avatar { width: 30px; height: 30px; font-size: 17px; }
 #game-container.tier-tiny .avatar { width: 18px; height: 18px; font-size: 10px; }
-.money { color: #ffd700; font-weight: bold; font-size: 12px; line-height: 1; white-space: nowrap; }
+.money { color: #ffd54f; font-weight: bold; font-size: 12px; line-height: 1; white-space: nowrap; background: rgba(0,0,0,.5); border: 1px solid rgba(255,213,79,.5); padding: 3px 9px; border-radius: 999px; }
 #overlay-money { font-size: 24px; min-height: 30px; margin: 6px 0 2px; }
 
 /* Animation: bài bay ra bàn / bài chia rơi xuống / nhận tiền */
@@ -535,7 +534,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .player-info { position: relative; }
 
 /* Vòng đếm giờ quanh avatar */
-.avatar-wrap { position: relative; width: 40px; height: 40px; border-radius: 50%; padding: 3px; background: rgba(255,255,255,.14); flex-shrink: 0; }
+.avatar-wrap { position: relative; width: 40px; height: 40px; border-radius: 50%; padding: 3px; background: rgba(255,255,255,.14); border: 2px solid #ffc107; box-shadow: 0 0 0 2px rgba(109,68,0,.8), 0 3px 8px rgba(0,0,0,.45); flex-shrink: 0; }
+.avatar-wrap::before { content: '👑'; position: absolute; top: -12px; left: 50%; transform: translateX(-50%) rotate(-8deg); font-size: 13px; z-index: 3; filter: drop-shadow(0 1px 2px rgba(0,0,0,.5)); }
 .avatar-wrap .avatar { width: 100%; height: 100%; }
 #game-container.tier-short .avatar-wrap { width: 36px; height: 36px; }
 
@@ -593,15 +593,15 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .pass-label.show { display: inline-block; animation: popIn .2s ease-out; }
 
 /* Bong bóng cà khịa */
-.bubble { position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%) scale(.7); transform-origin: top center; background: #fff; color: #222; font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; white-space: nowrap; z-index: 80; }
+.bubble { position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%) scale(.7); transform-origin: top center; background: rgba(18,18,18,.9); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; white-space: nowrap; z-index: 80; }
 .bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
-.bubble::after { content: ''; position: absolute; left: 50%; top: -5px; transform: translateX(-50%); border: 5px solid transparent; border-bottom-color: #fff; border-top: 0; }
+.bubble::after { content: ''; position: absolute; left: 50%; top: -5px; transform: translateX(-50%); border: 5px solid transparent; border-bottom-color: rgba(18,18,18,.9); border-top: 0; }
 .bot-left .bubble { left: calc(100% + 10px); top: 50%; transform: translateY(-50%) scale(.7); transform-origin: left center; }
 .bot-left .bubble.show { transform: translateY(-50%) scale(1); }
-.bot-left .bubble::after { left: -5px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: #fff; border-left: 0; }
+.bot-left .bubble::after { left: -5px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: rgba(18,18,18,.9); border-left: 0; }
 .bot-right .bubble { left: auto; right: calc(100% + 10px); top: 50%; transform: translateY(-50%) scale(.7); transform-origin: right center; }
 .bot-right .bubble.show { transform: translateY(-50%) scale(1); }
-.bot-right .bubble::after { left: auto; right: -5px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-left-color: #fff; border-right: 0; }
+.bot-right .bubble::after { left: auto; right: -5px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-left-color: rgba(18,18,18,.9); border-right: 0; }
 
 /* Tiền bay lên khi thắng/thua */
 .money-float { position: absolute; left: 50%; top: -2px; transform: translateX(-50%); font-size: 15px; font-weight: 900; pointer-events: none; z-index: 90; text-shadow: 0 1px 3px rgba(0,0,0,.6); animation: moneyFloat 1.3s ease-out forwards; white-space: nowrap; }
