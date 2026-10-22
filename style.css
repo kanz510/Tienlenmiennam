@@ -369,7 +369,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 }
 
 /* ============ CO THEO CHIỀU CAO KHUNG GAME (JS gắn class, đúng cả khi tự xoay) ============ */
-#game-container.tier-short { grid-template-rows: 64px 1fr 128px; gap: 5px; padding: 5px; }
+#game-container.tier-short { grid-template-rows: 64px minmax(0,1fr) 128px; gap: 5px; padding: 5px; }
 #game-container.tier-short .bot-info { font-size: 11px; padding: 4px 12px; }
 #game-container.tier-short .bot-top .bot-cards .back-card { width: 26px; height: 36px; margin-left: -16px; }
 #game-container.tier-short .bot-left .bot-cards .back-card, #game-container.tier-short .bot-right .bot-cards .back-card { width: 34px; height: 46px; margin-top: -40px; }
@@ -484,7 +484,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
     from { transform: translateY(-120px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
-.card-deal-anim { animation: dealCard .45s ease-out both; }
+.card-deal-anim { animation: dealCard .45s ease-out backwards; }
 @keyframes coinPop {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.35); }
