@@ -325,10 +325,11 @@ function createCardEl(card) {
     const isRed = (card.suit === '♥' || card.suit === '♦');
     div.className = 'card ' + (isRed ? 'red' : 'black');
     const face = faceArtFor(card);
+    // Lá số/A: góc chỉ để con số, toàn lá chỉ có 1 hình chất to ở giữa (như Bảo chốt); lá mặt giữ chất nhỏ ở góc
     div.innerHTML = `
         <div class="corner">
             <span>${card.rank}</span>
-            <span>${card.suit}</span>
+            ${face ? `<span>${card.suit}</span>` : ''}
         </div>
         ${face ? `<img class="face-art" src="${face}" alt="">` : `<div class="suit-big">${card.suit}</div>`}
     `;
