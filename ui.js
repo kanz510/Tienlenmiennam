@@ -315,23 +315,25 @@ function renderLastPlay() {
     }
 }
 
-// Ảnh mặt J/Q/K style meme: mỗi rank một hình riêng theo từng chất (áo đổi màu theo chất)
-function faceArtFor(card) { return CARD_IMG['face-' + card.rank + '-' + card.suit] || ''; }
+// Hình mặt J/Q/K cổ điển: mỗi rank một hình dùng cho cả 4 chất (chất phân biệt ở góc số)
+function faceArtFor(card) { return CARD_IMG['face-' + card.rank] || ''; }
 
 function createCardEl(card) {
     const div = document.createElement('div');
     const isRed = (card.suit === '♥' || card.suit === '♦');
     div.className = 'card ' + (isRed ? 'red' : 'black');
+    const face = faceArtFor(card);
     div.innerHTML = `
         <div class="corner">
             <span>${card.rank}</span>
             <span>${card.suit}</span>
         </div>
+        ${face ? `<img class="face-art" src="${face}" alt="">` : `
         <div class="corner corner-br">
             <span>${card.rank}</span>
             <span>${card.suit}</span>
         </div>
-        ${faceArtFor(card) ? `<img class="face-art" src="${faceArtFor(card)}" alt="">` : `<div class="suit-big">${card.suit}</div>`}
+        <div class="suit-big">${card.suit}</div>`}
     `;
     return div;
 }
