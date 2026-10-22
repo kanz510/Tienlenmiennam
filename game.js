@@ -68,8 +68,6 @@ function applySettings() {
     }
     const bs = document.getElementById('btn-sound');
     if (bs) bs.textContent = settings.sound ? '🔊' : '🔇';
-    const ba = document.getElementById('btn-auto');
-    if (ba) ba.classList.toggle('on', !!settings.autoPlay);
     if (typeof syncSettingsForm === 'function') syncSettingsForm();
 }
 function loadStats() {
@@ -671,12 +669,6 @@ document.getElementById('btn-clear-save').addEventListener('click', () => {
 // Tiện ích + cài đặt
 document.getElementById('btn-hint').addEventListener('click', hintMove);
 document.getElementById('btn-sort').addEventListener('click', toggleSort);
-document.getElementById('btn-auto').addEventListener('click', () => {
-    settings.autoPlay = !settings.autoPlay;
-    saveSettings();
-    applySettings();
-    showMessage(settings.autoPlay ? '🤖 Đã BẬT tự động đánh khi hết giờ' : '🤖 Đã TẮT tự động đánh — hết giờ sẽ bỏ lượt');
-});
 document.getElementById('btn-start').addEventListener('click', () => enterGame(false));
 document.getElementById('btn-continue').addEventListener('click', () => enterGame(true));
 document.getElementById('btn-settings').addEventListener('click', () => { syncSettingsForm(); openModal('settings-modal'); });
