@@ -449,7 +449,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.rotate-90 .player-bar { margin-bottom: 0; padding-bottom: 8px; }
 
 /* Nút góc: âm thanh + xóa ván đã lưu */
-#btn-sound, #btn-clear-save, #btn-settings, #btn-hint, #btn-sort, #btn-auto {
+#btn-sound, #btn-clear-save, #btn-settings, #btn-hint, #btn-sort {
     position: absolute;
     top: 8px;
     z-index: 60;
@@ -468,8 +468,46 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #btn-settings { right: 116px; }
 #btn-hint { left: 8px; font-size: 15px; }
 #btn-sort { left: 62px; }
-#btn-auto { left: 116px; opacity: .5; }
-#btn-auto.on { opacity: 1; border-color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,.55); }
+/* Công tắc gạt Tự động (hết giờ máy đánh thay) */
+.auto-switch {
+    position: absolute;
+    top: 8px;
+    left: 116px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.55);
+    border: 2px solid rgba(255,255,255,.4);
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.auto-label { color: #fff; font-size: 13px; font-weight: 700; letter-spacing: .2px; }
+.auto-track {
+    position: relative;
+    flex: none;
+    width: 36px;
+    height: 20px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.28);
+    transition: background .2s;
+}
+.auto-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left .2s;
+}
+.auto-switch.on { border-color: #ffd700; }
+.auto-switch.on .auto-track { background: #43a047; }
+.auto-switch.on .auto-knob { left: 18px; }
 @media (hover: hover) {
     #btn-sound:hover, #btn-clear-save:hover, #btn-settings:hover, #btn-hint:hover, #btn-sort:hover { box-shadow: 0 0 14px rgba(255,215,0,.85); }
 }
