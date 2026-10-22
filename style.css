@@ -44,21 +44,19 @@ body {
 
 /* ============ LAYOUT ============ */
 #game-container {
-    width: 100%;
-    height: 100%;
+    width: 780px;
+    height: 440px;
     display: grid;
-    grid-template-columns: 100px 1fr 100px;
-    grid-template-rows: 70px 1fr 140px;
+    grid-template-columns: 100px minmax(0,1fr) 100px;
+    grid-template-rows: 64px minmax(0,1fr) 128px;
     grid-template-areas:
         "top    top    top"
         "left   table  right"
         "player player player";
-    padding: 8px;
-    padding-top: max(8px, env(safe-area-inset-top));
-    padding-left: max(8px, env(safe-area-inset-left));
-    padding-right: max(8px, env(safe-area-inset-right));
-    padding-bottom: max(8px, env(safe-area-inset-bottom));
-    gap: 8px;
+    padding: 5px;
+    gap: 5px;
+    transform-origin: top left;
+    overflow: hidden;
     position: absolute;
     top: 0; left: 0;
 }
@@ -115,10 +113,10 @@ body {
 .bot-left .bot-cards .back-card, .bot-right .bot-cards .back-card {
     width: 40px;
     height: 54px;
-    margin-top: -42px;
+    margin-top: -40px;
 }
 .bot-left .bot-cards .back-card:first-child, .bot-right .bot-cards .back-card:first-child { margin-top: 0; }
-.bot-left .bot-cards, .bot-right .bot-cards { margin-top: 15px; height: 198px; }
+.bot-left .bot-cards, .bot-right .bot-cards { margin-top: 6px; height: 118px; }
 
 .back-card {
     background: linear-gradient(135deg, #b71c1c, #7a1f14);
@@ -213,7 +211,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 15px;
-    padding-bottom: env(safe-area-inset-bottom, 8px);
+    padding-bottom: 8px;
     min-height: 50px;
 }
 
@@ -374,11 +372,11 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.tier-short { grid-template-rows: 64px 1fr 128px; gap: 5px; padding: 5px; }
 #game-container.tier-short .bot-info { font-size: 11px; padding: 4px 12px; }
 #game-container.tier-short .bot-top .bot-cards .back-card { width: 26px; height: 36px; margin-left: -16px; }
-#game-container.tier-short .bot-left .bot-cards .back-card, #game-container.tier-short .bot-right .bot-cards .back-card { width: 34px; height: 46px; margin-top: -36px; }
+#game-container.tier-short .bot-left .bot-cards .back-card, #game-container.tier-short .bot-right .bot-cards .back-card { width: 34px; height: 46px; margin-top: -40px; }
 #game-container.tier-short .bot-left .bot-cards .back-card:first-child, #game-container.tier-short .bot-right .bot-cards .back-card:first-child { margin-top: 0; }
 #game-container.tier-short .bot-top .bot-cards .back-card:first-child { margin-left: 0; }
 #game-container.tier-short .bot-top .bot-cards { width: 146px; }
-#game-container.tier-short .bot-left .bot-cards, #game-container.tier-short .bot-right .bot-cards { height: 166px; }
+#game-container.tier-short .bot-left .bot-cards, #game-container.tier-short .bot-right .bot-cards { height: 118px; }
 #game-container.tier-short #played-cards { min-height: 56px; }
 #game-container.tier-short #played-cards .card { width: 40px; height: 58px; }
 #game-container.tier-short #played-cards .card .corner { font-size: 12px; }

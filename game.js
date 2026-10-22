@@ -475,23 +475,23 @@ function applyRotation() {
 
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    const portrait = vh > vw;
+    const availW = portrait ? vh : vw;
+    const availH = portrait ? vw : vh;
 
-    if (vh > vw) {
-        // Máy dọc → xoay game 90° thành landscape
-        game.classList.add('rotate-90');
-        game.style.width = vh + 'px';
-        game.style.height = vw + 'px';
-    } else {
-        // Máy ngang → bình thường
-        game.classList.remove('rotate-90');
-        game.style.width = '';
-        game.style.height = '';
-    }
+    // Khung thiết kế cố định 780x440: thu/phóng cả khung cho vừa màn hình
+    const s = Math.min(availW / 780, availH / 440);
+    const offX = (availW - 780 * s) / 2;
+    const offY = (availH - 440 * s) / 2;
 
-    // Mức co theo chiều cao KHUNG GAME sau xoay (không theo chiều cao máy)
-    const lh = vh > vw ? vw : vh;
-    game.classList.toggle('tier-short', lh <= 440);
-    game.classList.toggle('tier-tiny', lh <= 350);
+    game.classList.add('tier-short');
+    game.classList.remove('tier-tiny');
+    game.classList.remove('rotate-90');
+    game.style.width = '780px';
+    game.style.height = '440px';
+    game.style.transform = portrait
+        ? `translate(${vw - offY}px, ${offX}px) rotate(90deg) scale(${s})`
+        : `translate(${offX}px, ${offY}px) scale(${s})`;
 }
 
 function checkGate() {
