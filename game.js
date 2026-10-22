@@ -32,7 +32,7 @@ state.timeLeft = 15;
 // ============================================================
 //  CÀI ĐẶT + THỐNG KÊ (localStorage, luôn trong try/catch)
 // ============================================================
-const DEFAULT_SETTINGS = { sound: true, voice: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong' };
+const DEFAULT_SETTINGS = { sound: true, voice: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'bua2' };
 let settings = { ...DEFAULT_SETTINGS };
 let stats = { games: 0, wins: 0, losses: 0, curStreak: 0, bestStreak: 0, biggestWin: 0 };
 
@@ -58,11 +58,17 @@ function applySettings() {
     }
     const gc = document.getElementById('game-container');
     if (gc) {
-        gc.classList.remove('theme-do', 'theme-duong', 'back-soc', 'back-cham');
+        gc.classList.remove('theme-do', 'theme-duong', 'back-soc', 'back-cham', 'back-bua');
         if (settings.tableColor === 'do') gc.classList.add('theme-do');
         if (settings.tableColor === 'duong') gc.classList.add('theme-duong');
         if (settings.backStyle === 'soc') gc.classList.add('back-soc');
         if (settings.backStyle === 'cham') gc.classList.add('back-cham');
+        gc.style.removeProperty('--back-img');
+        const buaKey = { bua1: 'back-1', bua2: 'back-2', bua3: 'back-3' }[settings.backStyle];
+        if (buaKey && typeof CARD_IMG !== 'undefined') {
+            gc.classList.add('back-bua');
+            gc.style.setProperty('--back-img', 'url("' + CARD_IMG[buaKey] + '")');
+        }
     }
     const bs = document.getElementById('btn-sound');
     if (bs) bs.textContent = settings.sound ? '🔊' : '🔇';

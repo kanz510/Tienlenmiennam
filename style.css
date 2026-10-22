@@ -649,6 +649,7 @@ body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
 #game-container.theme-duong .table-area { background: repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 14px, transparent 14px 28px), repeating-linear-gradient(-45deg, rgba(0,0,0,.03) 0 14px, transparent 14px 28px), radial-gradient(ellipse at center, #2f639a 0%, #24507a 55%, #16324d 100%); }
 #game-container.back-soc .back-card { background: repeating-linear-gradient(90deg, #b71c1c 0 6px, #8e1414 6px 12px); }
 #game-container.back-cham .back-card { background: radial-gradient(circle, rgba(255,202,40,.55) 2.2px, transparent 3px) 0 0 / 11px 11px, linear-gradient(135deg, #1f4e79, #123452); }
+#game-container.back-bua .back-card { background: var(--back-img) center / cover no-repeat; }
 
 /* ===== r40: sảnh chờ ===== */
 #lobby { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse at center, #2d6a4f 0%, #123524 70%, #081f14 100%); padding: 16px; }
