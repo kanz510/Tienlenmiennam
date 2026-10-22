@@ -553,21 +553,31 @@ function playFlyAnimation(who, srcList) {
             const d = measureFly(dEl, mDest);
             const s = srcList[i];
             if (!s.w || !s.h || !d.w || !d.h) continue;
-            // r72: nhân bản nguyên phần tử gốc bằng cloneNode(true) để lá bay giữ
-            // y hệt mặt bài/lưng bài, cỡ chữ, hoa văn và trạng thái của lá tại tay
-            // người đánh trong suốt chuyến bay — bot bay bằng chính lá ÚP của nó,
-            // không dựng lá mới (vốn làm lá trông như biến hình giữa chừng).
+            // r72+r73: lá bay là bản nhân nguyên xi, không dựng mới:
+            // - Người chơi: nhân bản lá gốc trên tay (vốn đã ngửa sẵn).
+            // - Bot: nhân bản CHÍNH LÁ ĐÍCH trên bàn — lá vừa đánh NGỬA NGAY TỪ ĐẦU
+            //   chuyến bay, đúng hạng/chất/màu của lá sẽ nằm lại trên bàn, và giữ
+            //   nguyên kích thước đích suốt chuyến bay nên không bóp méo, không
+            //   lật, không biến hình. Chỉ lá đã đánh mới hiện mặt; bài còn lại
+            //   trên tay bot vẫn úp như cũ.
+            const fromBot = who !== 'player';
             let clone = null;
-            if (s.el && typeof s.el.cloneNode === 'function') {
+            if (fromBot) {
+                try { clone = dEl.cloneNode(true); } catch (e) { clone = null; }
+            } else if (s.el && typeof s.el.cloneNode === 'function') {
                 try { clone = s.el.cloneNode(true); } catch (e) { clone = null; }
             }
             if (!clone || !clone.classList) clone = createCardEl(s.card);
             clone.classList.remove('selected', 'deal-anim', 'card-deal-anim', 'revealed', 'hint-glow');
+            clone.style.visibility = 'visible';
+            clone.style.transform = '';
+            const boxW = fromBot ? d.w : s.w;
+            const boxH = fromBot ? d.h : s.h;
             clone.style.position = 'absolute';
-            clone.style.left = (s.cx - s.w / 2) + 'px';
-            clone.style.top = (s.cy - s.h / 2) + 'px';
-            clone.style.width = s.w + 'px';
-            clone.style.height = s.h + 'px';
+            clone.style.left = (s.cx - boxW / 2) + 'px';
+            clone.style.top = (s.cy - boxH / 2) + 'px';
+            clone.style.width = boxW + 'px';
+            clone.style.height = boxH + 'px';
             clone.style.margin = '0';
             clone.style.zIndex = 10 + i;
             layer.appendChild(clone);
@@ -580,11 +590,15 @@ function playFlyAnimation(who, srcList) {
             const tilt = m ? parseFloat(m[1]) : 0;
             // r71: thêm điểm giữa nhấc nhẹ + phóng hơi lớn để quỹ đạo thành cung bay
             // tự nhiên; điểm đầu và điểm cuối giữ nguyên như đã đối chiếu ở r69.
-            const midSx = (1 + d.w / s.w) / 2 * 1.05, midSy = (1 + d.h / s.h) / 2 * 1.05;
+            // Tỉ lệ co giãn tính theo khung hộp của chính lá bay (boxW/boxH): với
+            // bot khung hộp đã bằng kích thước đích nên tỉ lệ cuối = 1 (không méo).
+            const startRot = fromBot ? 0 : (s.ang || 0);
+            const endSx = d.w / boxW, endSy = d.h / boxH;
+            const midSx = (1 + endSx) / 2 * 1.05, midSy = (1 + endSy) / 2 * 1.05;
             anims.push(clone.animate([
-                { transform: 'translate(0px, 0px) scale(1, 1) rotate(' + (s.ang || 0) + 'deg)', opacity: 1 },
-                { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midSx + ', ' + midSy + ') rotate(' + (tilt * .55) + 'deg)', opacity: 1, offset: .55 },
-                { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + (d.w / s.w) + ', ' + (d.h / s.h) + ') rotate(' + tilt + 'deg)', opacity: 1 }
+                { transform: 'translate(0px, 0px) scale(1, 1) rotate(' + startRot + 'deg)', opacity: 1 },
+                { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midSx + ', ' + midSy + ') rotate(' + (startRot + (tilt - startRot) * .55) + 'deg)', opacity: 1, offset: .55 },
+                { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + endSx + ', ' + endSy + ') rotate(' + tilt + 'deg)', opacity: 1 }
             ], { duration: 430, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
         }
         if (!anims.length) { cleanup(); return; }
