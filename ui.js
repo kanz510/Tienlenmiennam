@@ -476,6 +476,21 @@ function toggleSort() {
 }
 
 // VUỐT CHỌN: kéo ngang qua nhiều lá để chọn cả dải
+// CHẠM KHOẢNG TRỐNG trên hàng bài (target là chính #cards-player, không trúng lá nào)
+// -> bỏ chọn hết. Tôn trọng cờ suppressNextClick của vuốt chọn.
+function handleCardsWrapClick(e) {
+    if (suppressNextClick) return;
+    const cp = document.getElementById('cards-player');
+    if (cp && e && e.target === cp) {
+        state.selected.clear();
+        syncSelectedUI();
+    }
+}
+function initClearOnEmptyTap() {
+    const cp = document.getElementById('cards-player');
+    if (cp && cp.addEventListener) cp.addEventListener('click', handleCardsWrapClick);
+}
+
 function initSwipeSelect() {
     const cp = document.getElementById('cards-player');
     if (!cp || !cp.addEventListener) return;

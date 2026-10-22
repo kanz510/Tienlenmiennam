@@ -655,6 +655,7 @@ bindSetting('set-back', el => settings.backStyle = el.value);
 bindSetting('set-select', el => settings.selectMode = el.value);
 initSwipeSelect();
 updateSelModeIcon();
+initClearOnEmptyTap();
 
 // Gate + resize
 window.addEventListener('resize', () => {
