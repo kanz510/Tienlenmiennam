@@ -10,9 +10,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a2615">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r40">
+    <link rel="stylesheet" href="style.css?v=r41">
 <script>
-window.__TLV = 'r40';
+window.__TLV = 'r41';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -50,7 +50,6 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <button id="btn-settings" title="Cài đặt">⚙️</button>
         <button id="btn-hint" title="Gợi ý nước đi (3 lần/ván)">💡3</button>
         <button id="btn-sort" title="Đổi kiểu sắp xếp bài">⇅</button>
-        <button id="btn-selmode" title="Chế độ chọn bài">🎯</button>
 
         <!-- Bot Bắc (trên) -->
         <div class="bot-area bot-top">
@@ -156,7 +155,6 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <label class="set-row"><span>Mức cược (xu)</span><select id="set-bet"><option value="50">50</option><option value="100">100</option><option value="200">200</option><option value="500">500</option></select></label>
             <label class="set-row"><span>Màu bàn</span><select id="set-table"><option value="xanh">Xanh lá</option><option value="do">Đỏ rượu</option><option value="duong">Xanh dương</option></select></label>
             <label class="set-row"><span>Kiểu lưng bài</span><select id="set-back"><option value="kimcuong">Kim cương</option><option value="soc">Sọc</option><option value="cham">Chấm bi</option></select></label>
-            <label class="set-row"><span>Chế độ chọn bài</span><select id="set-select"><option value="auto">Tự động</option><option value="single">Từng lá</option><option value="range">Từ–đến</option></select></label>
             <button id="btn-refill" class="modal-btn">💰 Nạp lại 1000 xu (khi hết tiền)</button>
             <div class="modal-actions">
                 <button id="btn-open-stats" class="modal-btn">📊 Thống kê</button>
@@ -193,11 +191,11 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r40"></script>
-    <script src="audio.js?v=r40"></script>
-    <script src="bot.js?v=r40"></script>
-    <script src="ui.js?v=r40"></script>
-    <script src="game.js?v=r40"></script>
+    <script src="rules.js?v=r41"></script>
+    <script src="audio.js?v=r41"></script>
+    <script src="bot.js?v=r41"></script>
+    <script src="ui.js?v=r41"></script>
+    <script src="game.js?v=r41"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });

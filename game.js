@@ -32,7 +32,7 @@ state.timeLeft = 15;
 // ============================================================
 //  CÀI ĐẶT + THỐNG KÊ (localStorage, luôn trong try/catch)
 // ============================================================
-const DEFAULT_SETTINGS = { sound: true, voice: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong', selectMode: 'auto' };
+const DEFAULT_SETTINGS = { sound: true, voice: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong' };
 let settings = { ...DEFAULT_SETTINGS };
 let stats = { games: 0, wins: 0, losses: 0, curStreak: 0, bestStreak: 0, biggestWin: 0 };
 
@@ -649,7 +649,6 @@ document.getElementById('btn-clear-save').addEventListener('click', () => {
 // Tiện ích + cài đặt
 document.getElementById('btn-hint').addEventListener('click', hintMove);
 document.getElementById('btn-sort').addEventListener('click', toggleSort);
-document.getElementById('btn-selmode').addEventListener('click', cycleSelectMode);
 document.getElementById('btn-start').addEventListener('click', () => enterGame(false));
 document.getElementById('btn-continue').addEventListener('click', () => enterGame(true));
 document.getElementById('btn-settings').addEventListener('click', () => { syncSettingsForm(); openModal('settings-modal'); });
@@ -677,10 +676,7 @@ bindSetting('set-difficulty', el => settings.difficulty = el.value);
 bindSetting('set-bet', el => settings.bet = parseInt(el.value, 10) || 100);
 bindSetting('set-table', el => settings.tableColor = el.value);
 bindSetting('set-back', el => settings.backStyle = el.value);
-bindSetting('set-select', el => settings.selectMode = el.value);
 initSwipeSelect();
-updateSelModeIcon();
-initClearOnEmptyTap();
 
 // Gate + resize
 window.addEventListener('resize', () => {
