@@ -471,6 +471,9 @@ function onFlyLanded(destEls, center, big) {
         if (!probe.animate) return;
         const layer = document.getElementById('fly-layer');
         const dest = document.getElementById('played-cards');
+        // r75: nếu đống bài đích không còn là bài đang hiển thị trên bàn (đã bị
+        // nước mới thay), bỏ qua toàn bộ hiệu ứng hạ cánh của nước cũ.
+        if (!dest || !destEls.length || destEls[0].parentNode !== dest) return;
         destEls.forEach(el => {
             if (!dest || el.parentNode !== dest || !el.animate) return;
             const base = el.style.transform || '';
@@ -534,9 +537,15 @@ function playFlyAnimation(who, srcList) {
         const anims = [];
         const hiddenEls = []; // chỉ những phần tử CHÍNH lượt này đã ẩn mới được khôi phục
         let cleaned = false;
+        let cancelled = false; // r75: lượt bay này bị lượt mới thay thế giữa chừng
+        let cancelFlight = null;
         const cleanup = () => {
             if (cleaned) return;
             cleaned = true;
+            // r75: hủy luôn hoạt ảnh của các lá bay (trước đây chỉ gỡ khỏi DOM,
+            // hoạt ảnh vẫn chạy tiếp và lời hứa hoàn thành vẫn kích hoạt về sau,
+            // làm hiệu ứng hạ cánh của nước cũ bung chồng lên nước mới).
+            anims.forEach(a => { try { a.cancel(); } catch (e) {} });
             clones.forEach(c => c.remove());
             // Chỉ khôi phục visibility cho phần tử của chính lượt này và chỉ khi nó
             // VẪN còn là lá đang hiển thị trong #played-cards. Nếu render mới đã thay
@@ -545,9 +554,10 @@ function playFlyAnimation(who, srcList) {
                 const destNow = document.getElementById('played-cards');
                 if (destNow && el.parentNode === destNow) el.style.visibility = '';
             });
-            if (flyCleanup === cleanup) flyCleanup = null;
+            if (flyCleanup === cancelFlight) flyCleanup = null;
         };
-        flyCleanup = cleanup;
+        cancelFlight = () => { cancelled = true; cleanup(); };
+        flyCleanup = cancelFlight;
         for (let i = 0; i < n; i++) {
             const dEl = destEls[i];
             const d = measureFly(dEl, mDest);
@@ -608,8 +618,12 @@ function playFlyAnimation(who, srcList) {
         const destCenter = measureFly(dest, mDest);
         const big = isBigPlay(state.lastPlay && state.lastPlay.combo, state.lastPlayWasChop);
         Promise.allSettled(anims.map(a => a.finished)).then(() => {
+            const wasCancelled = cancelled;
             cleanup();
-            onFlyLanded(destEls, destCenter, big);
+            // r75: chuyến bay đã bị lượt mới thay thế thì TUYỆT ĐỐI không chạy
+            // hiệu ứng hạ cánh của nước cũ (vòng sáng/hạt/nảy lá) chồng lên
+            // nước mới — đây là gốc của hiện tượng lá trông như bị nhân đôi.
+            if (!wasCancelled) onFlyLanded(destEls, destCenter, big);
         });
     } catch (e) { /* hiệu ứng phụ: lỗi thì bỏ qua, bài trên bàn vẫn hiển thị bình thường */ }
 }
