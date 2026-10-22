@@ -231,6 +231,7 @@ function isLandscape() {
 }
 
 let gameStarted = false;
+let lastWinnerIdx = -1; // người thắng ván trước trong phiên này (-1 = chưa có ván nào xong)
 
 
 function checkGate() {
@@ -309,20 +310,26 @@ function newGame() {
     state.hands.right  = sortHand(deck.slice(26, 39));
     state.hands.top    = sortHand(deck.slice(39, 52));
 
-    // Tìm ai có 3♠ đi trước
-    state.turn = 0;
-    for (let i = 0; i < PLAYERS.length; i++) {
-        const p = PLAYERS[i];
-        if (state.hands[p].some(c => c.rank === '3' && c.suit === '♠')) {
-            state.turn = i;
-            break;
+    // Ai đi trước: ván đầu của phiên -> người giữ 3♠, nước đầu bắt buộc có 3♠;
+    // các ván sau -> người thắng ván trước đi trước, nước đầu tự do.
+    if (lastWinnerIdx >= 0) {
+        state.turn = lastWinnerIdx;
+        state.firstMove = false;
+    } else {
+        state.turn = 0;
+        for (let i = 0; i < PLAYERS.length; i++) {
+            const p = PLAYERS[i];
+            if (state.hands[p].some(c => c.rank === '3' && c.suit === '♠')) {
+                state.turn = i;
+                break;
+            }
         }
+        state.firstMove = true;
     }
 
     state.lastPlay = null;
     state.passCount = 0;
     state.hasPassed = false;
-    state.firstMove = true;
     state.selected.clear();
     state.gameOver = false;
     state.playedAny = { player: false, left: false, right: false, top: false };
@@ -545,6 +552,7 @@ function doPass() {
 function endGame(winnerIdx) {
     stopTimer();
     state.gameOver = true;
+    lastWinnerIdx = winnerIdx; // ván sau: người thắng đi trước
     clearSave();
     playWin();
     const winnerKey = PLAYERS[winnerIdx];
