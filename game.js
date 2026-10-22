@@ -50,6 +50,11 @@ function saveSettings() {
 function applySettings() {
     soundOn = settings.sound;
     voiceOn = settings.voice;
+    if (document.body) {
+        document.body.classList.remove('theme-do', 'theme-duong');
+        if (settings.tableColor === 'do') document.body.classList.add('theme-do');
+        if (settings.tableColor === 'duong') document.body.classList.add('theme-duong');
+    }
     const gc = document.getElementById('game-container');
     if (gc) {
         gc.classList.remove('theme-do', 'theme-duong', 'back-soc', 'back-cham');

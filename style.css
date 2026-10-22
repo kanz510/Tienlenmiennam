@@ -645,6 +645,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .bd-total { margin-top: 7px; border-top: 2px solid #999; padding-top: 5px; }
 .bd-total .bd-row { border-bottom: none; font-weight: 700; }
 #overlay-content { max-width: 94vw; }
+body.theme-do { background: radial-gradient(circle, #7a2230, #451219); }
+body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
 #game-container.theme-do { background: radial-gradient(circle, #7a2230, #451219); }
 #game-container.theme-do .table-area { background: repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 14px, transparent 14px 28px), repeating-linear-gradient(-45deg, rgba(0,0,0,.03) 0 14px, transparent 14px 28px), radial-gradient(ellipse at center, #a03a4a 0%, #7a2230 55%, #4d1420 100%); }
 #game-container.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
