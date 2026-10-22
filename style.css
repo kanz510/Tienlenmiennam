@@ -759,3 +759,56 @@ body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
 /* Trong khung đã xoay, chiều cao khả dụng là 440 (đơn vị thiết kế) chứ không phải 94vh
    (vh vẫn tính theo màn hình vật lý) — kẹp panel theo 100% khung để bảng kê cuộn bên trong. */
 #overlay.ov-rot #overlay-content { max-height: 100%; }
+
+/* ===== r66: căn chỉnh sảnh chờ (căn giữa tuyệt đối, một trục nút, safe-area iPhone) ===== */
+/* #lobby vẫn là fixed inset 0 căn giữa bằng flex như cũ; chỉ bổ sung vùng an toàn tai thỏ/thanh home */
+#lobby {
+    padding: max(14px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+}
+/* Toàn bộ nội dung gom vào một khung kính nhẹ: flex cột, khoảng cách ĐỀU bằng gap,
+   giới hạn chiều cao theo khung nhìn và TỰ CUỘN khi máy ngang thấp — không còn tràn/cắt 2 đầu. */
+#lobby-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: min(92vw, 430px);
+    max-width: 92vw;
+    max-height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 18px;
+    background: linear-gradient(160deg, rgba(7,64,68,.55), rgba(3,32,35,.68));
+    border: 1px solid rgba(255,215,0,.35);
+    border-radius: 24px;
+    box-shadow: 0 18px 44px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.14);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+/* Bỏ toàn bộ margin rải rác cũ — nhịp dọc do gap của khung quyết định */
+#lobby-logo { margin: 0; flex: none; }
+#lobby-title { margin: 0; font-size: clamp(23px, 7.2vw, 32px); }
+#lobby-sub { margin: 0; }
+#lobby-level { margin: 0; }
+.xp-bar { width: min(260px, 82%); margin: 0; flex: none; }
+#xp-text { margin: 0; }
+/* Mọi nút cùng một trục 320px, thẳng hàng với nhau */
+#btn-start, #btn-continue, #btn-gift { width: 100%; max-width: 320px; margin: 0; flex: none; }
+#btn-continue { padding: 11px 26px; }
+.lobby-row { margin: 0; width: 100%; max-width: 320px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: none; }
+.lobby-sub-btn { width: 100%; padding: 11px 8px; white-space: nowrap; }
+/* Màn hình thấp (máy ngang ~340-430px, hoặc máy dọc nhỏ): thu gọn logo + chữ + nhịp để vừa khung */
+@media (max-height: 480px) {
+    #lobby-content { gap: 6px; padding: 10px 16px; border-radius: 20px; }
+    #lobby-logo { width: 44px; height: 56px; font-size: 32px; border-width: 2px; }
+    #lobby-title { font-size: 21px; }
+    /* Màn hình thấp: ẩn dòng mô tả luật (đã có đầy đủ trong mục Luật chơi) để các nút không bị đẩy tràn */
+    #lobby-sub { display: none; }
+    #lobby-level { font-size: 14px; }
+    #xp-text { font-size: 11px; }
+    #btn-start { padding: 10px 30px; font-size: 17px; }
+    #btn-continue { padding: 9px 22px; font-size: 14px; }
+    .lobby-sub-btn { padding: 9px 6px; font-size: 14px; }
+    #btn-gift { padding: 9px 16px; font-size: 14px; }
+}
