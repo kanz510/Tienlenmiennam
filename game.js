@@ -7,7 +7,7 @@ const SUITS = ['♠', '♣', '♦', '♥'];
 const RANKS = ['3','4','5','6','7','8','9','10','J','Q','K','A','2'];
 const RANK_2 = 12; // index của '2'
 
-const PLAYERS = ['player', 'left', 'right', 'top'];
+const PLAYERS = ['player', 'left', 'top', 'right'];
 const PLAYER_NAMES = {
     player: 'Bạn',
     left: 'Bot Tây',
@@ -182,6 +182,7 @@ function saveGame() {
     try {
         if (state.gameOver) return;
         localStorage.setItem('tlSave', JSON.stringify({
+            v: 2,
             hands: state.hands,
             turn: state.turn,
             lastPlay: state.lastPlay,
@@ -202,7 +203,7 @@ function loadGame() {
         const raw = localStorage.getItem('tlSave');
         if (!raw) return false;
         const d = JSON.parse(raw);
-        if (!d || !d.hands || !d.hands.player || !d.hands.left || !d.hands.right || !d.hands.top) return false;
+        if (!d || d.v !== 2 || !d.hands || !d.hands.player || !d.hands.left || !d.hands.right || !d.hands.top) return false;
         state.hands = d.hands;
         state.turn = d.turn || 0;
         state.lastPlay = d.lastPlay || null;

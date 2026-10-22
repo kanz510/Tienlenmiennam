@@ -494,7 +494,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 @keyframes flyFromTop { from { transform: scale(0.5) translate(0, -110px); opacity: .4; } to { transform: scale(1) translate(0, 0); opacity: 1; } }
 @keyframes flyFromLeft { from { transform: scale(0.5) translate(-110px, 0); opacity: .4; } to { transform: scale(1) translate(0, 0); opacity: 1; } }
 @keyframes flyFromRight { from { transform: scale(0.5) translate(110px, 0); opacity: .4; } to { transform: scale(1) translate(0, 0); opacity: 1; } }
-.card-play-anim { animation-duration: .3s; animation-timing-function: ease-out; }
+.card-play-anim { animation-duration: .65s; animation-timing-function: ease-out; }
 .from-bottom { animation-name: flyFromBottom; }
 .from-top { animation-name: flyFromTop; }
 .from-left { animation-name: flyFromLeft; }
