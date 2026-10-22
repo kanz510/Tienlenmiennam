@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r75">
+    <link rel="stylesheet" href="style.css?v=r76">
 <script>
-window.__TLV = 'r75';
+window.__TLV = 'r76';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -53,11 +53,11 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <button id="btn-sort" title="Đổi kiểu sắp xếp bài">⇅</button>
         <button id="btn-shop-ingame" title="Cửa hàng">🛒</button>
 
-        <!-- Bot Bắc (trên) -->
+        <!-- Tuấn Cao Thủ (trên) -->
         <div class="bot-area bot-top">
             <div class="bot-info">
                 <div class="avatar-wrap" id="awrap-top"><div class="avatar">🐻</div><span class="just-badge hidden" id="just-top">VỪA ĐÁNH</span></div>
-                <span class="bot-name">Bot Bắc · Giữ bài</span>
+                <span class="bot-name"><span class="bot-nick">Tuấn Cao Thủ</span><span class="bot-full">Trần Minh Tuấn</span></span>
                 <span class="pass-label" id="pass-top">BỎ LƯỢT</span>
                 <div class="bubble" id="bubble-top"></div>
                 <span class="card-count" id="count-top">13</span>
@@ -66,11 +66,11 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <div class="bot-cards" id="cards-top"></div>
         </div>
 
-        <!-- Bot Tây (trái) -->
+        <!-- Hùng Sấm Sét (trái) -->
         <div class="bot-area bot-left">
             <div class="bot-info">
                 <div class="avatar-wrap" id="awrap-left"><div class="avatar">🐯</div><span class="just-badge hidden" id="just-left">VỪA ĐÁNH</span></div>
-                <span class="bot-name">Bot Tây · Hung hăng</span>
+                <span class="bot-name"><span class="bot-nick">Hùng Sấm Sét</span><span class="bot-full">Nguyễn Văn Hùng</span></span>
                 <span class="pass-label" id="pass-left">BỎ LƯỢT</span>
                 <div class="bubble" id="bubble-left"></div>
                 <span class="card-count" id="count-left">13</span>
@@ -87,11 +87,11 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <div id="message"></div>
         </div>
 
-        <!-- Bot Đông (phải) -->
+        <!-- Nam Lì Đòn (phải) -->
         <div class="bot-area bot-right">
             <div class="bot-info">
                 <div class="avatar-wrap" id="awrap-right"><div class="avatar">🦊</div><span class="just-badge hidden" id="just-right">VỪA ĐÁNH</span></div>
-                <span class="bot-name">Bot Đông · Chuyên chặn</span>
+                <span class="bot-name"><span class="bot-nick">Nam Lì Đòn</span><span class="bot-full">Lê Hoàng Nam</span></span>
                 <span class="pass-label" id="pass-right">BỎ LƯỢT</span>
                 <div class="bubble" id="bubble-right"></div>
                 <span class="card-count" id="count-right">13</span>
@@ -222,7 +222,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <h3>📖 Luật chơi tóm tắt</h3>
             <div class="rules-text">
                 <p><b>Mục tiêu:</b> Ai hết bài trước là người thắng — <b>ván kết thúc NGAY lập tức</b>, không chơi tiếp để xếp hạng 2-3-4.</p>
-                <p><b>Ba đối thủ:</b> Bot Tây 🐯 tính <b>Hung hăng</b> (dám đè mạnh, dùng heo sớm), Bot Bắc 🐻 tính <b>Giữ bài</b> (tiết kiệm hàng đặc biệt, thà bỏ lượt), Bot Đông 🦊 tính <b>Chuyên chặn</b> (ai sắp hết bài là chặn quyết liệt). Độ khó <b>Siêu khó</b>: bot tự chơi thử nhiều ván trong đầu trước khi đánh.</p>
+                <p><b>Ba đối thủ:</b> Hùng Sấm Sét 🐯 tính <b>Hung hăng</b> (dám đè mạnh, dùng heo sớm), Tuấn Cao Thủ 🐻 tính <b>Giữ bài</b> (tiết kiệm hàng đặc biệt, thà bỏ lượt), Nam Lì Đòn 🦊 tính <b>Chuyên chặn</b> (ai sắp hết bài là chặn quyết liệt). Độ khó <b>Siêu khó</b>: đối thủ máy tự chơi thử nhiều ván trong đầu trước khi đánh.</p>
                 <p><b>Đi trước:</b> ván đầu của phiên, người giữ 3♠ đi trước và nước đầu bắt buộc phải có 3♠. Các ván sau, người thắng ván trước đi trước và nước đầu tự do.</p>
                 <p><b>So bài:</b> chỉ đè được bộ cùng loại, cùng số lá. Cùng số thì so chất của lá chốt (♠ &lt; ♣ &lt; ♦ &lt; ♥). Tứ quý và đôi thông chặt được heo; 4 đôi thông chặt được đôi heo.</p>
                 <p><b>Tiền cơ bản</b> (× mức cược/100): thắng +300, mỗi người thua −100.</p>
@@ -235,12 +235,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r75"></script>
-    <script src="audio.js?v=r75"></script>
-    <script src="cards-img.js?v=r75"></script>
-    <script src="bot.js?v=r75"></script>
-    <script src="ui.js?v=r75"></script>
-    <script src="game.js?v=r75"></script>
+    <script src="rules.js?v=r76"></script>
+    <script src="audio.js?v=r76"></script>
+    <script src="cards-img.js?v=r76"></script>
+    <script src="bot.js?v=r76"></script>
+    <script src="ui.js?v=r76"></script>
+    <script src="game.js?v=r76"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
