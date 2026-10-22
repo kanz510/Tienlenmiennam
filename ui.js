@@ -419,17 +419,22 @@ function toggleSort() {
 function initSwipeSelect() {
     const cp = document.getElementById('cards-player');
     if (!cp || !cp.addEventListener) return;
-    let dragStart = null, dragMoved = false;
+    let dragging = false, dragMoved = false, dragStart = null;
+    const cardAt = e => {
+        if (!document.elementFromPoint) return null;
+        const t = document.elementFromPoint(e.clientX, e.clientY);
+        return t && t.closest ? t.closest('#cards-player .card') : null;
+    };
     cp.addEventListener('pointerdown', e => {
-        const t = e.target && e.target.closest ? e.target.closest('.card') : null;
-        if (!t) return;
-        dragStart = +t.dataset.idx;
-        dragMoved = false;
+        if (state.turn !== 0 || state.gameOver) return;
+        const t = cardAt(e) || (e.target && e.target.closest ? e.target.closest('#cards-player .card') : null);
+        if (!t || t.dataset.idx === undefined) return;
+        dragging = true; dragMoved = false; dragStart = +t.dataset.idx;
     });
-    cp.addEventListener('pointerover', e => {
-        if (dragStart === null) return;
-        const t = e.target && e.target.closest ? e.target.closest('.card') : null;
-        if (!t) return;
+    cp.addEventListener('pointermove', e => {
+        if (!dragging || state.turn !== 0 || state.gameOver) return;
+        const t = cardAt(e);
+        if (!t || t.dataset.idx === undefined) return;
         const idx = +t.dataset.idx;
         if (idx === dragStart && !dragMoved) return;
         dragMoved = true;
@@ -438,13 +443,15 @@ function initSwipeSelect() {
         for (let i = a; i <= b; i++) state.selected.add(i);
         syncSelectedUI();
     });
-    if (typeof window !== 'undefined' && window.addEventListener) {
-        window.addEventListener('pointerup', () => {
-            if (dragMoved) suppressNextClick = true;
-            dragStart = null;
-            dragMoved = false;
-        });
-    }
+    const endDrag = () => {
+        if (dragging && dragMoved) {
+            suppressNextClick = true;
+            setTimeout(() => { suppressNextClick = false; }, 50);
+        }
+        dragging = false; dragMoved = false; dragStart = null;
+    };
+    cp.addEventListener('pointerup', endDrag);
+    cp.addEventListener('pointercancel', endDrag);
 }
 
 // MODAL

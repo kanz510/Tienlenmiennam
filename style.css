@@ -193,6 +193,7 @@ body {
 
 /* --- Khu vực chứa bài của người chơi --- */
 .player-cards {
+    touch-action: none;
     position: absolute;
     bottom: 62px;
     left: 0;
