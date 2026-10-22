@@ -361,21 +361,61 @@ function renderLastPlay() {
     }
 }
 
-// ===== r68: BAY BÀI TỪ VỊ TRÍ THẬT + NHẤN SÁNG NGƯỜI VỪA ĐÁNH =====
-// Tọa độ đo bằng chuỗi offset trong HỆ THIẾT KẾ của #game-container: offsetLeft/Top/
-// Width là số đo layout (chưa qua transform) nên đúng tuyệt đối kể cả khi khung bị
-// xoay 90°/scale trên máy dọc — không dùng tọa độ viewport.
-function posInGame(el) {
-    const game = document.getElementById('game-container');
-    let x = 0, y = 0, n = el;
-    while (n && n !== game) { x += n.offsetLeft || 0; y += n.offsetTop || 0; n = n.offsetParent; }
-    return { x: x, y: y, w: el.offsetWidth || 0, h: el.offsetHeight || 0 };
+// ===== r68/r69: BAY BÀI TỪ VỊ TRÍ THẬT + NHẤN SÁNG NGƯỜI VỪA ĐÁNH =====
+// Tọa độ được đo bằng getBoundingClientRect() (hệ viewport) rồi chuyển đổi về hệ
+// local của #fly-layer bằng MA TRẬN NEO: 3 phần tử neo tạm đặt tại local (0,0),
+// (100,0), (0,100) ngay trong #fly-layer — chúng chịu đúng phép biến đổi của khung
+// (xoay 90°/scale/translate trên máy dọc) như mọi clone, nên phép chuyển đổi đúng
+// tuyệt đối mà không cần biết transform của bất kỳ phần tử cha nào, và không trộn
+// tọa độ viewport với tọa độ local. (r69 thay cho cách cộng offset thủ công ở r68.)
+function flyMatrix() {
+    try {
+        const layer = document.getElementById('fly-layer');
+        if (!layer || !layer.getBoundingClientRect) return null;
+        const anchor = (l, t) => {
+            const d = document.createElement('div');
+            d.style.cssText = 'position:absolute;width:0;height:0;left:' + l + 'px;top:' + t + 'px;';
+            layer.appendChild(d);
+            const r = d.getBoundingClientRect();
+            d.remove();
+            return { x: r.left, y: r.top };
+        };
+        const A = anchor(0, 0), B = anchor(100, 0), C = anchor(0, 100);
+        const ux = B.x - A.x, uy = B.y - A.y, vx = C.x - A.x, vy = C.y - A.y;
+        const det = ux * vy - vx * uy;
+        if (!det || !isFinite(det)) return null;
+        return { ax: A.x, ay: A.y, ux: ux, uy: uy, vx: vx, vy: vy, det: det };
+    } catch (e) { return null; }
+}
+
+// Chuyển một điểm viewport (client) về hệ local của #fly-layer theo ma trận neo.
+function flyLocalPoint(m, cx, cy) {
+    const dx = cx - m.ax, dy = cy - m.ay;
+    return {
+        x: (dx * m.vy - dy * m.vx) / m.det * 100,
+        y: (dy * m.ux - dx * m.uy) / m.det * 100
+    };
+}
+
+// Đo một phần tử theo hệ local của #fly-layer: tâm (cx, cy) từ rect đã chuyển đổi,
+// kích thước w/h là kích thước layout trong cùng hệ local (clone là con của
+// #fly-layer nên dùng chung đơn vị). Không dựng được ma trận (môi trường không có
+// layout thật) thì trả kích thước 0 để tầng bay tự bỏ qua an toàn.
+function measureFly(el, m) {
+    const w = el.offsetWidth || 0, h = el.offsetHeight || 0;
+    if (!m || !el.getBoundingClientRect) return { cx: 0, cy: 0, w: 0, h: 0 };
+    const r = el.getBoundingClientRect();
+    const p = flyLocalPoint(m, r.left + r.width / 2, r.top + r.height / 2);
+    return { cx: p.x, cy: p.y, w: w, h: h };
 }
 
 // Chụp vị trí các lá SẮP bay trên tay người đánh — phải gọi TRƯỚC khi tay bị cắt/render
-// lại. Trả về [{card, x, y, w, h}] sắp theo đúng thứ tự lá hiển thị trên bàn.
+// lại. Trả về [{card, cx, cy, w, h}] sắp theo đúng thứ tự lá hiển thị trên bàn.
+// Bot: bài đang úp không có định danh trên DOM -> lấy các lá úp cuối cùng của ĐÚNG
+// vùng bài của bot đó (#cards-<who>) làm điểm xuất phát.
 function captureFlySource(who, cards) {
     try {
+        const m = flyMatrix();
         const sorted = [...cards].sort(compareCards);
         if (who === 'player') {
             const wrap = document.getElementById('cards-player');
@@ -383,7 +423,7 @@ function captureFlySource(who, cards) {
             const out = [];
             sorted.forEach(card => {
                 const el = wrap.children[state.hands.player.indexOf(card)];
-                if (el) { const p = posInGame(el); out.push({ card: card, x: p.x, y: p.y, w: p.w, h: p.h }); }
+                if (el) { const p = measureFly(el, m); out.push({ card: card, cx: p.cx, cy: p.cy, w: p.w, h: p.h }); }
             });
             return out.length ? out : null;
         }
@@ -391,8 +431,8 @@ function captureFlySource(who, cards) {
         if (!wrapB || !wrapB.children.length) return null;
         const kids = [...wrapB.children].slice(-sorted.length);
         return sorted.map((card, i) => {
-            const p = posInGame(kids[Math.min(i, kids.length - 1)]);
-            return { card: card, x: p.x, y: p.y, w: p.w, h: p.h };
+            const p = measureFly(kids[Math.min(i, kids.length - 1)], m);
+            return { card: card, cx: p.cx, cy: p.cy, w: p.w, h: p.h };
         });
     } catch (e) { return null; }
 }
@@ -413,27 +453,35 @@ function playFlyAnimation(who, srcList) {
         if (!layer || !dest || !dest.children.length) return;
         if (flyCleanup) flyCleanup(); // hủy lượt bay trước nếu còn đang chạy
         const destEls = [...dest.children];
+        const mDest = flyMatrix(); // ma trận đo đích tại đúng thời điểm này
         const n = Math.min(srcList.length, destEls.length);
         const clones = [];
         const anims = [];
+        const hiddenEls = []; // chỉ những phần tử CHÍNH lượt này đã ẩn mới được khôi phục
         let cleaned = false;
         const cleanup = () => {
             if (cleaned) return;
             cleaned = true;
             clones.forEach(c => c.remove());
-            destEls.forEach(el => { el.style.visibility = ''; });
+            // Chỉ khôi phục visibility cho phần tử của chính lượt này và chỉ khi nó
+            // VẪN còn là lá đang hiển thị trong #played-cards. Nếu render mới đã thay
+            // nó (lượt mới), tuyệt đối không chạm vào — tránh hiện/ẩn nhầm bài lượt sau.
+            hiddenEls.forEach(el => {
+                const destNow = document.getElementById('played-cards');
+                if (destNow && el.parentNode === destNow) el.style.visibility = '';
+            });
             if (flyCleanup === cleanup) flyCleanup = null;
         };
         flyCleanup = cleanup;
         for (let i = 0; i < n; i++) {
             const dEl = destEls[i];
-            const d = posInGame(dEl);
+            const d = measureFly(dEl, mDest);
             const s = srcList[i];
             if (!s.w || !s.h || !d.w || !d.h) continue;
             const clone = createCardEl(s.card);
             clone.style.position = 'absolute';
-            clone.style.left = s.x + 'px';
-            clone.style.top = s.y + 'px';
+            clone.style.left = (s.cx - s.w / 2) + 'px';
+            clone.style.top = (s.cy - s.h / 2) + 'px';
             clone.style.width = s.w + 'px';
             clone.style.height = s.h + 'px';
             clone.style.margin = '0';
@@ -441,8 +489,9 @@ function playFlyAnimation(who, srcList) {
             layer.appendChild(clone);
             clones.push(clone);
             dEl.style.visibility = 'hidden';
-            const dx = (d.x + d.w / 2) - (s.x + s.w / 2);
-            const dy = (d.y + d.h / 2) - (s.y + s.h / 2);
+            hiddenEls.push(dEl);
+            const dx = d.cx - s.cx;
+            const dy = d.cy - s.cy;
             const m = /rotate\((-?[\d.]+)deg\)/.exec(dEl.style.transform || '');
             const tilt = m ? parseFloat(m[1]) : 0;
             anims.push(clone.animate([
