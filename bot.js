@@ -124,7 +124,17 @@ function botPlayNormal() {
     if (state.gameOver) return;
     const who = PLAYERS[state.turn];
     if (who === 'player') return;
+    const cardsToPlay = chooseNormalMove(who);
+    if (!cardsToPlay) {
+        showMessage(`${PLAYER_NAMES[who]} bỏ lượt`);
+        setTimeout(() => doPass(), 400);
+        return;
+    }
+    botCommit(who, cardsToPlay);
+}
 
+// Chọn nước đi kiểu Thường cho một người chơi bất kỳ (bot dùng, và máy dùng khi đánh thay người lúc hết giờ)
+function chooseNormalMove(who) {
     const hand = state.hands[who];
     const opponentCombo = state.lastPlay ? state.lastPlay.combo : null;
 
@@ -191,13 +201,6 @@ function botPlayNormal() {
             cardsToPlay = (danger ? pool[pool.length - 1] : pool[0]).cards;
         }
     }
-
-    if (!cardsToPlay) {
-        showMessage(`${PLAYER_NAMES[who]} bỏ lượt`);
-        setTimeout(() => doPass(), 400);
-        return;
-    }
-
-    botCommit(who, cardsToPlay);
+    return cardsToPlay;
 }
 
