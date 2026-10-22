@@ -45,7 +45,7 @@ function loadSettings() {
         if (raw) settings = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
     } catch (e) {}
     // Kiểu lưng Bựa đỏ-xanh đã gỡ ở r44: ai đang lưu kiểu đó thì tự về Kim cương
-    if (!['kimcuong', 'soc', 'cham'].includes(settings.backStyle)) settings.backStyle = 'kimcuong';
+    if (!['kimcuong', 'soc', 'cham', 'vangkim', 'timmong', 'denhuyen'].includes(settings.backStyle)) settings.backStyle = 'kimcuong';
     applySettings();
 }
 function saveSettings() {
@@ -55,22 +55,114 @@ function applySettings() {
     soundOn = settings.sound;
     voiceOn = settings.voice;
     if (document.body) {
-        document.body.classList.remove('theme-do', 'theme-duong');
+        document.body.classList.remove('theme-do', 'theme-duong', 'theme-tim', 'theme-den');
         if (settings.tableColor === 'do') document.body.classList.add('theme-do');
         if (settings.tableColor === 'duong') document.body.classList.add('theme-duong');
+        if (settings.tableColor === 'tim') document.body.classList.add('theme-tim');
+        if (settings.tableColor === 'den') document.body.classList.add('theme-den');
     }
     const gc = document.getElementById('game-container');
     if (gc) {
-        gc.classList.remove('theme-do', 'theme-duong', 'back-soc', 'back-cham', 'back-bua');
+        gc.classList.remove('theme-do', 'theme-duong', 'theme-tim', 'theme-den', 'back-soc', 'back-cham', 'back-bua', 'back-vangkim', 'back-timmong', 'back-denhuyen');
         if (settings.tableColor === 'do') gc.classList.add('theme-do');
         if (settings.tableColor === 'duong') gc.classList.add('theme-duong');
+        if (settings.tableColor === 'tim') gc.classList.add('theme-tim');
+        if (settings.tableColor === 'den') gc.classList.add('theme-den');
         if (settings.backStyle === 'soc') gc.classList.add('back-soc');
         if (settings.backStyle === 'cham') gc.classList.add('back-cham');
+        if (settings.backStyle === 'vangkim') gc.classList.add('back-vangkim');
+        if (settings.backStyle === 'timmong') gc.classList.add('back-timmong');
+        if (settings.backStyle === 'denhuyen') gc.classList.add('back-denhuyen');
     }
     const bs = document.getElementById('btn-sound');
     if (bs) bs.textContent = settings.sound ? '🔊' : '🔇';
+    if (typeof applyMetaVisuals === 'function') applyMetaVisuals();
     if (typeof syncSettingsForm === 'function') syncSettingsForm();
 }
+// ============================================================
+//  META GAME (r61): CẤP ĐỘ + NHIỆM VỤ NGÀY + THƯỞNG ĐĂNG NHẬP + CỬA HÀNG
+//  Lưu ở localStorage 'tlMeta', chạy offline, dùng chung hệ xu (tlMoney) và thống kê (tlStats)
+// ============================================================
+const TASK_DEFS = {
+    chop:   { name: 'Chặt 1 heo',           goal: 1, reward: 150 },
+    wins:   { name: 'Thắng 3 ván trong ngày', goal: 3, reward: 150 },
+    streak: { name: 'Thắng 3 ván liên tiếp',  goal: 3, reward: 300 }
+};
+let meta = { xp: 0, owned: [], equipped: { avatar: '🧑', frame: 'none' }, daily: null, login: { lastDate: '', streak: 0 } };
+let levelUpNote = ''; // ghi chú lên cấp/thưởng XP để hiện kèm bảng kê cuối ván
+
+function saveMeta() { try { localStorage.setItem('tlMeta', JSON.stringify(meta)); } catch (e) {} }
+function loadMeta() {
+    try {
+        const raw = localStorage.getItem('tlMeta');
+        if (raw) {
+            const m = JSON.parse(raw);
+            if (m) meta = { ...meta, ...m, equipped: { ...meta.equipped, ...(m.equipped || {}) }, login: { ...meta.login, ...(m.login || {}) } };
+        }
+    } catch (e) {}
+    ensureDaily();
+}
+function levelFromXp(xp) {
+    let lv = 1, need = 100, rest = xp;
+    while (rest >= need) { rest -= need; lv++; need = 100 * lv; }
+    return { level: lv, into: rest, need };
+}
+function addXp(n) {
+    const before = levelFromXp(meta.xp).level;
+    meta.xp += n;
+    const after = levelFromXp(meta.xp).level;
+    if (after > before) {
+        const bonus = 200 * (after - before);
+        state.money.player += bonus;
+        saveMoney();
+        levelUpNote = '⭐ Lên cấp ' + after + '! Thưởng ' + bonus + ' xu (đã cộng).';
+        floatMoney('player', '+' + bonus, true);
+    }
+    saveMeta();
+}
+function todayStr(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function ensureDaily() {
+    const t = todayStr();
+    if (!meta.daily || meta.daily.date !== t) {
+        const y = todayStr(new Date(Date.now() - 86400000));
+        meta.login.streak = (meta.login.lastDate === y) ? (meta.login.streak || 0) + 1 : 1;
+        meta.login.lastDate = t;
+        meta.daily = { date: t, claimed: false, tasks: { chop: { p: 0, c: false }, wins: { p: 0, c: false }, streak: { p: 0, c: false } } };
+        saveMeta();
+    }
+}
+function loginReward() { return (meta.login.streak % 7 === 0) ? 500 : 100; }
+function claimLogin() {
+    ensureDaily();
+    if (meta.daily.claimed) return;
+    meta.daily.claimed = true;
+    const r = loginReward();
+    state.money.player += r;
+    saveMoney(); saveMeta();
+    if (typeof renderLobbyMeta === 'function') renderLobbyMeta();
+    showMessage('🎁 Thưởng đăng nhập ngày ' + meta.login.streak + ': +' + r + ' xu!');
+}
+function claimTask(key) {
+    ensureDaily();
+    const def = TASK_DEFS[key], tk = meta.daily.tasks[key];
+    if (!def || !tk || tk.c || tk.p < def.goal) return false;
+    tk.c = true;
+    state.money.player += def.reward;
+    saveMoney(); saveMeta();
+    if (typeof renderTasks === 'function') renderTasks();
+    showMessage('🎯 Hoàn thành nhiệm vụ "' + def.name + '": +' + def.reward + ' xu!');
+    return true;
+}
+function onPlayerChop() {
+    ensureDaily();
+    addXp(15);
+    const tk = meta.daily.tasks.chop;
+    if (tk.p < TASK_DEFS.chop.goal) { tk.p++; saveMeta(); }
+}
+
 function loadStats() {
     try {
         const raw = localStorage.getItem('tlStats');
@@ -92,6 +184,18 @@ function updateStats(winnerIdx, playerTotalDelta) {
         stats.curStreak = 0;
     }
     saveStats();
+    // r61: XP + tiến độ nhiệm vụ ngày
+    ensureDaily();
+    if (winnerIdx === 0) {
+        addXp(state.toiTrang ? 50 : 30);
+        const w = meta.daily.tasks.wins;
+        if (w.p < TASK_DEFS.wins.goal) w.p++;
+        meta.daily.tasks.streak.p = Math.min(TASK_DEFS.streak.goal, stats.curStreak);
+    } else {
+        addXp(10);
+        meta.daily.tasks.streak.p = 0;
+    }
+    saveMeta();
 }
 
 function saveGame() {
@@ -302,6 +406,7 @@ function initOrResume() {
     loadSettings();
     loadStats();
     loadMoney();
+    loadMeta();
     if (checkGate()) {
         if (!gameStarted) {
             // Hiện sảnh chờ trước; có ván dở thì nạp sẵn state và cho nút Chơi tiếp
@@ -315,6 +420,7 @@ function initOrResume() {
 function showLobby(hasSave) {
     const lobby = document.getElementById('lobby');
     if (lobby) lobby.classList.remove('hidden');
+    if (typeof renderLobbyMeta === 'function') renderLobbyMeta();
     const cont = document.getElementById('btn-continue');
     if (cont) cont.classList.toggle('hidden', !hasSave);
 }
@@ -345,6 +451,7 @@ function resumeSavedGame() {
 
 function newGame() {
     stopTimer();
+    levelUpNote = '';
     const deck = shuffle(createDeck());
     playShuffle();
     state.hands.player = sortHand(deck.slice(0, 13));
@@ -459,6 +566,7 @@ function trackPlay(whoKey, cards, combo, prevPlay) {
             updateMoneyUI();
             floatMoney(whoKey, '+' + amount, true);
             floatMoney(victimKey, '−' + amount, false);
+            if (whoKey === 'player') onPlayerChop();
             if (!chopped) showMessage('⚔️ ' + PLAYER_NAMES[whoKey] + ' chặt heo của ' + PLAYER_NAMES[victimKey] + ' — đền ' + amount + ' xu!');
             chopped = true;
             state.lastChop = { amount, chopper: whoKey, victim: victimKey };
@@ -699,14 +807,19 @@ document.getElementById('btn-sort').addEventListener('click', toggleSort);
 document.getElementById('btn-start').addEventListener('click', () => enterGame(false));
 document.getElementById('btn-continue').addEventListener('click', () => enterGame(true));
 document.getElementById('btn-settings').addEventListener('click', () => { syncSettingsForm(); openModal('settings-modal'); });
+document.getElementById('btn-shop').addEventListener('click', () => { renderShop(); openModal('shop-modal'); });
+document.getElementById('btn-close-shop').addEventListener('click', () => closeModal('shop-modal'));
+document.getElementById('btn-tasks').addEventListener('click', () => { renderTasks(); openModal('tasks-modal'); });
+document.getElementById('btn-close-tasks').addEventListener('click', () => closeModal('tasks-modal'));
+document.getElementById('btn-gift').addEventListener('click', claimLogin);
 document.getElementById('btn-close-settings').addEventListener('click', () => closeModal('settings-modal'));
 document.getElementById('btn-open-stats').addEventListener('click', () => { renderStats(); openModal('stats-modal'); });
 document.getElementById('btn-close-stats').addEventListener('click', () => closeModal('stats-modal'));
 document.getElementById('btn-open-rules').addEventListener('click', () => openModal('rules-modal'));
 document.getElementById('btn-close-rules').addEventListener('click', () => closeModal('rules-modal'));
 document.getElementById('btn-refill').addEventListener('click', () => {
-    if (state.money.player > 0) { showMessage('Bạn vẫn còn tiền, chưa cần nạp!'); return; }
-    state.money.player = 1000;
+    if (state.money.player >= 100) { showMessage('Chỉ nạp được khi xu dưới 100!'); return; }
+    state.money.player += 500;
     updateMoneyUI();
     saveMoney();
     saveGame();
