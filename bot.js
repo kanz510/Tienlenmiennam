@@ -27,7 +27,7 @@ function botPlayEasy(who) {
         if (pick) cardsToPlay = pick.cards;
     } else if (!state.lastPlay) {
         const leads = leadCandidates(hand).filter(x => !isSpecialCombo(x.combo));
-        if (leads.length && Math.random() < 0.5) cardsToPlay = rnd(leads).cards;
+        if (leads.length && Math.random() < 0.7) cardsToPlay = rnd(leads).cards;
         else cardsToPlay = [hand[0]];
     } else {
         const cands = findCandidates(hand, state.lastPlay.combo);
@@ -143,7 +143,21 @@ function botPlayNormal() {
             // Dẫn vòng khi cần chặn: đánh lá đơn cao nhất
             cardsToPlay = [hand[hand.length - 1]];
         } else {
-            // Dẫn vòng: xả lá rác (lá lẻ không thuộc đôi/sảnh nào) nhỏ nhất trước
+            // Dẫn vòng: ưu tiên đánh BỘ (đôi/sám/sảnh/đôi thông — bộ nhiều lá nhất trong
+            // các bộ yếu nhất, bỏ qua hàng đặc biệt); không có bộ mới xả lá đơn rác.
+            const allLeads = leadCandidates(hand);
+            const finishing = allLeads.find(x => x.cards.length === hand.length);
+            if (finishing) {
+                cardsToPlay = finishing.cards;
+            } else {
+                const leads = allLeads.filter(x => !usesReserve(x));
+                if (leads.length) {
+                    leads.sort((a, b) => (b.cards.length - a.cards.length) || (a.combo.rank - b.combo.rank));
+                    cardsToPlay = leads[0].cards;
+                }
+            }
+            if (!cardsToPlay) {
+            // Xả lá rác (lá lẻ không thuộc đôi/sảnh nào) nhỏ nhất trước
             const counts = {};
             hand.forEach(c => counts[rankValue(c)] = (counts[rankValue(c)] || 0) + 1);
             const uniq = [...new Set(hand.map(c => rankValue(c)))].filter(r => r < RANK_2).sort((a, b) => a - b);
@@ -157,6 +171,7 @@ function botPlayNormal() {
             }
             const trash = hand.find(c => counts[rankValue(c)] === 1 && !inRun.has(rankValue(c)));
             cardsToPlay = [trash || hand[0]];
+            }
         }
     } else {
         const candidates = findCandidates(hand, opponentCombo);
