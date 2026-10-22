@@ -160,10 +160,8 @@ function handleCardClick(idx) {
     const rv = rankValue(hand[idx]);
 
     if (state.selected.has(idx)) {
-        // Click lại 1 lá trong cụm đang chọn: thu gọn còn đúng lá đó (để đánh lẻ);
-        // nếu đang chỉ chọn đúng 1 lá thì bỏ chọn hẳn
-        if (state.selected.size === 1) state.selected.delete(idx);
-        else { state.selected.clear(); state.selected.add(idx); }
+        // Chạm lá đang chọn -> chỉ hạ đúng lá đó xuống, giữ nguyên các lá còn lại đang chọn
+        state.selected.delete(idx);
     } else {
         // Ưu tiên theo bài trên bàn: phải theo vòng thì gom đúng loại bộ của đối thủ trước
         if (state.lastPlay && state.lastPlay.combo) {
