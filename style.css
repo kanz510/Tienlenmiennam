@@ -538,14 +538,10 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .avatar-wrap .avatar { width: 100%; height: 100%; }
 #game-container.tier-short .avatar-wrap { width: 36px; height: 36px; }
 
-/* Góc dưới-phải lật ngược + huy hiệu J/Q/K */
+/* Góc dưới-phải lật ngược + ảnh mặt J/Q/K (Set B ảnh thật) */
 .card .corner-br { position: absolute; right: 5px; bottom: 4px; transform: rotate(180deg); }
-.face-badge { position: absolute; left: 46%; bottom: 16px; transform: translateX(-50%); font-size: 13px; font-weight: 900; line-height: 1; padding: 2px 4px; border: 2px solid; border-radius: 6px; background: rgba(255,255,255,.88); z-index: 2; }
-.face-J { color: #1565c0; border-color: #1565c0; }
-.face-Q { color: #8e24aa; border-color: #8e24aa; }
-.face-K { color: #9c7200; border-color: #d4a017; background: rgba(255,215,0,.3); }
-#played-cards .face-badge { font-size: 10px; bottom: 11px; padding: 1px 3px; }
-#played-ghost .face-badge { display: none; }
+.card .face-art { position: absolute; left: 12%; top: 17%; width: 76%; height: 66%; object-fit: cover; border-radius: 3px; z-index: 1; }
+#played-ghost .face-art { display: none; }
 
 /* Đống bài: bảng tên nước đánh + nước cũ mờ dần */
 #last-play-info { min-height: 22px; padding: 2px 14px; margin-bottom: 6px; border-radius: 999px; background: rgba(0,0,0,.45); color: #ffe082; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity .2s; z-index: 3; }

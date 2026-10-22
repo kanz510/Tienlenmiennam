@@ -314,7 +314,7 @@ function renderLastPlay() {
     }
 }
 
-const FACE_SYMBOLS = { J: '♞', Q: '♛', K: '♚' };
+const FACE_ART = { J: CARD_IMG['face-j'], Q: CARD_IMG['face-q'], K: CARD_IMG['face-k'] };
 
 function createCardEl(card) {
     const div = document.createElement('div');
@@ -329,8 +329,7 @@ function createCardEl(card) {
             <span>${card.rank}</span>
             <span>${card.suit}</span>
         </div>
-        <div class="suit-big">${card.suit}</div>
-        ${FACE_SYMBOLS[card.rank] ? `<div class="face-badge face-${card.rank}">${FACE_SYMBOLS[card.rank]}</div>` : ''}
+        ${FACE_ART[card.rank] ? `<img class="face-art" src="${FACE_ART[card.rank]}" alt="">` : `<div class="suit-big">${card.suit}</div>`}
     `;
     return div;
 }
