@@ -153,93 +153,153 @@ function syncSelectedUI() {
 // Chọn bài nhanh: click lá chưa chọn -> chọn cả nhóm cùng số / cả sảnh (nếu ở đầu mút);
 // click lá đã chọn -> bỏ chọn cả nhóm / cả sảnh chứa nó
 let suppressNextClick = false;
+function toggleOne(idx) {
+    if (state.selected.has(idx)) state.selected.delete(idx); else state.selected.add(idx);
+}
+
+// Chọn 'count' số liên tiếp, mỗi số 'perRank' lá, chứa số của lá vừa chạm:
+// thử dãy bắt đầu từ số đó trước, rồi dãy kết thúc ở số đó. Chọn được -> true.
+function pickRunOfLength(idx, rv, count, perRank) {
+    const hand = state.hands.player;
+    if (rv >= RANK_2) return false;
+    const tryRange = start => {
+        if (start < 0 || start + count - 1 > RANK_2 - 1) return null;
+        const picked = [];
+        for (let r = start; r < start + count; r++) {
+            const idxs = [];
+            hand.forEach((c, i) => { if (rankValue(c) === r) idxs.push(i); });
+            if (idxs.length < perRank) return null;
+            idxs.sort((a, b) => suitValue(hand[a]) - suitValue(hand[b]));
+            if (r === rv) {
+                picked.push(idx);
+                idxs.filter(i => i !== idx).slice(0, perRank - 1).forEach(i => picked.push(i));
+            } else {
+                idxs.slice(0, perRank).forEach(i => picked.push(i));
+            }
+        }
+        return picked;
+    };
+    const picked = tryRange(rv) || tryRange(rv - count + 1);
+    if (!picked) return false;
+    picked.forEach(i => state.selected.add(i));
+    return true;
+}
+
+// Chế độ từ–đến: đã chọn đúng 1 lá (firstIdx), chạm lá khác số (idx) -> chọn mỗi số
+// một lá từ số đầu đến số cuối (hai đầu là chính hai lá đã chạm, số giữa lấy lá chất
+// thấp nhất); đứt số nào ở giữa thì chỉ thêm lá vừa chạm và báo số bị đứt.
+function rangeSelect(firstIdx, idx) {
+    const hand = state.hands.player;
+    const r1 = rankValue(hand[firstIdx]), r2 = rankValue(hand[idx]);
+    const lo = Math.min(r1, r2), hi = Math.max(r1, r2);
+    const picked = [];
+    for (let r = lo + 1; r < hi; r++) {
+        let best = -1;
+        hand.forEach((c, i) => { if (rankValue(c) === r && (best < 0 || suitValue(c) < suitValue(hand[best]))) best = i; });
+        if (best < 0) {
+            state.selected.add(idx);
+            showMessage('Sảnh bị đứt ở ' + RANKS[r]);
+            return;
+        }
+        picked.push(best);
+    }
+    picked.forEach(i => state.selected.add(i));
+    state.selected.add(idx);
+}
+
+// Lần chạm đầu (chưa chọn lá nào) ở chế độ tự động: gom theo bộ trên bàn / dẫn vòng
+// như trước; riêng bàn là sảnh/đôi thông thì chọn đúng số lá liên tiếp theo bộ trên bàn.
+function firstTapAuto(idx, rv) {
+    const hand = state.hands.player;
+    if (state.lastPlay && state.lastPlay.combo) {
+        const t = state.lastPlay.combo;
+        if (t.type === 'single') { state.selected.add(idx); return; }
+        const sameRankIdx = [];
+        hand.forEach((c, i) => { if (rankValue(c) === rv) sameRankIdx.push(i); });
+        if (t.type === 'pair' && sameRankIdx.length >= 2) {
+            const others = sameRankIdx.filter(i => i !== idx);
+            state.selected.add(idx);
+            state.selected.add(others[others.length - 1]);
+            return;
+        }
+        if (t.type === 'triple' && sameRankIdx.length >= 3) {
+            const others = sameRankIdx.filter(i => i !== idx);
+            state.selected.add(idx);
+            state.selected.add(others[others.length - 1]);
+            state.selected.add(others[others.length - 2]);
+            return;
+        }
+        if (t.type === 'straight') {
+            if (!pickRunOfLength(idx, rv, t.length, 1)) state.selected.add(idx);
+            return;
+        }
+        if (t.type === 'double_straight') {
+            if (!pickRunOfLength(idx, rv, t.length / 2, 2)) state.selected.add(idx);
+            return;
+        }
+    }
+    const sameRank = [];
+    hand.forEach((c, i) => { if (rankValue(c) === rv) sameRank.push(i); });
+    if (sameRank.length > 1) {
+        sameRank.forEach(i => state.selected.add(i));
+    } else {
+        const run = straightRunThrough(rv);
+        if (run && (rv === run[0] || rv === run[run.length - 1])) {
+            run.forEach(r => {
+                const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
+                if (i >= 0) state.selected.add(i);
+            });
+        } else {
+            state.selected.add(idx);
+        }
+    }
+}
+
 function handleCardClick(idx) {
     if (suppressNextClick) { suppressNextClick = false; return; }
     if (state.gameOver || state.turn !== 0) return;
     const hand = state.hands.player;
     const rv = rankValue(hand[idx]);
+    const mode = settings.selectMode || 'auto';
 
-    if (state.selected.has(idx)) {
-        // Click lại 1 lá trong cụm đang chọn: thu gọn còn đúng lá đó (để đánh lẻ);
-        // nếu đang chỉ chọn đúng 1 lá thì bỏ chọn hẳn
-        if (state.selected.size === 1) state.selected.delete(idx);
-        else { state.selected.clear(); state.selected.add(idx); }
-    } else {
-        // Ưu tiên theo bài trên bàn: phải theo vòng thì gom đúng loại bộ của đối thủ trước
-        if (state.lastPlay && state.lastPlay.combo) {
-            const tType = state.lastPlay.combo.type;
-            if (tType === 'single') {
-                // Bàn là lá đơn -> chỉ chọn đúng lá vừa click
-                state.selected.add(idx);
-                syncSelectedUI();
-                return;
-            }
-            const sameRankIdx = [];
-            hand.forEach((c, i) => { if (rankValue(c) === rv) sameRankIdx.push(i); });
-            if (tType === 'pair' && sameRankIdx.length >= 2) {
-                // Bàn là đôi -> chọn đúng 1 đôi của số này (lá vừa click + lá cùng số chất cao nhất)
-                const others = sameRankIdx.filter(i => i !== idx);
-                state.selected.add(idx);
-                state.selected.add(others[others.length - 1]);
-                syncSelectedUI();
-                return;
-            }
-            if (tType === 'triple' && sameRankIdx.length >= 3) {
-                // Bàn là sám -> chọn đúng 1 sám của số này (lá vừa click + 2 lá cùng số chất cao nhất)
-                const others = sameRankIdx.filter(i => i !== idx);
-                state.selected.add(idx);
-                state.selected.add(others[others.length - 1]);
-                state.selected.add(others[others.length - 2]);
-                syncSelectedUI();
-                return;
-            }
-            if (tType === 'straight') {
-                // Bàn là sảnh -> chọn cả sảnh chứa lá này, không gom đôi
-                const runT = straightRunThrough(rv);
-                if (runT) {
-                    runT.forEach(r => {
-                        const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
-                        if (i >= 0) state.selected.add(i);
-                    });
-                    syncSelectedUI();
-                    return;
-                }
-            }
-        }
-        // Ưu tiên sảnh: các lá đang chọn (không trùng số) đều thuộc cùng một sảnh với lá
-        // vừa click -> chọn cả sảnh dài nhất đó, thay vì gom đôi/sám của lá vừa click
-        const runFirst = straightRunThrough(rv);
-        if (runFirst && state.selected.size > 0) {
-            const runSet = new Set(runFirst);
-            const selRankList = [...state.selected].map(i => rankValue(hand[i]));
-            const noDup = new Set(selRankList).size === selRankList.length;
-            if (noDup && selRankList.every(r => runSet.has(r))) {
-                runFirst.forEach(r => {
-                    if (selRankList.includes(r)) return; // giữ lá đã chọn của số này
-                    const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
-                    if (i >= 0) state.selected.add(i);
-                });
-                syncSelectedUI();
-                return;
-            }
-        }
-        const sameRank = [];
-        hand.forEach((c, i) => { if (rankValue(c) === rv) sameRank.push(i); });
-        if (sameRank.length > 1) {
-            // Có đôi/sám/tứ: chọn cả nhóm cùng số
-            sameRank.forEach(i => state.selected.add(i));
+    if (mode === 'single') {
+        toggleOne(idx);
+        syncSelectedUI();
+        return;
+    }
+    if (mode === 'range') {
+        if (state.selected.size === 0) {
+            state.selected.add(idx);
+        } else if (state.selected.size === 1) {
+            const first = [...state.selected][0];
+            if (idx !== first && rankValue(hand[first]) !== rv) rangeSelect(first, idx);
+            else toggleOne(idx);
         } else {
-            const run = straightRunThrough(rv);
-            if (run && (rv === run[0] || rv === run[run.length - 1])) {
-                // Lá đơn ở đầu mút sảnh: chọn toàn bộ sảnh dài nhất chứa nó
-                run.forEach(r => {
-                    const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
-                    if (i >= 0) state.selected.add(i);
-                });
-            } else {
+            toggleOne(idx);
+        }
+        syncSelectedUI();
+        return;
+    }
+    // Chế độ tự động
+    if (state.selected.has(idx)) {
+        // Chạm lá đã chọn: cụm nhiều lá cùng một số (tự gom) -> thu về đúng lá này;
+        // các trường hợp khác chỉ bỏ chọn đúng lá đó.
+        if (state.selected.size === 1) {
+            state.selected.delete(idx);
+        } else {
+            const ranks = [...state.selected].map(i => rankValue(hand[i]));
+            if (ranks.every(r => r === ranks[0])) {
+                state.selected.clear();
                 state.selected.add(idx);
+            } else {
+                state.selected.delete(idx);
             }
         }
+    } else if (state.selected.size > 0) {
+        // Đã chọn ít nhất 1 lá: chỉ thêm đúng lá vừa chạm, không gom nhóm
+        state.selected.add(idx);
+    } else {
+        firstTapAuto(idx, rv);
     }
     syncSelectedUI();
 }
