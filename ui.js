@@ -261,10 +261,20 @@ function renderBotHand(who, elId, countId) {
     const el = document.getElementById(elId);
     el.innerHTML = '';
     const count = state.hands[who].length;
-    for (let i = 0; i < count; i++) {
-        const c = document.createElement('div');
-        c.className = 'back-card';
-        el.appendChild(c);
+    if (state.gameOver) {
+        // r63: hết ván thì NGỬA toàn bộ bài còn lại của bot cho mọi người cùng xem
+        state.hands[who].forEach((card, i) => {
+            const c = createCardEl(card);
+            c.classList.add('revealed');
+            c.style.animationDelay = (i * 45) + 'ms';
+            el.appendChild(c);
+        });
+    } else {
+        for (let i = 0; i < count; i++) {
+            const c = document.createElement('div');
+            c.className = 'back-card';
+            el.appendChild(c);
+        }
     }
     document.getElementById(countId).textContent = count;
 }

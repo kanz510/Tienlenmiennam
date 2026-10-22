@@ -449,7 +449,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.rotate-90 .player-bar { margin-bottom: 0; padding-bottom: 8px; }
 
 /* Nút góc: âm thanh + xóa ván đã lưu */
-#btn-sound, #btn-clear-save, #btn-settings, #btn-hint, #btn-sort {
+#btn-sound, #btn-clear-save, #btn-settings, #btn-hint, #btn-sort, #btn-shop-ingame {
     position: absolute;
     top: 8px;
     z-index: 60;
@@ -468,6 +468,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #btn-settings { right: 116px; }
 #btn-hint { left: 8px; font-size: 15px; }
 #btn-sort { left: 62px; }
+#btn-shop-ingame { left: 116px; }
 @media (hover: hover) {
     #btn-sound:hover, #btn-clear-save:hover, #btn-settings:hover, #btn-hint:hover, #btn-sort:hover { box-shadow: 0 0 14px rgba(255,215,0,.85); }
 }
@@ -694,3 +695,51 @@ body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
 #awrap-player.frame-vang { border-color: #ffd700; box-shadow: 0 0 0 2px #b8860b, 0 0 16px rgba(255,215,0,.95); }
 #awrap-player.frame-lua { border-color: #ff7043; box-shadow: 0 0 0 2px #d84315, 0 0 18px rgba(255,87,34,.95); animation: frameFire 0.9s ease-in-out infinite alternate; }
 @keyframes frameFire { from { box-shadow: 0 0 0 2px #d84315, 0 0 10px rgba(255,87,34,.7); } to { box-shadow: 0 0 0 2px #ff9800, 0 0 22px rgba(255,152,0,1); } }
+
+/* ===== r63: ngửa bài bot khi hết ván ===== */
+.bot-top .bot-cards .card { width: 32px; height: 44px; margin-left: -20px; }
+.bot-top .bot-cards .card:first-child { margin-left: 0; }
+.bot-left .bot-cards .card, .bot-right .bot-cards .card { width: 40px; height: 54px; margin-top: -40px; }
+.bot-left .bot-cards .card:first-child, .bot-right .bot-cards .card:first-child { margin-top: 0; }
+.bot-cards .card .corner { font-size: 10px; }
+.bot-cards .card .suit-big { font-size: 15px; }
+.bot-cards .card.revealed { animation: revealFlip .45s ease both; }
+@keyframes revealFlip { from { transform: rotateY(90deg); opacity: 0; } to { transform: rotateY(0deg); opacity: 1; } }
+
+/* ===== r63: bảng kết ván phong cách Liquid Glass ===== */
+#overlay { background: rgba(3,26,30,.42); backdrop-filter: blur(7px) saturate(1.35); -webkit-backdrop-filter: blur(7px) saturate(1.35); }
+#overlay-content {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(155deg, rgba(255,255,255,.30), rgba(255,255,255,.10) 55%, rgba(255,255,255,.17));
+    backdrop-filter: blur(20px) saturate(1.6);
+    -webkit-backdrop-filter: blur(20px) saturate(1.6);
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(255,255,255,.12);
+    color: #fff;
+}
+#overlay-content::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.22) 48%, transparent 62%);
+    transform: translateX(-130%);
+    animation: glassSheen 3.4s ease-in-out infinite;
+    pointer-events: none;
+}
+@keyframes glassSheen { 0%, 55% { transform: translateX(-130%); } 88%, 100% { transform: translateX(130%); } }
+#overlay-content h2, #overlay-title { color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.45); }
+#overlay-money { color: #ffe082; font-size: 30px; font-weight: 900; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
+#overlay-xp { color: #b9f6d2; font-size: 15px; font-weight: 800; text-shadow: 0 1px 8px rgba(0,0,0,.5); min-height: 20px; }
+#overlay-breakdown .bd-row { background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.16); border-radius: 10px; padding: 5px 10px; margin-top: 5px; color: #fff; animation: rowIn .45s ease both; }
+#overlay-breakdown .bd-row:nth-child(2) { animation-delay: .05s; }
+#overlay-breakdown .bd-row:nth-child(3) { animation-delay: .1s; }
+#overlay-breakdown .bd-row:nth-child(4) { animation-delay: .15s; }
+#overlay-breakdown .bd-row:nth-child(5) { animation-delay: .2s; }
+#overlay-breakdown .bd-row:nth-child(6) { animation-delay: .25s; }
+#overlay-breakdown .bd-total .bd-row { background: rgba(255,213,79,.16); border-color: rgba(255,213,79,.35); }
+@keyframes rowIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.overlay-actions { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-shrink: 0; }
+#btn-overlay-new { margin-top: 0; background: linear-gradient(180deg, #4ade80, #22c55e); box-shadow: 0 4px 0 #15803d, 0 10px 22px rgba(34,197,94,.45); }
+#btn-overlay-lobby { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.55); color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.4); padding: 12px 22px; font-size: 17px; font-weight: 800; border-radius: 999px; cursor: pointer; }

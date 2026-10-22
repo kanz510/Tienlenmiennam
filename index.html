@@ -51,6 +51,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <button id="btn-settings" title="Cài đặt">⚙️</button>
         <button id="btn-hint" title="Gợi ý nước đi (3 lần/ván)">💡3</button>
         <button id="btn-sort" title="Đổi kiểu sắp xếp bài">⇅</button>
+        <button id="btn-shop-ingame" title="Cửa hàng">🛒</button>
 
         <!-- Bot Bắc (trên) -->
         <div class="bot-area bot-top">
@@ -129,8 +130,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <div id="overlay-content">
             <h2 id="overlay-title"></h2>
             <div id="overlay-money"></div>
+            <div id="overlay-xp"></div>
             <div id="overlay-breakdown"></div>
-            <button id="btn-overlay-new">Chơi lại</button>
+            <div class="overlay-actions">
+                <button id="btn-overlay-lobby">🏠 Sảnh chờ</button>
+                <button id="btn-overlay-new">▶ Chơi tiếp</button>
+            </div>
         </div>
     </div>
 
@@ -191,6 +196,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <label class="set-row"><span>Kiểu lưng bài</span><select id="set-back"><option value="kimcuong">Kim cương</option><option value="soc">Sọc</option><option value="cham">Chấm bi</option><option value="vangkim" data-shop="back-vangkim" data-name="Vàng kim">Vàng kim</option><option value="timmong" data-shop="back-timmong" data-name="Tím mộng">Tím mộng</option><option value="denhuyen" data-shop="back-denhuyen" data-name="Đen huyền">Đen huyền</option></select></label>
             <button id="btn-refill" class="modal-btn">💰 Nạp 500 xu (chỉ khi xu dưới 100)</button>
             <div class="modal-actions">
+                <button id="btn-to-lobby" class="modal-btn">🏠 Về sảnh chờ</button>
                 <button id="btn-open-stats" class="modal-btn">📊 Thống kê</button>
                 <button id="btn-open-rules" class="modal-btn">📖 Luật chơi</button>
             </div>

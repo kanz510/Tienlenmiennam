@@ -90,6 +90,7 @@ const TASK_DEFS = {
 };
 let meta = { xp: 0, owned: [], equipped: { avatar: '🧑', frame: 'none' }, daily: null, login: { lastDate: '', streak: 0 } };
 let levelUpNote = ''; // ghi chú lên cấp/thưởng XP để hiện kèm bảng kê cuối ván
+let lastXpGain = 0; // XP nhận được ở ván vừa kết thúc (hiện trên bảng kết ván)
 
 function saveMeta() { try { localStorage.setItem('tlMeta', JSON.stringify(meta)); } catch (e) {} }
 function loadMeta() {
@@ -187,11 +188,13 @@ function updateStats(winnerIdx, playerTotalDelta) {
     // r61: XP + tiến độ nhiệm vụ ngày
     ensureDaily();
     if (winnerIdx === 0) {
-        addXp(state.toiTrang ? 50 : 30);
+        lastXpGain = state.toiTrang ? 50 : 30;
+        addXp(lastXpGain);
         const w = meta.daily.tasks.wins;
         if (w.p < TASK_DEFS.wins.goal) w.p++;
         meta.daily.tasks.streak.p = Math.min(TASK_DEFS.streak.goal, stats.curStreak);
     } else {
+        lastXpGain = 10;
         addXp(10);
         meta.daily.tasks.streak.p = 0;
     }
@@ -424,6 +427,16 @@ function showLobby(hasSave) {
     const cont = document.getElementById('btn-continue');
     if (cont) cont.classList.toggle('hidden', !hasSave);
 }
+// Về sảnh chờ (từ Cài đặt hoặc bảng kết ván): ván dở được lưu lại để Chơi tiếp
+function backToLobby() {
+    stopTimer();
+    saveGame();
+    document.getElementById('overlay').classList.add('hidden');
+    let hasSave = false;
+    try { hasSave = !state.gameOver && !!localStorage.getItem('tlSave'); } catch (e) {}
+    showLobby(hasSave);
+}
+
 function enterGame(fromSave) {
     const lobby = document.getElementById('lobby');
     if (lobby) lobby.classList.add('hidden');
@@ -776,7 +789,10 @@ function endGame(winnerIdx) {
         void om.offsetWidth;
         om.classList.add('coin-pop');
     }
+    const ox = document.getElementById('overlay-xp');
+    if (ox) ox.textContent = '⭐ +' + lastXpGain + ' XP · Cấp ' + levelFromXp(meta.xp).level;
     renderBreakdown(totalDelta);
+    render();
     if (winnerIdx === 0) spawnConfetti();
     overlay.classList.remove('hidden');
 
@@ -793,6 +809,12 @@ document.getElementById('btn-overlay-new').addEventListener('click', () => {
     document.getElementById('overlay').classList.add('hidden');
     newGame();
 });
+document.getElementById('btn-overlay-lobby').addEventListener('click', () => {
+    document.getElementById('overlay').classList.add('hidden');
+    backToLobby();
+});
+document.getElementById('btn-to-lobby').addEventListener('click', () => { closeModal('settings-modal'); backToLobby(); });
+document.getElementById('btn-shop-ingame').addEventListener('click', () => { renderShop(); openModal('shop-modal'); });
 document.getElementById('btn-sound').addEventListener('click', toggleSound);
 if (!soundOn) document.getElementById('btn-sound').textContent = '🔇';
 document.getElementById('btn-clear-save').addEventListener('click', () => {
