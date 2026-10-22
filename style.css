@@ -540,7 +540,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* Góc dưới-phải lật ngược + ảnh mặt J/Q/K (Set B ảnh thật) */
 .card .corner-br { position: absolute; right: 5px; bottom: 4px; transform: rotate(180deg); }
-.card .face-art { position: absolute; left: 12%; top: 17%; width: 76%; height: 66%; object-fit: cover; border-radius: 3px; z-index: 1; }
+.card .face-art { position: absolute; left: 12%; top: 17%; width: 76%; height: 66%; object-fit: contain; border-radius: 3px; z-index: 1; }
 #played-ghost .face-art { display: none; }
 
 /* Đống bài: bảng tên nước đánh + nước cũ mờ dần */
