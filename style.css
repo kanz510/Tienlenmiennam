@@ -971,3 +971,51 @@ body {
 #overlay.ov-rot #overlay-content { padding: 10px 16px; }
 #overlay.ov-rot #overlay-title { font-size: 21px; }
 #overlay.ov-rot .overlay-actions button { min-height: 44px; padding-top: 8px; padding-bottom: 8px; }
+
+/* ===== r76: panel đối thủ premium + tên hiển thị mới =====
+   Chỉ áp cho 3 panel đối thủ (.bot-info); panel người chơi giữ nguyên. */
+.bot-info {
+    background: linear-gradient(150deg, rgba(23,42,66,.92), rgba(8,18,32,.95));
+    border: 1px solid rgba(212,175,55,.42);
+    box-shadow: 0 6px 16px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.09), inset 0 0 0 1px rgba(0,0,0,.25);
+    border-radius: 16px;
+}
+/* Tên hai dòng: biệt danh vàng đậm ở trên, họ tên thật nhỏ mờ ở dưới */
+.bot-name { display: flex; flex-direction: column; align-items: center; gap: 1px; background: transparent; border: none; box-shadow: none; padding: 2px 2px 0; }
+.bot-left .bot-name, .bot-right .bot-name { padding: 2px 2px 0; }
+.bot-nick { font-size: 12.5px; font-weight: 800; color: #eec96f; letter-spacing: .01em; line-height: 1.2; text-align: center; white-space: normal; }
+.bot-full { font-size: 9.5px; font-weight: 600; color: rgba(232,238,250,.62); line-height: 1.2; text-align: center; white-space: normal; }
+.bot-left .bot-nick, .bot-right .bot-nick { font-size: 11.5px; }
+.bot-left .bot-full, .bot-right .bot-full { font-size: 8.5px; }
+/* Avatar: khung tròn nền tối sâu, viền vàng trầm, bóng mềm */
+.bot-info .avatar-wrap {
+    background: radial-gradient(circle at 35% 30%, #2b4468, #0d1a2c 72%);
+    border: 2px solid rgba(233,199,103,.75);
+    box-shadow: 0 3px 9px rgba(0,0,0,.45), inset 0 1px 2px rgba(255,255,255,.18);
+}
+.bot-info .avatar { background: transparent; border-color: transparent; }
+/* Lượt hiện tại: tĩnh và rõ — viền vàng sáng + nền panel sáng lên một nấc,
+   không nhấp nháy, không phát sáng mạnh như trước */
+.bot-info.active-turn {
+    animation: none;
+    border-color: rgba(240,205,110,.95);
+    background: linear-gradient(150deg, rgba(37,61,94,.96), rgba(13,26,44,.97));
+    box-shadow: 0 6px 18px rgba(0,0,0,.5), 0 0 0 1px rgba(240,205,110,.45), 0 0 16px rgba(212,175,55,.28);
+}
+.bot-info.active-turn .avatar-wrap { border-color: #f5d67a; box-shadow: 0 3px 9px rgba(0,0,0,.45), 0 0 10px rgba(212,175,55,.35); }
+.bot-info.active-turn .bot-nick { color: #ffd970; }
+/* Số lá còn lại: huy hiệu đỏ rượu viền vàng + lá bài mini vẽ bằng CSS ở trước số */
+.bot-info .card-count {
+    background: linear-gradient(180deg, #7d2133, #571426);
+    border: 1px solid rgba(233,199,103,.55);
+    color: #ffe9b0;
+    font-weight: 800;
+    box-shadow: 0 2px 6px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.15);
+}
+.bot-info .card-count::before {
+    content: ''; display: inline-block; width: 9px; height: 13px; margin-right: 5px;
+    vertical-align: -2px; border-radius: 2px; transform: rotate(-10deg);
+    background: linear-gradient(160deg, #fffdf4, #eadfc2);
+    border: 1px solid rgba(122,96,40,.55);
+    box-shadow: 1px 1px 0 rgba(233,199,103,.5);
+}

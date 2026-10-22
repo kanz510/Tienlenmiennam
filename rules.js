@@ -10,9 +10,9 @@ const RANK_2 = 12; // index của '2'
 const PLAYERS = ['player', 'left', 'top', 'right'];
 const PLAYER_NAMES = {
     player: 'Bạn',
-    left: 'Bot Tây',
-    right: 'Bot Đông',
-    top: 'Bot Bắc'
+    left: 'Hùng Sấm Sét',
+    right: 'Nam Lì Đòn',
+    top: 'Tuấn Cao Thủ'
 };
 
 function createDeck() {
