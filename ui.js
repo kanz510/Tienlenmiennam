@@ -328,12 +328,7 @@ function createCardEl(card) {
             <span>${card.rank}</span>
             <span>${card.suit}</span>
         </div>
-        ${face ? `<img class="face-art" src="${face}" alt="">` : `
-        <div class="corner corner-br">
-            <span>${card.rank}</span>
-            <span>${card.suit}</span>
-        </div>
-        <div class="suit-big">${card.suit}</div>`}
+        ${face ? `<img class="face-art" src="${face}" alt="">` : `<div class="suit-big">${card.suit}</div>`}
     `;
     return div;
 }
