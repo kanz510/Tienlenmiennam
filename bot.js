@@ -11,6 +11,8 @@ function botPlay() {
     if (state.gameOver) return;
     const who0 = PLAYERS[state.turn];
     if (who0 === 'player') return;
+    // Đã bỏ lượt trong vòng này thì bị khóa như người chơi: tự bỏ qua cho đến hết vòng
+    if (state.passed && state.passed[who0] && state.lastPlay) { doPass(); return; }
     const diff = settings.difficulty || 'thuong';
     if (diff === 'de') return botPlayEasy(who0);
     if (diff === 'kho') return botPlayHard(who0);

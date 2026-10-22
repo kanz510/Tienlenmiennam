@@ -2,7 +2,7 @@
 // Trang HTML luôn lấy từ mạng trước để cơ chế tự cập nhật theo __TLV hoạt động;
 // tài nguyên tĩnh có ?v= theo phiên bản nên cache-first an toàn.
 const CACHE = 'tlmn-r58';
-const ASSETS = ['./', 'index.html', 'style.css', 'rules.js', 'audio.js', 'bot.js', 'ui.js', 'game.js', 'manifest.json', 'icon.svg'];
+const ASSETS = ['./', 'index.html', 'style.css', 'rules.js', 'audio.js', 'cards-img.js', 'bot.js', 'ui.js', 'game.js', 'manifest.json', 'icon.svg'];
 
 self.addEventListener('install', e => {
     e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

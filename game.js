@@ -9,6 +9,7 @@ let state = {
     lastPlay: null,
     passCount: 0,
     hasPassed: false,
+    passed: { player: false, left: false, top: false, right: false },
     firstMove: true,
     money: { player: 1000, left: 1000, right: 1000, top: 1000 },
     selected: new Set(),
@@ -103,6 +104,7 @@ function saveGame() {
             lastPlay: state.lastPlay,
             passCount: state.passCount,
             hasPassed: state.hasPassed,
+            passed: state.passed,
             firstMove: state.firstMove,
             money: state.money,
             selected: [...state.selected],
@@ -114,11 +116,29 @@ function saveGame() {
             hintsLeft: state.hintsLeft,
             sortMode: state.sortMode
         }));
+        saveMoney();
     } catch (e) {}
 }
 
 function clearSave() {
     try { localStorage.removeItem('tlSave'); } catch (e) {}
+}
+
+// Tiền lưu RIÊNG (tlMoney) để giữ qua các phiên, không phụ thuộc bản lưu ván dở
+function saveMoney() {
+    try { localStorage.setItem('tlMoney', JSON.stringify(state.money)); } catch (e) {}
+}
+function loadMoney() {
+    try {
+        const raw = localStorage.getItem('tlMoney');
+        if (!raw) return;
+        const m = JSON.parse(raw);
+        if (!m) return;
+        PLAYERS.forEach(key => {
+            if (typeof m[key] === 'number') state.money[key] = m[key];
+            if (state.money[key] <= 0) state.money[key] = 1000; // hết tiền thì lần vào sau được cấp lại 1000
+        });
+    } catch (e) {}
 }
 
 function loadGame() {
@@ -132,6 +152,7 @@ function loadGame() {
         state.lastPlay = d.lastPlay || null;
         state.passCount = d.passCount || 0;
         state.hasPassed = !!d.hasPassed;
+        state.passed = d.passed ? { player: !!d.passed.player, left: !!d.passed.left, top: !!d.passed.top, right: !!d.passed.right } : { player: false, left: false, top: false, right: false };
         state.firstMove = !!d.firstMove;
         if (d.money) state.money = d.money;
         state.selected = new Set(d.selected || []);
@@ -280,6 +301,7 @@ function checkGate() {
 function initOrResume() {
     loadSettings();
     loadStats();
+    loadMoney();
     if (checkGate()) {
         if (!gameStarted) {
             // Hiện sảnh chờ trước; có ván dở thì nạp sẵn state và cho nút Chơi tiếp
@@ -350,6 +372,7 @@ function newGame() {
     state.lastPlay = null;
     state.passCount = 0;
     state.hasPassed = false;
+    state.passed = { player: false, left: false, top: false, right: false };
     state.selected.clear();
     state.gameOver = false;
     state.playedAny = { player: false, left: false, right: false, top: false };
@@ -516,6 +539,7 @@ function nextTurn() {
         state.lastPlay = null;
         state.passCount = 0;
         state.hasPassed = false;
+        state.passed = { player: false, left: false, top: false, right: false };
         clearPassLabels();
         renderLastPlay();
     }
@@ -551,6 +575,7 @@ function nextTurn() {
 }
 
 function doPass() {
+    state.passed[PLAYERS[state.turn]] = true; // ghi dấu đã bỏ lượt trong vòng này (áp cho cả bot lẫn người chơi)
     speak(tauntFor('pass'), state.turn);
     showPassLabel(PLAYERS[state.turn]);
     state.passCount++;
@@ -558,6 +583,7 @@ function doPass() {
         state.lastPlay = null;
         state.passCount = 0;
         state.hasPassed = false;
+        state.passed = { player: false, left: false, top: false, right: false };
         clearPassLabels();
         renderLastPlay();
     }
@@ -611,6 +637,7 @@ function endGame(winnerIdx) {
     }
 
     PLAYERS.forEach(key => { state.money[key] += delta[key]; });
+    saveMoney();
     updateMoneyUI();
 
     // Tổng thay đổi cả ván (cộng cả chặt heo đã thanh toán ngay trong ván) — luôn bằng 0 khi cộng 4 người
@@ -681,6 +708,7 @@ document.getElementById('btn-refill').addEventListener('click', () => {
     if (state.money.player > 0) { showMessage('Bạn vẫn còn tiền, chưa cần nạp!'); return; }
     state.money.player = 1000;
     updateMoneyUI();
+    saveMoney();
     saveGame();
     syncSettingsForm();
     showMessage('Đã nạp lại 1000 xu!');
