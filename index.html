@@ -51,6 +51,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <button id="btn-settings" title="Cài đặt">⚙️</button>
         <button id="btn-hint" title="Gợi ý nước đi (3 lần/ván)">💡3</button>
         <button id="btn-sort" title="Đổi kiểu sắp xếp bài">⇅</button>
+        <button id="btn-auto" title="Tự động đánh khi hết giờ">🤖</button>
 
         <!-- Bot Bắc (trên) -->
         <div class="bot-area bot-top">
@@ -151,6 +152,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <h3>⚙️ Cài đặt</h3>
             <label class="set-row"><span>Âm thanh</span><input type="checkbox" id="set-sound"></label>
             <label class="set-row"><span>Giọng cà khịa</span><input type="checkbox" id="set-voice"></label>
+            <label class="set-row"><span>Tự động đánh khi hết giờ</span><input type="checkbox" id="set-autoplay"></label>
             <label class="set-row"><span>Tốc độ bot</span><select id="set-speed"><option value="cham">Chậm</option><option value="vua">Vừa</option><option value="nhanh">Nhanh</option></select></label>
             <label class="set-row"><span>Độ khó bot</span><select id="set-difficulty"><option value="de">Dễ</option><option value="thuong">Thường</option><option value="kho">Khó</option></select></label>
             <label class="set-row"><span>Mức cược (xu)</span><select id="set-bet"><option value="50">50</option><option value="100">100</option><option value="200">200</option><option value="500">500</option></select></label>

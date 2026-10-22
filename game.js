@@ -32,7 +32,7 @@ state.timeLeft = 15;
 // ============================================================
 //  CÀI ĐẶT + THỐNG KÊ (localStorage, luôn trong try/catch)
 // ============================================================
-const DEFAULT_SETTINGS = { sound: true, voice: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong' };
+const DEFAULT_SETTINGS = { sound: true, voice: true, autoPlay: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong' };
 let settings = { ...DEFAULT_SETTINGS };
 let stats = { games: 0, wins: 0, losses: 0, curStreak: 0, bestStreak: 0, biggestWin: 0 };
 
@@ -68,6 +68,8 @@ function applySettings() {
     }
     const bs = document.getElementById('btn-sound');
     if (bs) bs.textContent = settings.sound ? '🔊' : '🔇';
+    const ba = document.getElementById('btn-auto');
+    if (ba) ba.classList.toggle('on', !!settings.autoPlay);
     if (typeof syncSettingsForm === 'function') syncSettingsForm();
 }
 function loadStats() {
@@ -173,27 +175,45 @@ function startTimer() {
         if (state.timeLeft <= 0) {
             stopTimer();
             vibrate(200);
-            if (state.turn === 0 && !state.gameOver) {
-                if (state.lastPlay) {
-                    showMessage('Hết giờ! Tự động bỏ lượt.');
-                    playerPass();
-                } else if (state.firstMove) {
-                    // Nước đầu của ván: tự đánh bộ chứa 3♠
-                    showMessage('Hết giờ! Tự động đánh bộ có 3♠.');
-                    const pick = pickFirstMove(state.hands.player, false);
-                    if (pick) {
-                        state.selected = new Set(pick.cards.map(c => state.hands.player.indexOf(c)));
-                        playerPlay();
-                    }
-                } else {
-                    // Đang dẫn vòng: không bỏ lượt được — tự đánh lá nhỏ nhất
-                    showMessage('Hết giờ! Tự động đánh lá nhỏ nhất.');
-                    state.selected = new Set([0]);
-                    playerPlay();
-                }
-            }
+            onPlayerTimeout();
         }
     }, 1000);
+}
+
+// Xử lý khi người chơi hết giờ (đồng hồ về 0)
+function onPlayerTimeout() {
+    if (state.turn !== 0 || state.gameOver) return;
+    if (state.lastPlay) {
+        if (settings.autoPlay) {
+            // Chế độ tự động BẬT: máy chọn nước như bot Thường và đánh thay
+            const move = chooseNormalMove('player');
+            if (move) {
+                showMessage('🤖 Hết giờ — máy đánh thay!');
+                state.selected = new Set(move.map(c => state.hands.player.indexOf(c)));
+                renderPlayerHand();
+                setTimeout(() => { if (state.turn === 0 && !state.gameOver) playerPlay(); }, 600);
+                return;
+            }
+            showMessage('🤖 Hết giờ — không có bài đè được nên bỏ lượt.');
+            playerPass();
+            return;
+        }
+        showMessage('Hết giờ! Tự động bỏ lượt.');
+        playerPass();
+    } else if (state.firstMove) {
+        // Nước đầu của ván: tự đánh bộ chứa 3♠
+        showMessage('Hết giờ! Tự động đánh bộ có 3♠.');
+        const pick = pickFirstMove(state.hands.player, false);
+        if (pick) {
+            state.selected = new Set(pick.cards.map(c => state.hands.player.indexOf(c)));
+            playerPlay();
+        }
+    } else {
+        // Đang dẫn vòng: không bỏ lượt được — tự đánh lá nhỏ nhất
+        showMessage('Hết giờ! Tự động đánh lá nhỏ nhất.');
+        state.selected = new Set([0]);
+        playerPlay();
+    }
 }
 
 function stopTimer() {
@@ -651,6 +671,12 @@ document.getElementById('btn-clear-save').addEventListener('click', () => {
 // Tiện ích + cài đặt
 document.getElementById('btn-hint').addEventListener('click', hintMove);
 document.getElementById('btn-sort').addEventListener('click', toggleSort);
+document.getElementById('btn-auto').addEventListener('click', () => {
+    settings.autoPlay = !settings.autoPlay;
+    saveSettings();
+    applySettings();
+    showMessage(settings.autoPlay ? '🤖 Đã BẬT tự động đánh khi hết giờ' : '🤖 Đã TẮT tự động đánh — hết giờ sẽ bỏ lượt');
+});
 document.getElementById('btn-start').addEventListener('click', () => enterGame(false));
 document.getElementById('btn-continue').addEventListener('click', () => enterGame(true));
 document.getElementById('btn-settings').addEventListener('click', () => { syncSettingsForm(); openModal('settings-modal'); });
@@ -673,6 +699,7 @@ function bindSetting(id, fn) {
 }
 bindSetting('set-sound', el => settings.sound = el.checked);
 bindSetting('set-voice', el => settings.voice = el.checked);
+bindSetting('set-autoplay', el => settings.autoPlay = el.checked);
 bindSetting('set-speed', el => settings.botSpeed = el.value);
 bindSetting('set-difficulty', el => settings.difficulty = el.value);
 bindSetting('set-bet', el => settings.bet = parseInt(el.value, 10) || 100);

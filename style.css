@@ -449,7 +449,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #game-container.rotate-90 .player-bar { margin-bottom: 0; padding-bottom: 8px; }
 
 /* Nút góc: âm thanh + xóa ván đã lưu */
-#btn-sound, #btn-clear-save, #btn-settings, #btn-hint, #btn-sort {
+#btn-sound, #btn-clear-save, #btn-settings, #btn-hint, #btn-sort, #btn-auto {
     position: absolute;
     top: 8px;
     z-index: 60;
@@ -468,6 +468,8 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #btn-settings { right: 116px; }
 #btn-hint { left: 8px; font-size: 15px; }
 #btn-sort { left: 62px; }
+#btn-auto { left: 116px; opacity: .5; }
+#btn-auto.on { opacity: 1; border-color: #ffd700; box-shadow: 0 0 10px rgba(255,215,0,.55); }
 @media (hover: hover) {
     #btn-sound:hover, #btn-clear-save:hover, #btn-settings:hover, #btn-hint:hover, #btn-sort:hover { box-shadow: 0 0 14px rgba(255,215,0,.85); }
 }

@@ -462,6 +462,7 @@ function syncSettingsForm() {
     const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = String(v); };
     set('set-sound', settings.sound);
     set('set-voice', settings.voice);
+    set('set-autoplay', settings.autoPlay);
     setV('set-speed', settings.botSpeed);
     setV('set-difficulty', settings.difficulty);
     setV('set-bet', settings.bet);
