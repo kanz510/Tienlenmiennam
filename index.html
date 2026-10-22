@@ -7,9 +7,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0a2615">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r29">
+    <link rel="stylesheet" href="style.css?v=r30">
 <script>
-window.__TLV = 'r29';
+window.__TLV = 'r30';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -31,7 +31,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 </head>
 <body>
 
-    <!-- Chặn PC hoặc màn hình dọc -->
+    <!-- Chặn thiết bị không phải điện thoại (máy dọc sẽ tự xoay game 90°) -->
     <div id="blocker">
         <div class="blocker-content">
             <div class="blocker-icon" id="blocker-icon">📱↻</div>
@@ -112,10 +112,9 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <h2 id="overlay-title"></h2>
             <div id="overlay-money"></div>
             <button id="btn-overlay-new">Chơi lại</button>
-            <button id="btn-overlay-clear">Xóa ván đã lưu</button>
         </div>
     </div>
 
-    <script src="game.js?v=r29"></script>
+    <script src="game.js?v=r30"></script>
 </body>
 </html>

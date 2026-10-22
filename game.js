@@ -22,6 +22,7 @@ let state = {
     lastPlay: null,
     passCount: 0,
     hasPassed: false,
+    firstMove: true,
     money: { player: 1000, left: 1000, right: 1000, top: 1000 },
     selected: new Set(),
     gameOver: false
@@ -188,6 +189,7 @@ function saveGame() {
             lastPlay: state.lastPlay,
             passCount: state.passCount,
             hasPassed: state.hasPassed,
+            firstMove: state.firstMove,
             money: state.money,
             selected: [...state.selected]
         }));
@@ -209,6 +211,7 @@ function loadGame() {
         state.lastPlay = d.lastPlay || null;
         state.passCount = d.passCount || 0;
         state.hasPassed = !!d.hasPassed;
+        state.firstMove = !!d.firstMove;
         if (d.money) state.money = d.money;
         state.selected = new Set(d.selected || []);
         state.gameOver = false;
@@ -244,6 +247,14 @@ function startTimer() {
                 if (state.lastPlay) {
                     showMessage('Hết giờ! Tự động bỏ lượt.');
                     playerPass();
+                } else if (state.firstMove) {
+                    // Nước đầu của ván: tự đánh bộ chứa 3♠
+                    showMessage('Hết giờ! Tự động đánh bộ có 3♠.');
+                    const pick = pickFirstMove(state.hands.player, false);
+                    if (pick) {
+                        state.selected = new Set(pick.cards.map(c => state.hands.player.indexOf(c)));
+                        playerPlay();
+                    }
                 } else {
                     // Đang dẫn vòng: không bỏ lượt được — tự đánh lá nhỏ nhất
                     showMessage('Hết giờ! Tự động đánh lá nhỏ nhất.');
@@ -548,6 +559,7 @@ function newGame() {
     state.lastPlay = null;
     state.passCount = 0;
     state.hasPassed = false;
+    state.firstMove = true;
     state.selected.clear();
     state.gameOver = false;
 
@@ -613,6 +625,16 @@ function straightRunThrough(rv) {
     return run;
 }
 
+// Đồng bộ class 'selected' lên các lá bài ĐÃ CÓ trong DOM (không dựng lại),
+// để transition của lá bài chạy mượt khi chọn/bỏ chọn
+function syncSelectedUI() {
+    const wrap = document.getElementById('cards-player');
+    if (wrap) {
+        [...wrap.children].forEach((el, i) => el.classList.toggle('selected', state.selected.has(i)));
+    }
+    updateButtons();
+}
+
 // Chọn bài nhanh: click lá chưa chọn -> chọn cả nhóm cùng số / cả sảnh (nếu ở đầu mút);
 // click lá đã chọn -> bỏ chọn cả nhóm / cả sảnh chứa nó
 function handleCardClick(idx) {
@@ -632,8 +654,7 @@ function handleCardClick(idx) {
             if (tType === 'single') {
                 // Bàn là lá đơn -> chỉ chọn đúng lá vừa click
                 state.selected.add(idx);
-                renderPlayerHand();
-                updateButtons();
+                syncSelectedUI();
                 return;
             }
             const sameRankIdx = [];
@@ -643,8 +664,7 @@ function handleCardClick(idx) {
                 const others = sameRankIdx.filter(i => i !== idx);
                 state.selected.add(idx);
                 state.selected.add(others[others.length - 1]);
-                renderPlayerHand();
-                updateButtons();
+                syncSelectedUI();
                 return;
             }
             if (tType === 'triple' && sameRankIdx.length >= 3) {
@@ -653,8 +673,7 @@ function handleCardClick(idx) {
                 state.selected.add(idx);
                 state.selected.add(others[others.length - 1]);
                 state.selected.add(others[others.length - 2]);
-                renderPlayerHand();
-                updateButtons();
+                syncSelectedUI();
                 return;
             }
             if (tType === 'straight') {
@@ -665,8 +684,7 @@ function handleCardClick(idx) {
                         const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
                         if (i >= 0) state.selected.add(i);
                     });
-                    renderPlayerHand();
-                    updateButtons();
+                    syncSelectedUI();
                     return;
                 }
             }
@@ -684,8 +702,7 @@ function handleCardClick(idx) {
                     const i = (r === rv) ? idx : hand.findIndex(c => rankValue(c) === r);
                     if (i >= 0) state.selected.add(i);
                 });
-                renderPlayerHand();
-                updateButtons();
+                syncSelectedUI();
                 return;
             }
         }
@@ -707,8 +724,7 @@ function handleCardClick(idx) {
             }
         }
     }
-    renderPlayerHand();
-    updateButtons();
+    syncSelectedUI();
 }
 
 function renderPlayerHand() {
@@ -794,6 +810,11 @@ function playerPlay() {
         return;
     }
 
+    if (state.firstMove && !cards.some(c => c.rank === '3' && c.suit === '♠')) {
+        showMessage('Nước đầu phải có 3♠!');
+        return;
+    }
+
     if (!canBeat(combo, state.lastPlay ? state.lastPlay.combo : null)) {
         showMessage('Bộ bài không đè được!');
         return;
@@ -810,6 +831,7 @@ function playerPlay() {
     }
 
     state.lastPlay = { player: 0, cards, combo };
+    state.firstMove = false;
     state.passCount = 0;
     state.selected.clear();
 
@@ -892,6 +914,51 @@ function doPass() {
 // ============================================================
 //  BOT LOGIC
 // ============================================================
+// ===== NƯỚC ĐẦU CỦA VÁN: bộ bài phải chứa 3♠ =====
+function firstMoveCandidates(hand) {
+    const spade3 = hand.find(c => c.rank === '3' && c.suit === '♠');
+    if (!spade3) return [];
+    const byRank = {};
+    hand.forEach(c => { const r = rankValue(c); (byRank[r] = byRank[r] || []).push(c); });
+    const out = [];
+    const add = cards => { const combo = getCombo(cards); if (combo) out.push({ cards, combo }); };
+    add([spade3]);
+    const threes = byRank[rankValue(spade3)];
+    const otherThrees = threes.filter(c => c !== spade3);
+    otherThrees.forEach(c => add([spade3, c]));
+    if (threes.length >= 3) add([spade3, otherThrees[0], otherThrees[1]]);
+    if (threes.length >= 4) add([...threes]);
+    const r3 = rankValue(spade3);
+    // Sảnh bắt đầu từ 3
+    let maxRun = 0;
+    while (byRank[r3 + maxRun]) maxRun++;
+    for (let len = 3; len <= maxRun && r3 + len - 1 < RANK_2; len++) {
+        const cards = [spade3];
+        for (let r = r3 + 1; r < r3 + len; r++) cards.push(byRank[r][0]);
+        add(cards);
+    }
+    // Đôi thông bắt đầu từ đôi 3
+    if (threes.length >= 2) {
+        let maxPairs = 0;
+        while (byRank[r3 + maxPairs] && byRank[r3 + maxPairs].length >= 2) maxPairs++;
+        for (let len = 3; len <= maxPairs && r3 + len - 1 < RANK_2; len++) {
+            const cards = [spade3, otherThrees[0]];
+            for (let r = r3 + 1; r < r3 + len; r++) cards.push(byRank[r][0], byRank[r][1]);
+            add(cards);
+        }
+    }
+    return out;
+}
+
+// largest = true: bộ lớn nhất (cho bot); false: bộ nhỏ nhất (cho người chơi hết giờ)
+function pickFirstMove(hand, largest) {
+    const cands = firstMoveCandidates(hand);
+    if (!cands.length) return null;
+    const power = c => { const top = c.combo.cards[c.combo.cards.length - 1]; return rankValue(top) * 10 + suitValue(top); };
+    cands.sort((a, b) => (a.cards.length - b.cards.length) || (power(a) - power(b)));
+    return largest ? cands[cands.length - 1] : cands[0];
+}
+
 function botPlay() {
     if (state.gameOver) return;
     const who = PLAYERS[state.turn];
@@ -908,7 +975,10 @@ function botPlay() {
     const usesReserve = c => c.combo.type === 'quad' || c.combo.type === 'double_straight' || c.cards.some(card => rankValue(card) === RANK_2);
 
     if (!opponentCombo) {
-        if (danger) {
+        if (state.firstMove) {
+            const pick = pickFirstMove(hand, true);
+            if (pick) cardsToPlay = pick.cards;
+        } else if (danger) {
             // Dẫn vòng khi cần chặn: đánh lá đơn cao nhất
             cardsToPlay = [hand[hand.length - 1]];
         } else {
@@ -958,6 +1028,7 @@ function botPlay() {
 
     const combo = getCombo(cardsToPlay);
     state.lastPlay = { player: state.turn, cards: cardsToPlay, combo };
+    state.firstMove = false;
     state.passCount = 0;
 
     playClick();
@@ -990,24 +1061,31 @@ function findCandidates(hand, target) {
         });
     }
 
-    // Pairs
+    // Pairs: thử mọi cặp trong nhóm cùng số (nhóm xếp theo chất tăng dần,
+    // cặp đè được với chất nhỏ nhất đủ thắng sẽ đứng đầu danh sách)
     if (target.type === 'pair') {
         Object.values(byRank).forEach(group => {
-            if (group.length >= 2) {
-                const cards = group.slice(0, 2).map(g => g.card);
-                const combo = { type: 'pair', cards, rank: rankValue(cards[0]) };
-                if (canBeat(combo, target)) results.push({ cards, combo });
+            for (let i = 0; i < group.length - 1; i++) {
+                for (let j = i + 1; j < group.length; j++) {
+                    const cards = [group[i].card, group[j].card];
+                    const combo = { type: 'pair', cards, rank: rankValue(cards[0]) };
+                    if (canBeat(combo, target)) results.push({ cards, combo });
+                }
             }
         });
     }
 
-    // Triples
+    // Triples: thử mọi bộ 3 trong nhóm cùng số
     if (target.type === 'triple') {
         Object.values(byRank).forEach(group => {
-            if (group.length >= 3) {
-                const cards = group.slice(0, 3).map(g => g.card);
-                const combo = { type: 'triple', cards, rank: rankValue(cards[0]) };
-                if (canBeat(combo, target)) results.push({ cards, combo });
+            for (let i = 0; i < group.length - 2; i++) {
+                for (let j = i + 1; j < group.length - 1; j++) {
+                    for (let k = j + 1; k < group.length; k++) {
+                        const cards = [group[i].card, group[j].card, group[k].card];
+                        const combo = { type: 'triple', cards, rank: rankValue(cards[0]) };
+                        if (canBeat(combo, target)) results.push({ cards, combo });
+                    }
+                }
             }
         });
     }
@@ -1120,16 +1198,11 @@ document.getElementById('btn-overlay-new').addEventListener('click', () => {
 document.getElementById('btn-sound').addEventListener('click', toggleSound);
 if (!soundOn) document.getElementById('btn-sound').textContent = '🔇';
 document.getElementById('btn-clear-save').addEventListener('click', () => {
+    if (!confirm('Xóa ván đã lưu và bắt đầu ván mới?')) return;
     clearSave();
     document.getElementById('overlay').classList.add('hidden');
     newGame();
 });
-document.getElementById('btn-overlay-clear').addEventListener('click', () => {
-    clearSave();
-    document.getElementById('overlay').classList.add('hidden');
-    newGame();
-});
-
 // Gate + resize
 window.addEventListener('resize', () => {
     clearTimeout(window._resizeTimer);
