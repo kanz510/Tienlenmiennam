@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 252">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#087f70"/><stop offset=".48" stop-color="#064e49"/><stop offset="1" stop-color="#022f35"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0a8"/><stop offset=".35" stop-color="#d8b65b"/><stop offset=".7" stop-color="#9a7023"/><stop offset="1" stop-color="#f6df8b"/></linearGradient>
+  <pattern id="weave" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0L8 8M8 0L0 8" stroke="#fff" stroke-opacity=".035" stroke-width=".7"/></pattern>
+</defs>
+<rect width="180" height="252" rx="9" fill="url(#bg)"/>
+<rect width="180" height="252" rx="9" fill="url(#weave)"/>
+<rect x="7" y="7" width="166" height="238" rx="6" fill="none" stroke="url(#gold)" stroke-width="2.5"/>
+<rect x="13" y="13" width="154" height="226" rx="4" fill="none" stroke="#f7e4a2" stroke-opacity=".6" stroke-width=".8"/>
+<g fill="none" stroke="url(#gold)" stroke-width="1.8">
+  <path d="M90 27L113 50L90 73L67 50Z"/>
+  <path d="M90 35L105 50L90 65L75 50Z"/>
+  <path d="M90 179L113 202L90 225L67 202Z"/>
+  <path d="M90 187L105 202L90 217L75 202Z"/>
+  <path d="M26 126L44 108L62 126L44 144Z"/>
+  <path d="M118 126L136 108L154 126L136 144Z"/>
+  <path d="M44 76Q90 104 136 76M44 176Q90 148 136 176"/>
+  <path d="M27 36l8 8-8 8-8-8zM153 36l8 8-8 8-8-8zM27 200l8 8-8 8-8-8zM153 200l8 8-8 8-8-8z"/>
+</g>
+<g fill="url(#gold)">
+  <path d="M90 91c-8-12-22-4-15 7l15 19 15-19c7-11-7-19-15-7z"/>
+  <path d="M90 135c-8-12-22-4-15 7l15 19 15-19c7-11-7-19-15-7z"/>
+  <circle cx="90" cy="126" r="4"/>
+</g>
+<path d="M30 62Q90 92 150 62M30 190Q90 160 150 190" fill="none" stroke="#f6df8b" stroke-opacity=".55" stroke-width="1"/>
+</svg>
