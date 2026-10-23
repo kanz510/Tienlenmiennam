@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r85">
+    <link rel="stylesheet" href="style.css?v=r86">
 <script>
-window.__TLV = 'r85';
+window.__TLV = 'r86';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -145,9 +145,9 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 
     <!-- Sảnh chờ -->
     <div id="lobby" class="hidden">
-        <div class="lobby-fx" aria-hidden="true"><i class="fx-card fx-left">A♠</i><i class="fx-card fx-right">A♥</i></div>
+        <div class="lobby-fx" aria-hidden="true"><img class="fx-card fx-left" src="assets/cards/AS.svg" alt=""><img class="fx-card fx-right" src="assets/cards/AH.svg" alt=""><img class="fx-coin c1" src="assets/coin.svg" alt=""><img class="fx-coin c2" src="assets/coin.svg" alt=""><img class="fx-coin c3" src="assets/coin.svg" alt=""><img class="fx-coin c4" src="assets/coin.svg" alt=""><img class="fx-coin c5" src="assets/coin.svg" alt=""></div>
         <div id="lobby-content">
-            <div id="lobby-logo">♥</div>
+            <div id="lobby-logo"><img class="logo-back" src="assets/cards/AS.svg" alt=""><img class="logo-front" src="assets/cards/AH.svg" alt=""></div>
             <h1 id="lobby-title">TIẾN LÊN MIỀN NAM</h1>
             <p id="lobby-sub">Ván đầu: người giữ 3♠ đi trước, nước đầu phải có 3♠.<br>Các ván sau: người thắng ván trước đi trước.</p>
             <div id="lobby-level">⭐ Cấp 1</div>
@@ -236,12 +236,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r85"></script>
-    <script src="audio.js?v=r85"></script>
-    <script src="cards-img.js?v=r85"></script>
-    <script src="bot.js?v=r85"></script>
-    <script src="ui.js?v=r85"></script>
-    <script src="game.js?v=r85"></script>
+    <script src="rules.js?v=r86"></script>
+    <script src="audio.js?v=r86"></script>
+    <script src="cards-img.js?v=r86"></script>
+    <script src="bot.js?v=r86"></script>
+    <script src="ui.js?v=r86"></script>
+    <script src="game.js?v=r86"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
