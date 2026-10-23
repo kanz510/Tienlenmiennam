@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r84">
+    <link rel="stylesheet" href="style.css?v=r85">
 <script>
-window.__TLV = 'r84';
+window.__TLV = 'r85';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -145,6 +145,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
 
     <!-- Sảnh chờ -->
     <div id="lobby" class="hidden">
+        <div class="lobby-fx" aria-hidden="true"><i class="fx-card fx-left">A♠</i><i class="fx-card fx-right">A♥</i></div>
         <div id="lobby-content">
             <div id="lobby-logo">♥</div>
             <h1 id="lobby-title">TIẾN LÊN MIỀN NAM</h1>
@@ -235,12 +236,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r84"></script>
-    <script src="audio.js?v=r84"></script>
-    <script src="cards-img.js?v=r84"></script>
-    <script src="bot.js?v=r84"></script>
-    <script src="ui.js?v=r84"></script>
-    <script src="game.js?v=r84"></script>
+    <script src="rules.js?v=r85"></script>
+    <script src="audio.js?v=r85"></script>
+    <script src="cards-img.js?v=r85"></script>
+    <script src="bot.js?v=r85"></script>
+    <script src="ui.js?v=r85"></script>
+    <script src="game.js?v=r85"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });

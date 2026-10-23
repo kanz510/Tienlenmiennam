@@ -1325,3 +1325,26 @@ body {
 #lobby #btn-start, #lobby #btn-continue, #lobby #btn-gift { width: 100%; max-width: none; align-self: stretch; }
 #lobby .lobby-row { width: 100%; max-width: none; align-self: stretch; }
 #lobby .xp-bar { width: 100%; max-width: none; align-self: stretch; }
+
+/* ===== r85: chuyen dong cho sanh (nac 2.5D bang CSS thuan) ===== */
+#lobby-logo { animation: logoFloat 4.6s ease-in-out infinite; }
+@keyframes logoFloat { 0%,100% { transform: rotate(-4deg) translateY(0); } 50% { transform: rotate(-2.4deg) translateY(-5px); } }
+#lobby-logo::before { animation: crownBob 4.6s ease-in-out infinite; }
+@keyframes crownBob { 0%,100% { transform: translateX(-50%) rotate(4deg) translateY(0); } 50% { transform: translateX(-50%) rotate(4deg) translateY(-2.5px); } }
+#lobby-content { animation: popIn .35s ease-out, panelGlow 5.2s ease-in-out .35s infinite alternate; }
+@keyframes panelGlow { from { box-shadow: 0 0 0 5px rgba(201,167,89,.14), 0 0 40px rgba(216,180,90,.18), 0 26px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,240,200,.14), inset 0 0 60px rgba(0,0,0,.30); } to { box-shadow: 0 0 0 5px rgba(201,167,89,.18), 0 0 62px rgba(216,180,90,.30), 0 26px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,240,200,.16), inset 0 0 60px rgba(0,0,0,.30); } }
+#btn-start { position: relative; overflow: hidden; }
+#btn-start::after { content: ""; position: absolute; top: -10%; bottom: -10%; left: -70%; width: 42%; background: linear-gradient(105deg, transparent, rgba(255,255,255,.38), transparent); transform: skewX(-18deg); animation: btnShine 3.6s ease-in-out infinite; pointer-events: none; }
+@keyframes btnShine { 0%,52% { left: -70%; } 88%,100% { left: 135%; } }
+.lobby-fx { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.lobby-fx::before, .lobby-fx::after { content: ""; position: absolute; left: 0; right: 0; top: -460px; height: calc(100% + 920px); background-repeat: repeat; animation: lobbyFall 12s linear infinite; }
+.lobby-fx::before { background-size: 300px 300px; background-image: radial-gradient(2.2px 2.2px at 30px 40px, rgba(255,216,120,.9) 50%, transparent 51%), radial-gradient(1.6px 1.6px at 130px 150px, rgba(255,226,150,.75) 50%, transparent 51%), radial-gradient(2.6px 2.6px at 225px 80px, rgba(250,205,100,.85) 50%, transparent 51%), radial-gradient(1.4px 1.4px at 275px 230px, rgba(255,230,160,.7) 50%, transparent 51%), radial-gradient(2px 2px at 80px 265px, rgba(255,216,120,.8) 50%, transparent 51%); }
+.lobby-fx::after { background-size: 460px 460px; opacity: .55; animation-duration: 19s; animation-delay: -7s; animation-name: lobbyFallB; background-image: radial-gradient(3px 3px at 60px 120px, rgba(255,210,105,.8) 50%, transparent 51%), radial-gradient(2px 2px at 200px 300px, rgba(255,226,150,.7) 50%, transparent 51%), radial-gradient(3.4px 3.4px at 340px 60px, rgba(250,205,100,.75) 50%, transparent 51%), radial-gradient(2.2px 2.2px at 420px 210px, rgba(255,230,160,.65) 50%, transparent 51%); }
+@keyframes lobbyFall { from { transform: translateY(0); } to { transform: translateY(300px); } }
+@keyframes lobbyFallB { from { transform: translateY(0); } to { transform: translateY(460px); } }
+.fx-card { position: absolute; width: 76px; height: 106px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 30px; font-weight: 800; font-style: normal; background: linear-gradient(150deg, rgba(255,255,250,.95), rgba(228,218,192,.88)); border: 2px solid rgba(217,186,109,.85); box-shadow: 0 14px 30px rgba(0,0,0,.35); opacity: .5; }
+.fx-left { left: 4%; top: 15%; color: #22252a; transform: rotate(-13deg); animation: fxSway 7.5s ease-in-out infinite; }
+.fx-right { right: 4%; top: 57%; color: #c22f36; transform: rotate(11deg); animation: fxSway 8.5s ease-in-out -3s infinite; }
+@keyframes fxSway { 0%,100% { margin-top: 0; } 50% { margin-top: -13px; } }
+@media (max-width: 620px) { .fx-card { display: none; } }
+@media (prefers-reduced-motion: reduce) { #lobby-logo, #lobby-logo::before, #lobby-content, #btn-start::after, .lobby-fx::before, .lobby-fx::after, .fx-card { animation: none !important; } }
