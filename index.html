@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r100">
+    <link rel="stylesheet" href="style.css?v=r101">
 <script>
-window.__TLV = 'r100';
+window.__TLV = 'r101';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -191,7 +191,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <div class="modal-box">
             <h3>⚙️ Cài đặt</h3>
             <label class="set-row"><span>Âm thanh</span><input type="checkbox" id="set-sound"></label>
-            <label class="set-row"><span>Giọng cà khịa</span><input type="checkbox" id="set-voice"></label>
+            <label class="set-row"><span>Bot chat chữ (bong bóng)</span><input type="checkbox" id="set-voice"></label>
             <label class="set-row"><span>Tự động đánh khi hết giờ</span><input type="checkbox" id="set-autoplay"></label>
             <label class="set-row"><span>Tốc độ bot</span><select id="set-speed"><option value="cham">Chậm</option><option value="vua">Vừa</option><option value="nhanh">Nhanh</option></select></label>
                         <label class="set-row"><span>Mức độ chửi (AI)</span><select id="set-swear"><option value="off">Không chửi</option><option value="vua">Chửi vừa</option><option value="tuc">Tục tĩu — câu nào cũng chửi 🤬</option></select></label>
@@ -240,12 +240,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r100"></script>
-    <script src="audio.js?v=r100"></script>
-    <script src="cards-img.js?v=r100"></script>
-    <script src="bot.js?v=r100"></script>
-    <script src="ui.js?v=r100"></script>
-    <script src="game.js?v=r100"></script>
+    <script src="rules.js?v=r101"></script>
+    <script src="audio.js?v=r101"></script>
+    <script src="cards-img.js?v=r101"></script>
+    <script src="bot.js?v=r101"></script>
+    <script src="ui.js?v=r101"></script>
+    <script src="game.js?v=r101"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });

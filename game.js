@@ -576,6 +576,7 @@ function newGame() {
     const deck = shuffle(createDeck());
     playShuffle();
     try { aiWarmUp(); } catch (e) {}
+    try { banterStart(); } catch (e) {}
     state.hands.player = sortHand(deck.slice(0, 13));
     state.hands.left   = sortHand(deck.slice(13, 26));
     state.hands.right  = sortHand(deck.slice(26, 39));

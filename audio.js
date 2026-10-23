@@ -201,11 +201,10 @@ function speakAI(text, actorIdx) {
 }
 
 function speak(text, actorIdx) {
+    // r101: dẹp giọng đọc (AI + máy) theo ý Bảo — bot chỉ CHAT CHỮ trong bong bóng.
+    // Công tắc cũ "Giọng cà khịa" (settings.voice) nay là bật/tắt chat chữ của bot.
+    try { if (typeof voiceOn !== 'undefined' && !voiceOn) return; } catch (e) {}
     showBubble(actorIdx, text);
-    try {
-        if (!voiceOn) return;
-        speakAI(text, actorIdx);
-    } catch (e) {}
 }
 
 
@@ -372,7 +371,7 @@ function aiRefill(botKey, group) {
                 aiBusy = false;
                 const k = botKey + '|' + group;
                 aiPool[k] = (aiPool[k] || []).concat(lines).slice(0, 6);
-                try { aiPrefetchTTS(botKey, lines); } catch (e) {}
+                // r101: đã bỏ giọng đọc nên không nạp tiếng trước nữa
             } else if (stage === 0) {
                 attempt(AI_CHAT_MODEL, safePersona, 1); // bị bộ lọc chặn -> thử lại model chính bằng giọng nhẹ
             } else if (stage === 1) {
@@ -415,10 +414,10 @@ function aiContextLine() {
         return 'Tình hình ván Tiến Lên hiện tại: ' + parts.join(', ') + '. Mức cược ' + ((typeof settings !== 'undefined' && settings && settings.bet) || 100) + ' xu.';
     } catch (e) { return ''; }
 }
-function aiSayNow(actorIdx, eventText, fallbackText) {
+function aiSayNow(actorIdx, eventText, fallbackText, onSaid, urgent) {
     try {
         const botKey = PLAYERS[actorIdx || 0];
-        if (!botKey || botKey === 'player' || !aiEnabled() || aiNowBusy || Date.now() - aiNowLast < 5000) {
+        if (!botKey || botKey === 'player' || !aiEnabled() || aiNowBusy || (!urgent && Date.now() - aiNowLast < 5000)) {
             if (fallbackText) speak(fallbackText, actorIdx);
             return;
         }
@@ -452,6 +451,7 @@ function aiSayNow(actorIdx, eventText, fallbackText) {
                 if (line && line.length >= 4 && line.length <= 90 && aiForeignFree(line)) {
                     aiNowBusy = false;
                     speak(line, actorIdx);
+                    if (onSaid) { try { onSaid(line); } catch (e) {} }
                 } else fail();
             }).catch(fail);
         };
@@ -475,6 +475,53 @@ function aiLine(actorIdx, group, fallback) {
         if (aiSwearLevel() === 'tuc') return tucFallback(group);
         return fallback;
     } catch (e) { return fallback; }
+}
+
+// ===== CHAT TỰ DO GIỮA CÁC BOT (r101) =====
+// Giữa ván, các bot tự tương tác với nhau bằng chữ: đứa này chọc đứa kia,
+// đứa kia đáp trả, có khi chốt hạ qua lại 3 câu; thỉnh thoảng một đứa nói
+// nhảm xàm xàm không liên quan ván bài; đôi khi quay sang cà khịa người chơi.
+// Chạy bằng vòng hẹn giờ riêng, tự ngủ khi ở sảnh chờ hoặc ván đã kết thúc.
+let banterTimer = null;
+function banterStart() {
+    if (banterTimer) return;
+    const loop = () => {
+        banterTimer = setTimeout(loop, 7000 + Math.random() * 6000);
+        try { banterTick(); } catch (e) {}
+    };
+    banterTimer = setTimeout(loop, 4500);
+}
+function banterTick() {
+    if (typeof state === 'undefined' || !state || state.gameOver) return;
+    if (typeof inLobby !== 'undefined' && inLobby) return;
+    if (typeof voiceOn !== 'undefined' && !voiceOn) return;
+    if (Math.random() > 0.6) return; // không phải nhịp nào cũng có chuyện
+    const bots = [1, 2, 3];
+    const a = bots[Math.floor(Math.random() * 3)];
+    const others = bots.filter(x => x !== a);
+    const b = others[Math.floor(Math.random() * others.length)];
+    const aKey = PLAYERS[a], bKey = PLAYERS[b];
+    const mode = Math.random();
+    if (mode < 0.45) {
+        // A chọc B, B đáp trả (70%), A chốt hạ (35%)
+        aiSayNow(a, 'Giữa ván đang rảnh, hãy chọc ghẹo ' + AI_NAMES[bKey] + ' một câu cho vui (hắn đang còn ' + state.hands[bKey].length + ' lá bài trên tay).', null, (line) => {
+            if (Math.random() > 0.7) return;
+            setTimeout(() => {
+                try {
+                    aiSayNow(b, AI_NAMES[aKey] + ' vừa chọc bạn: "' + line + '" — hãy đáp trả, chửi lại một câu thật gắt cho vui.', null, (line2) => {
+                        if (Math.random() > 0.35) return;
+                        setTimeout(() => { try { aiSayNow(a, AI_NAMES[bKey] + ' vừa đáp trả bạn: "' + line2 + '" — kết luận, chốt hạ một câu cho cả bàn cười.', null, null, true); } catch (e) {} }, 2600 + Math.random() * 2000);
+                    }, true);
+                } catch (e) {}
+            }, 2600 + Math.random() * 2000);
+        });
+    } else if (mode < 0.7) {
+        // Quay sang cà khịa người chơi
+        aiSayNow(a, 'Giữa ván đang rảnh, hãy quay sang cà khịa người chơi một câu cho vui (người chơi đang còn ' + state.hands.player.length + ' lá bài trên tay).', null);
+    } else {
+        // Nói xàm xàm tầm bậy cho vui
+        aiSayNow(a, 'Hãy nói một câu nhảm nhí, xàm xàm, tầm bậy bất thình lình cho cả bàn cười, không cần liên quan gì tới ván bài (than thở đời, khoe khoang, triết lý vớ vẩn...).', null);
+    }
 }
 
 // Đầu mỗi ván: nạp trước kho câu cho cả 3 bot (so le để không dồn request).
