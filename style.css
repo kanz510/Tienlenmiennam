@@ -1019,3 +1019,41 @@ body {
     border: 1px solid rgba(122,96,40,.55);
     box-shadow: 1px 1px 0 rgba(233,199,103,.5);
 }
+
+/* ===== r77: tinh chỉnh bố cục 3 panel đối thủ theo vị trí =====
+   Cùng một ngôn ngữ thiết kế; panel trên dạng hàng ngang quét nhanh,
+   hai panel bên xếp cột gọn; panel chưa tới lượt dịu hơn panel đang lượt. */
+.bot-info { transition: filter .25s ease, border-color .25s ease, background .25s ease, box-shadow .25s ease; filter: saturate(.92) brightness(.96); }
+.bot-info.active-turn { filter: none; }
+/* Panel trên (ngang): avatar | tên căn trái | số lá | tiền — một hàng rõ thứ bậc */
+.bot-top .bot-info { flex-direction: row; align-items: center; gap: 10px; padding: 6px 14px; }
+.bot-top .bot-name { align-items: flex-start; padding-top: 0; }
+.bot-top .bot-nick { font-size: 13px; text-align: left; }
+.bot-top .bot-full { text-align: left; }
+.bot-top .bot-info .card-count { order: 3; }
+.bot-top .bot-info .money { order: 4; }
+/* Hai panel bên (cột hẹp): khoảng cách gọn lại, số liệu nhỏ mà rõ */
+.bot-left .bot-info, .bot-right .bot-info { gap: 2px; padding: 8px 8px 7px; }
+.bot-left .bot-info .money, .bot-right .bot-info .money { font-size: 10.5px; padding: 2px 8px; }
+.bot-left .bot-info .card-count, .bot-right .bot-info .card-count { padding-top: 1px; padding-bottom: 1px; }
+/* Màn hình thấp: chữ tên thu nhỏ theo bậc, vẫn đủ hai dòng thông tin */
+#game-container.tier-short .bot-nick { font-size: 11.5px; }
+#game-container.tier-short .bot-top .bot-nick { font-size: 12px; }
+#game-container.tier-tiny .bot-nick { font-size: 10.5px; }
+#game-container.tier-tiny .bot-full { font-size: 8px; }
+
+/* r77b: sửa theo ảnh chụp iPhone thật — biệt danh ở hai panel bên không ngắt
+   giữa từ, họ tên về một dòng; panel trên thu gọn, các mục sát lại. */
+.bot-left .bot-nick, .bot-right .bot-nick { font-size: 11px; letter-spacing: 0; }
+.bot-left .bot-full, .bot-right .bot-full { font-size: 8.5px; }
+.bot-top .bot-info { max-width: 460px; gap: 8px; }
+
+/* r77c: hai panel bên hẹp — thu biệt danh thêm nửa cỡ để không ngắt giữa từ */
+.bot-left .bot-nick, .bot-right .bot-nick { font-size: 10.5px; letter-spacing: -.01em; }
+.bot-left .bot-full, .bot-right .bot-full { font-size: 8px; }
+
+/* r77d: rule bậc màn hình (#game-container.tier-*) có độ ưu tiên cao hơn các
+   rule .bot-left thông thường nên cỡ chữ bị ép lên làm ngắt dòng — dùng cùng
+   tiền tố #game-container để thắng lại ở cuối file. */
+#game-container .bot-left .bot-nick, #game-container .bot-right .bot-nick { font-size: 10px; }
+#game-container .bot-left .bot-full, #game-container .bot-right .bot-full { font-size: 7.5px; }
