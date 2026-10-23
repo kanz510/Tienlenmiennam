@@ -1221,3 +1221,81 @@ body {
 #played-ghost { opacity: .16; filter: blur(1.5px) saturate(.15) brightness(.72); margin-bottom: -58px; transform: scale(.88); }
 #game-container.tier-short #played-ghost { margin-bottom: -47px; }
 #game-container.tier-tiny #played-ghost { margin-bottom: -37px; }
+
+/* ===== r82: Sảnh chờ theo mẫu huy hiệu vàng (theo ảnh Bảo duyệt) =====
+   Khung emerald viền vàng trang trọng, huy hiệu lá Át đội vương miện trên đỉnh,
+   tiêu đề vàng kim, nút Bắt đầu xanh ngọc lớn, nút nhận thưởng phủ vàng.
+   Chỉ thay lớp hiển thị — giữ nguyên mọi id/nút/chức năng của sảnh. */
+#lobby {
+  background:
+    radial-gradient(ellipse 90% 62% at 50% 30%, rgba(46,160,110,.30) 0%, rgba(10,80,58,.10) 46%, transparent 72%),
+    radial-gradient(ellipse 135% 52% at 50% 122%, #4b351d 0 55%, #b08d4e 56.2% 57.6%, #141a12 58.4% 60%, transparent 61%),
+    repeating-radial-gradient(circle at 50% 42%, transparent 0 118px, rgba(226,201,140,.045) 118px 119px, transparent 119px 238px),
+    linear-gradient(150deg, #02120e 0%, #06382c 46%, #02110d 100%);
+}
+#lobby-content {
+  display: flex; flex-direction: column; align-items: stretch;
+  width: min(432px, calc(100vw - 30px)); max-height: calc(100vh - 26px); overflow-y: auto;
+  padding: 30px 26px 18px; border-radius: 24px; position: relative;
+  border: 2px solid #c9a759;
+  background: linear-gradient(160deg, rgba(10,62,48,.97), rgba(3,26,21,.98) 70%);
+  box-shadow: 0 0 0 5px rgba(201,167,89,.14), 0 0 44px rgba(216,180,90,.20), 0 26px 60px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,240,200,.14), inset 0 0 60px rgba(0,0,0,.30);
+}
+#lobby-logo {
+  align-self: center; position: relative; z-index: 1;
+  width: 58px; height: 76px; margin: -52px auto 10px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(150deg, #fffef9, #f1e9d2);
+  border: 2.5px solid #d9ba6d; border-radius: 10px;
+  color: #c22f36; font-size: 40px; line-height: 1;
+  transform: rotate(-4deg);
+  box-shadow: 0 0 0 4px rgba(217,186,109,.25), 0 0 26px rgba(230,195,100,.45), 0 10px 22px rgba(0,0,0,.4);
+}
+#lobby-logo::before {
+  content: "👑"; position: absolute; top: -27px; left: 50%; transform: translateX(-50%) rotate(4deg);
+  font-size: 27px; filter: drop-shadow(0 2px 6px rgba(0,0,0,.5));
+}
+#lobby-logo::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(150deg, #fdfcf6, #e9dfc6);
+  border: 2.5px solid #c8ab60; border-radius: 10px;
+  transform: rotate(11deg) translateX(9px);
+}
+#lobby-title {
+  text-align: center; margin: 2px 0 6px; font-size: clamp(23px, 4.4vw, 30px);
+  letter-spacing: 1.2px; font-weight: 800;
+  background: linear-gradient(180deg, #fdf3c0 8%, #eec96e 45%, #b98c2e 78%, #e8c766);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 5px rgba(0,0,0,.55));
+}
+#lobby-level { order: 2; text-align: center; color: #efdc9e; font-size: 14.5px; font-weight: 600; letter-spacing: .2px; margin-top: 2px; }
+.xp-bar { order: 3; height: 10px; margin-top: 9px; border-radius: 6px; background: rgba(0,0,0,.45); border: 1px solid rgba(216,189,120,.45); box-shadow: inset 0 2px 4px rgba(0,0,0,.5); overflow: hidden; }
+#xp-fill { height: 100%; border-radius: 6px; background: linear-gradient(90deg, #c39a3f, #f4dd8e 55%, #d9b64f); box-shadow: 0 0 8px rgba(240,210,120,.55); }
+#xp-text { order: 4; text-align: center; color: rgba(243,236,214,.82); font-size: 12px; margin-top: 5px; letter-spacing: .4px; }
+#btn-start {
+  order: 5; margin-top: 15px; padding: 15px 30px; border-radius: 999px;
+  border: 2px solid #e3c979; font-size: 21px; font-weight: 800; letter-spacing: 1.6px; color: #fffef6;
+  background: linear-gradient(180deg, #2cc98f 0%, #0d9d68 52%, #077a50 100%);
+  box-shadow: 0 5px 0 #045c3a, 0 12px 26px rgba(0,0,0,.4), inset 0 2px 0 rgba(255,255,255,.35), inset 0 -8px 16px rgba(0,60,35,.35), 0 0 22px rgba(38,190,120,.30);
+  transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+}
+#btn-start:hover { filter: brightness(1.08); transform: translateY(-2px); }
+#btn-start:active { transform: translateY(3px); box-shadow: 0 1px 0 #045c3a, 0 5px 12px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.3); }
+#btn-continue {
+  order: 6; margin-top: 10px; padding: 11px 20px; border-radius: 999px;
+  border: 1.5px solid rgba(227,201,121,.8); background: rgba(216,189,120,.10); color: #f0dca0; font-weight: 700;
+}
+.lobby-row { order: 7; display: flex; gap: 10px; margin-top: 12px; }
+.lobby-sub-btn {
+  flex: 1 1 0; padding: 12px 10px; border-radius: 999px;
+  border: 1.5px solid rgba(216,189,120,.65); background: linear-gradient(180deg, rgba(14,52,40,.92), rgba(6,30,24,.94));
+  color: #efdc9e; font-size: 15px; font-weight: 700; letter-spacing: .3px;
+  box-shadow: inset 0 1px 0 rgba(255,240,200,.10), 0 6px 14px rgba(0,0,0,.3);
+}
+#btn-gift {
+  order: 8; margin-top: 12px; padding: 13px 18px; border-radius: 999px;
+  border: 2px solid #a87f24; font-size: 15.5px; font-weight: 800; letter-spacing: .3px; color: #4a3205;
+  background: linear-gradient(180deg, #ffe98f 0%, #f3c84b 55%, #dfa91f 100%);
+  box-shadow: 0 4px 0 #96700f, 0 10px 22px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.55), 0 0 18px rgba(240,200,80,.35);
+}
+#lobby-sub { order: 9; text-align: center; color: rgba(238,232,210,.55); font-size: 11.5px; line-height: 1.5; margin: 13px 4px 2px; }
