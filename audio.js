@@ -135,7 +135,7 @@ function speakPlay(combo, actorIdx) {
             const line = cardSpeech(combo);
             if (line) return speak(line, actorIdx);
         }
-        speak(tauntFor(combo ? combo.type : 'single'), actorIdx);
+        speak(aiLine(actorIdx, (combo && (combo.type === 'quad' || combo.type === 'double_straight')) ? 'big' : 'play', tauntFor(combo ? combo.type : 'single')), actorIdx);
     } catch (e) {}
 }
 
@@ -149,3 +149,86 @@ function toggleSound() {
     if (soundOn) playClick();
 }
 
+
+
+// ===== BOT NÓI CHUYỆN BẰNG AI (xKiro) — chỉ giọng điệu, cách đánh bài giữ nguyên =====
+// Key do Bảo cung cấp, gắn thẳng theo ý Bảo (gói free). Game giữ "kho câu" cho
+// từng bot: nạp nền từ trước, khi cần nói thì lấy ngay (không chờ mạng).
+// Hết kho / lỗi mạng / không có fetch -> tự dùng câu mẫu TAUNTS như cũ.
+const AI_CHAT_KEY = 'sk-xt-3f9d635ecec0668a30ddc477467f94d3d4873a77b9d7a7bc';
+const AI_CHAT_MODEL = 'qwen/qwen3.5-flash:free';
+const AI_CHAT_URL = 'https://api.xkiro.com/v1/chat/completions';
+const AI_PERSONA = {
+    left:  'Bạn là Hùng Sấm Sét, dân chơi Tiến Lên Miền Nam tính hổ báo, hung hăng, nói cộc lốc, thích đe dọa đối thủ.',
+    top:   'Bạn là Tuấn Cao Thủ, dân chơi Tiến Lên Miền Nam thâm trầm, ít nói, lạnh lùng khinh khỉnh, câu nào chất câu đó.',
+    right: 'Bạn là Nam Lì Đòn, dân chơi Tiến Lên Miền Nam láu cá, lì đòn, chuyên cà khịa dai và cười đểu đối thủ.'
+};
+const AI_SITUATION = {
+    play: 'Bạn vừa đánh ra một nước bài trong ván Tiến Lên.',
+    big:  'Bạn vừa tung hàng khủng (tứ quý hoặc đôi thông) hoặc vừa chặt heo của đối thủ trong ván Tiến Lên.',
+    pass: 'Bạn bị đối thủ dồn ép nên phải bỏ lượt trong ván Tiến Lên, trong lòng đang cay cú.'
+};
+const aiPool = {};       // "botKey|nhom" -> [câu, ...]
+let aiBusy = false;      // chỉ 1 request tại một thời điểm
+let aiLastCall = 0;      // mốc request gần nhất (cooldown chống spam)
+
+function aiEnabled() { return !!AI_CHAT_KEY && typeof fetch === 'function'; }
+
+function aiRefill(botKey, group) {
+    if (!aiEnabled() || aiBusy) return;
+    const now = Date.now();
+    if (now - aiLastCall < 5000) return;
+    const persona = AI_PERSONA[botKey];
+    if (!persona) return;
+    aiBusy = true; aiLastCall = now;
+    const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 8000) : null;
+    fetch(AI_CHAT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_CHAT_KEY },
+        body: JSON.stringify({
+            model: AI_CHAT_MODEL,
+            messages: [
+                { role: 'system', content: persona },
+                { role: 'user', content: (AI_SITUATION[group] || AI_SITUATION.play) + ' Viết đúng 3 câu cà khịa NGẮN bằng tiếng Việt (mỗi câu tối đa 9 từ), mỗi câu một dòng, không đánh số, không ngoặc kép, không emoji, ba câu khác nhau, tránh câu sáo rỗng.' }
+            ],
+            max_tokens: 130, temperature: 1.05
+        }),
+        signal: ctrl ? ctrl.signal : undefined
+    }).then(r => (r && r.ok) ? r.json() : null).then(j => {
+        if (to) clearTimeout(to);
+        aiBusy = false;
+        const txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+        if (!txt) return;
+        const lines = String(txt).split('\n').map(s => s.replace(/^[\d\.\-\*\u201C"\s]+/, '').replace(/[\u201D"]+$/, '').trim()).filter(s => s.length >= 4 && s.length <= 60);
+        if (!lines.length) return;
+        const k = botKey + '|' + group;
+        aiPool[k] = (aiPool[k] || []).concat(lines).slice(0, 6);
+    }).catch(() => { if (to) clearTimeout(to); aiBusy = false; });
+}
+
+// Lấy 1 câu nói cho bot: ưu tiên câu AI trong kho; chưa có thì câu mẫu + nạp nền.
+function aiLine(actorIdx, group, fallback) {
+    try {
+        const botKey = PLAYERS[actorIdx || 0];
+        if (!botKey || botKey === 'player' || !aiEnabled()) return fallback;
+        const k = botKey + '|' + group;
+        const pool = aiPool[k] || [];
+        if (pool.length) {
+            const line = pool.shift();
+            if (pool.length < 2) aiRefill(botKey, group);
+            return line;
+        }
+        aiRefill(botKey, group);
+        return fallback;
+    } catch (e) { return fallback; }
+}
+
+// Đầu mỗi ván: nạp trước kho câu cho cả 3 bot (so le để không dồn request).
+function aiWarmUp() {
+    if (!aiEnabled()) return;
+    ['left', 'top', 'right'].forEach((k, i) => {
+        setTimeout(() => aiRefill(k, 'play'), 600 + i * 2600);
+        setTimeout(() => aiRefill(k, 'big'), 2100 + i * 2600);
+    });
+}

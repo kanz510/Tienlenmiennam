@@ -575,6 +575,7 @@ function newGame() {
     lastXpGain = 0;
     const deck = shuffle(createDeck());
     playShuffle();
+    try { aiWarmUp(); } catch (e) {}
     state.hands.player = sortHand(deck.slice(0, 13));
     state.hands.left   = sortHand(deck.slice(13, 26));
     state.hands.right  = sortHand(deck.slice(26, 39));
@@ -808,7 +809,7 @@ function nextTurn() {
 
 function doPass() {
     state.passed[PLAYERS[state.turn]] = true; // ghi dấu đã bỏ lượt trong vòng này (áp cho cả bot lẫn người chơi)
-    speak(tauntFor('pass'), state.turn);
+    speak(aiLine(state.turn, 'pass', tauntFor('pass')), state.turn);
     showPassLabel(PLAYERS[state.turn]);
     state.passCount++;
     if (state.passCount >= 3) {
