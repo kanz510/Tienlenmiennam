@@ -540,12 +540,12 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #last-play-info { min-height: 22px; padding: 2px 14px; margin-bottom: 6px; border-radius: 999px; background: rgba(0,0,0,.45); color: #ffe082; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity .2s; z-index: 3; }
 #last-play-info.show { opacity: 1; }
 #played-cards { position: relative; z-index: 2; }
-#played-ghost { position: relative; display: flex; justify-content: center; z-index: 1; opacity: .5; filter: saturate(.45); pointer-events: none; margin-bottom: -46px; transform: scale(.92); transform-origin: bottom center; }
+#played-ghost { position: relative; display: flex; justify-content: center; z-index: 1; opacity: .3; filter: saturate(.32) brightness(.82); pointer-events: none; margin-bottom: -52px; transform: scale(.92); transform-origin: bottom center; }
 #played-ghost:empty { display: none; }
 #played-ghost .card + .card { margin-left: -28px; }
-#game-container.tier-short #played-ghost { margin-bottom: -36px; }
+#game-container.tier-short #played-ghost { margin-bottom: -41px; }
 #game-container.tier-short #played-ghost .card + .card { margin-left: -22px; }
-#game-container.tier-tiny #played-ghost { margin-bottom: -26px; }
+#game-container.tier-tiny #played-ghost { margin-bottom: -30px; }
 #game-container.tier-tiny #played-ghost .card { width: 38px; height: 54px; }
 #game-container.tier-tiny #played-ghost .card + .card { margin-left: -16px; }
 #played-ghost .card { width: 60px; height: 86px; padding: 3px; }

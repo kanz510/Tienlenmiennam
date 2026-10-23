@@ -228,8 +228,7 @@ function claimDailyTask(key) {
     if (!def || !tk || tk.c || tk.p < def.goal) return false;
     tk.c = true;
     state.money.player += def.reward;
-    floatMoney('player', '+' + def.reward, true); // r80: xu bay khi nhận thưởng
-    floatMoney('player', '+' + def.reward, true); // r80: xu bay khi nhận thưởng
+    floatMoney('player', '+' + def.reward, true); // r80: xu bay khi nhận thưởng (chỉ 1 lần)
     saveMoney(); saveMeta();
     if (typeof renderTasks === 'function') renderTasks();
     showMessage('🎯 Hoàn thành nhiệm vụ: +' + def.reward + ' xu!');
@@ -241,6 +240,7 @@ function claimWeeklyTask(key) {
     if (!def || !tk || tk.c || tk.p < def.goal) return false;
     tk.c = true;
     state.money.player += def.reward;
+    floatMoney('player', '+' + def.reward, true); // r80: xu bay khi nhận thưởng tuần (giống nhiệm vụ ngày)
     saveMoney(); saveMeta();
     if (typeof renderTasks === 'function') renderTasks();
     showMessage('🗓️ Hoàn thành nhiệm vụ tuần: +' + def.reward + ' xu!');
