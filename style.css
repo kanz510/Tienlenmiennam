@@ -540,12 +540,12 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 #last-play-info { min-height: 22px; padding: 2px 14px; margin-bottom: 6px; border-radius: 999px; background: rgba(0,0,0,.45); color: #ffe082; font-size: 13px; font-weight: 700; opacity: 0; transition: opacity .2s; z-index: 3; }
 #last-play-info.show { opacity: 1; }
 #played-cards { position: relative; z-index: 2; }
-#played-ghost { position: relative; display: flex; justify-content: center; z-index: 1; opacity: .5; filter: saturate(.45); pointer-events: none; margin-bottom: -46px; transform: scale(.92); transform-origin: bottom center; }
+#played-ghost { position: relative; display: flex; justify-content: center; z-index: 1; opacity: .3; filter: saturate(.32) brightness(.82); pointer-events: none; margin-bottom: -52px; transform: scale(.92); transform-origin: bottom center; }
 #played-ghost:empty { display: none; }
 #played-ghost .card + .card { margin-left: -28px; }
-#game-container.tier-short #played-ghost { margin-bottom: -36px; }
+#game-container.tier-short #played-ghost { margin-bottom: -41px; }
 #game-container.tier-short #played-ghost .card + .card { margin-left: -22px; }
-#game-container.tier-tiny #played-ghost { margin-bottom: -26px; }
+#game-container.tier-tiny #played-ghost { margin-bottom: -30px; }
 #game-container.tier-tiny #played-ghost .card { width: 38px; height: 54px; }
 #game-container.tier-tiny #played-ghost .card + .card { margin-left: -16px; }
 #played-ghost .card { width: 60px; height: 86px; padding: 3px; }
@@ -1177,3 +1177,37 @@ body {
 .lt-btn { font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 999px; border: 1px solid #d4af37; background: linear-gradient(180deg, #1db981, #0a7a54); color: #fff; cursor: pointer; }
 .lt-done { font-size: 10.5px; font-weight: 800; color: #69f0ae; }
 .lt-lock { font-size: 10.5px; opacity: .6; }
+
+/* ===== r80: mặt bài thật (bộ Byron Knoll) + kết cấu nỉ + hiệu ứng cao cấp =====
+   Mặt bài là ảnh SVG phủ kín lá; phần dựng lá/logic không đổi, thiếu file thì
+   game tự lùi về mặt vẽ cũ. */
+.card.has-art { padding: 0; overflow: hidden; background: #fdfdf8; }
+.card.has-art img.face-full { width: 100%; height: 100%; display: block; pointer-events: none; }
+/* Bóng bài thực tế hơn: bóng tiếp xúc + bóng đổ mềm */
+.card { box-shadow: 0 1px 3px rgba(0,0,0,.35), 0 5px 14px rgba(0,0,0,.22); }
+#played-cards .card { box-shadow: 0 2px 5px rgba(0,0,0,.4), 0 10px 22px rgba(0,0,0,.25); }
+/* Lớp hạt nỉ rất nhẹ phủ vùng bàn (mọi màu bàn) */
+.table-area::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background-image: url(assets/felt.svg); background-size: 170px;
+    opacity: .05; pointer-events: none;
+}
+/* Hiệu ứng chặt heo/chặt chồng: bàn rung rất nhẹ + lóe sáng viền vàng */
+#game-container.chop-flash .table-area { animation: chopShake .5s ease; }
+@keyframes chopShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-3px); }
+    45% { transform: translateX(3px); }
+    70% { transform: translateX(-1.5px); }
+    0% { box-shadow: inset 0 0 0 1px rgba(212,175,55,.22), inset 0 0 52px rgba(0,0,0,.34); }
+    30% { box-shadow: inset 0 0 0 2px rgba(255,213,79,.85), inset 0 0 64px rgba(255,193,7,.28); }
+}
+/* Hiệu ứng lên cấp: vòng sáng vàng lan tỏa quanh avatar người chơi */
+#awrap-player.levelup { animation: levelUpGlow 1.4s ease-out; }
+@keyframes levelUpGlow {
+    0% { box-shadow: 0 0 0 0 rgba(255,213,79,.95), 0 0 18px rgba(255,213,79,.9); }
+    100% { box-shadow: 0 0 0 16px rgba(255,213,79,0), 0 0 4px rgba(255,213,79,0); }
+}
+@media (prefers-reduced-motion: reduce) {
+    #game-container.chop-flash .table-area, #awrap-player.levelup { animation: none !important; }
+}

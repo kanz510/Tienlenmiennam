@@ -338,6 +338,12 @@ function renderLastPlay() {
         ghost.innerHTML = '';
         [...el.children].forEach(ch => {
             if (!ch.cloneNode) return;
+            // r80-fix2: lá gốc có ảnh mặt đã hỏng hẳn thì bỏ qua, không nhân
+            // bản thành lá trắng trong lớp mờ (lớp mờ chỉ là vệt trang trí).
+            try {
+                const gim = ch.querySelector ? ch.querySelector('img.face-full') : null;
+                if (gim && gim.complete && gim.naturalWidth === 0) return;
+            } catch (e) {}
             const cl = ch.cloneNode(true);
             cl.classList.remove('card-play-anim', 'from-bottom', 'from-left', 'from-right', 'from-top');
             cl.style.transform = '';
@@ -539,9 +545,11 @@ function playFlyAnimation(who, srcList) {
         let cleaned = false;
         let cancelled = false; // r75: lượt bay này bị lượt mới thay thế giữa chừng
         let cancelFlight = null;
+        let watchdog = null;
         const cleanup = () => {
             if (cleaned) return;
             cleaned = true;
+            clearTimeout(watchdog);
             // r75: hủy luôn hoạt ảnh của các lá bay (trước đây chỉ gỡ khỏi DOM,
             // hoạt ảnh vẫn chạy tiếp và lời hứa hoàn thành vẫn kích hoạt về sau,
             // làm hiệu ứng hạ cánh của nước cũ bung chồng lên nước mới).
@@ -558,6 +566,10 @@ function playFlyAnimation(who, srcList) {
         };
         cancelFlight = () => { cancelled = true; cleanup(); };
         flyCleanup = cancelFlight;
+        // r80-fix2: đồng hồ canh dự phòng — nếu lời hứa hoàn thành của hoạt ảnh
+        // không bao giờ chạy (bị hủy lạ, app xuống nền, lỗi nền tảng), dọn dẹp
+        // cưỡng bức để lá đích THẬT không bao giờ bị giấu vĩnh viễn.
+        watchdog = setTimeout(() => { cleanup(); }, 430 + srcList.length * 25 + 600);
         for (let i = 0; i < n; i++) {
             const dEl = destEls[i];
             const d = measureFly(dEl, mDest);
@@ -608,11 +620,22 @@ function playFlyAnimation(who, srcList) {
             const startRot = fromBot ? 0 : (s.ang || 0);
             const uniK = Math.sqrt((d.w / boxW) * (d.h / boxH));
             const midK = (1 + uniK) / 2;
-            anims.push(clone.animate([
-                { transform: 'translate(0px, 0px) scale(1) rotate(' + startRot + 'deg)', opacity: 1 },
-                { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midK + ') rotate(' + (startRot + (tilt - startRot) * .55) + 'deg)', opacity: 1, offset: .55 },
-                { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + uniK + ') rotate(' + tilt + 'deg)', opacity: 1 }
-            ], { duration: 430, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
+            try {
+                anims.push(clone.animate([
+                    { transform: 'translate(0px, 0px) scale(1) rotate(' + startRot + 'deg)', opacity: 1 },
+                    { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midK + ') rotate(' + (startRot + (tilt - startRot) * .55) + 'deg)', opacity: 1, offset: .55 },
+                    { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + uniK + ') rotate(' + tilt + 'deg)', opacity: 1 }
+                ], { duration: 430, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
+            } catch (e) {
+                // r80-fix2: tạo hoạt ảnh lỗi ở lá này -> gỡ bản bay, hiện lại lá
+                // đích ngay lập tức, các lá còn lại vẫn bay bình thường.
+                clone.remove();
+                const ix = clones.indexOf(clone);
+                if (ix >= 0) clones.splice(ix, 1);
+                dEl.style.visibility = '';
+                const hx = hiddenEls.indexOf(dEl);
+                if (hx >= 0) hiddenEls.splice(hx, 1);
+            }
         }
         if (!anims.length) { cleanup(); return; }
         const destCenter = measureFly(dest, mDest);
@@ -669,11 +692,65 @@ function flashJustPlayed(who) {
 
 // Hình mặt J/Q/K cổ điển: mỗi rank một hình dùng cho cả 4 chất (chất phân biệt ở góc số)
 function faceArtFor(card) { return CARD_IMG['face-' + card.rank] || ''; }
+// r80: mặt bài đầy đủ (bộ Byron Knoll) — có file thì dùng ảnh thật, thiếu thì lùi về mặt vẽ cũ
+const SUIT_LETTER = { '♠': 'S', '♣': 'C', '♦': 'D', '♥': 'H' };
+function faceFullFor(card) {
+    if (typeof CARD_ART === 'undefined') return '';
+    return CARD_ART[card.rank + (SUIT_LETTER[card.suit] || '')] || '';
+}
+// r80: hiệu ứng chặt heo — bàn rung rất nhẹ + lóe viền vàng, không chặn thao tác
+let chopFxTimer = null;
+function fxChop() {
+    const gc = document.getElementById('game-container');
+    if (!gc) return;
+    gc.classList.remove('chop-flash');
+    void gc.offsetWidth;
+    gc.classList.add('chop-flash');
+    if (chopFxTimer) clearTimeout(chopFxTimer);
+    chopFxTimer = setTimeout(() => gc.classList.remove('chop-flash'), 520);
+}
+// r80: hiệu ứng lên cấp — vòng sáng vàng quanh avatar người chơi
+let levelFxTimer = null;
+function fxLevelUp() {
+    const w = document.getElementById('awrap-player');
+    if (!w) return;
+    w.classList.remove('levelup');
+    void w.offsetWidth;
+    w.classList.add('levelup');
+    if (levelFxTimer) clearTimeout(levelFxTimer);
+    levelFxTimer = setTimeout(() => w.classList.remove('levelup'), 1500);
+}
 
 function createCardEl(card) {
     const div = document.createElement('div');
     const isRed = (card.suit === '♥' || card.suit === '♦');
     div.className = 'card ' + (isRed ? 'red' : 'black');
+    const full = faceFullFor(card);
+    if (full) {
+        div.classList.add('has-art');
+        div.innerHTML = '<img class="face-full" src="' + full + '" alt="">';
+        // r80-fix2: nếu ảnh mặt bài lỗi tải (mất mạng, cache hỏng...) thì dựng
+        // lại mặt hạng/chất dự phòng ngay trên chính lá này — không để khung
+        // trắng. Trình xử lý tự gỡ sau một lần chạy, không đệ quy.
+        try {
+            const img = div.querySelector ? div.querySelector('img.face-full') : null;
+            if (img) {
+                const toFallback = () => {
+                    img.onerror = null;
+                    if (div.dataset && div.dataset.artFallback) return;
+                    if (div.dataset) div.dataset.artFallback = '1';
+                    div.classList.remove('has-art');
+                    const f2 = faceArtFor(card);
+                    div.innerHTML =
+                        '<div class="corner"><span>' + card.rank + '</span>' + (f2 ? '<span>' + card.suit + '</span>' : '') + '</div>' +
+                        (f2 ? '<img class="face-art" src="' + f2 + '" alt="">' : '<div class="suit-big">' + card.suit + '</div>');
+                };
+                img.onerror = toFallback;
+                if (img.complete && img.naturalWidth === 0) toFallback();
+            }
+        } catch (e) { /* phòng thủ: lỗi gắn fallback thì giữ nguyên lá ảnh */ }
+        return div;
+    }
     const face = faceArtFor(card);
     // Lá số/A: góc chỉ để con số, toàn lá chỉ có 1 hình chất to ở giữa (như Bảo chốt); lá mặt giữ chất nhỏ ở góc
     div.innerHTML = `
