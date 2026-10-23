@@ -1,7 +1,7 @@
 // Service worker — Tiến Lên Miền Nam (cache để chơi offline)
 // Trang HTML luôn lấy từ mạng trước để cơ chế tự cập nhật theo __TLV hoạt động;
 // tài nguyên tĩnh có ?v= theo phiên bản nên cache-first an toàn.
-const CACHE = 'tlmn-r76';
+const CACHE = 'tlmn-r77';
 const ASSETS = ['./', 'index.html', 'style.css', 'rules.js', 'audio.js', 'cards-img.js', 'bot.js', 'ui.js', 'game.js', 'manifest.json', 'icon.svg', 'icon-180.png'];
 
 self.addEventListener('install', e => {
