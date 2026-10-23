@@ -1538,3 +1538,21 @@ body {
         transform-origin: top left; transform: rotate(90deg) translateY(-100%); }
     #lobby-content { width: min(700px, 92vh); }
 }
+
+/* ===== r118b: nén chiều cao sảnh khi CÓ nút "Chơi tiếp ván dở" =====
+   Kiểm thử lại đúng điều kiện máy Bảo (có ván dở đang lưu): thêm hàng nút
+   Chơi tiếp làm khung phình 362 -> 412px, vượt 390 của khung ngang nên
+   tràn 11px mỗi phía + lệch tâm. Bản kiểm chứng r118 không có ván dở nên
+   không bắt được. Nén: bỏ margin rải rác của các ô trong lưới (nhịp do
+   row-gap quản), giảm padding các nút, logo nhỏ thêm. */
+#lobby-content #lobby-logo { width: 52px; height: 64px; margin: 0; }
+#lobby-content #lobby-title { margin: 0; }
+#lobby-content #lobby-sub { margin: 0; }
+#lobby-content #lobby-level { margin: 0; }
+#lobby-content .xp-bar { margin: 0; }
+#lobby-content #xp-text { margin: 0; }
+#lobby-content #btn-start { margin: 0; padding: 10px 20px; }
+#lobby-content #btn-continue { margin: 0; padding: 8px 20px; }
+#lobby-content #btn-gift { margin: 0; }
+#lobby-content .lobby-row { margin: 0; }
+#lobby-content .lobby-sub-btn { padding: 8px; }
