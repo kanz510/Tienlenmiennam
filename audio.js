@@ -87,10 +87,23 @@ function tauntFor(type) {
 
 // ===== HIỂN THỊ PHỤ: vòng giờ, nhãn bỏ lượt, bong bóng, tiền bay, confetti =====
 
-function speak(text, actorIdx) {
-    showBubble(actorIdx, text);
+// ===== GIỌNG ĐỌC AI (qua trạm trung chuyển, model xkiro-voice) =====
+// Thay luôn giọng máy của điện thoại theo ý Bảo — không làm mục tùy chọn.
+// Mỗi bot một giọng riêng + tốc độ phát riêng cho khác chất. Gọi tiếng lỗi
+// (hết hạn mức, mất mạng...) thì tự lùi về giọng máy cũ để game không bị câm.
+const TTS_VOICES = {
+    player: { voice: 'confident-male-vietnamese', rate: 1.0 },
+    left:   { voice: 'confident-male-vietnamese', rate: 1.09 },  // Hùng: nam Việt, nói nhanh hổ báo
+    top:    { voice: 'deep-male',                   rate: 0.9 },   // Tuấn: Tây trầm, chậm, bí ẩn
+    right:  { voice: 'sweet-female-vietnamese',     rate: 1.12 }   // Nam: nữ ngọt, nhanh, láu cá
+};
+const ttsCache = {};   // "giong|cau" -> object URL của file tiếng
+let ttsCacheKeys = [];
+let ttsAudio = null;     // file tiếng đang phát (để ngắt khi có câu mới)
+let ttsFailUntil = 0;    // sau 1 lần lỗi, nghỉ gọi AI 30 giây (chơi bằng giọng máy tạm)
+
+function speakNative(text, actorIdx) {
     try {
-        if (!voiceOn) return;
         if (typeof window === 'undefined' || !window.speechSynthesis) return;
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
@@ -101,6 +114,58 @@ function speak(text, actorIdx) {
         u.pitch = Math.max(0.5, basePitch + (Math.random() * 0.1 - 0.05));
         u.rate = 0.95 + Math.random() * 0.25;
         window.speechSynthesis.speak(u);
+    } catch (e) {}
+}
+
+function ttsPlay(url, rate) {
+    try {
+        if (ttsAudio) { try { ttsAudio.pause(); } catch (e) {} }
+        const au = new Audio(url);
+        au.playbackRate = rate || 1;
+        try { au.preservesPitch = false; } catch (e) {}
+        try { au.webkitPreservesPitch = false; } catch (e) {}
+        ttsAudio = au;
+        const p = au.play();
+        if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
+}
+
+function speakAI(text, actorIdx) {
+    const key = PLAYERS[actorIdx || 0];
+    const conf = TTS_VOICES[key] || TTS_VOICES.player;
+    const ck = conf.voice + '|' + text;
+    if (ttsCache[ck]) { ttsPlay(ttsCache[ck], conf.rate); return; }
+    if (typeof fetch !== 'function' || Date.now() < ttsFailUntil) { speakNative(text, actorIdx); return; }
+    const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 7000) : null;
+    fetch(AI_CHAT_URL + 'tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, voice: conf.voice }),
+        signal: ctrl ? ctrl.signal : undefined
+    }).then(r => {
+        if (to) clearTimeout(to);
+        if (!r || !r.ok) throw new Error('tts http');
+        return r.blob();
+    }).then(blob => {
+        if (!blob || blob.size < 800) throw new Error('tts rong');
+        const url = URL.createObjectURL(blob);
+        ttsCache[ck] = url;
+        ttsCacheKeys.push(ck);
+        if (ttsCacheKeys.length > 40) { const oldK = ttsCacheKeys.shift(); try { URL.revokeObjectURL(ttsCache[oldK]); } catch (e) {} delete ttsCache[oldK]; }
+        ttsPlay(url, conf.rate);
+    }).catch(() => {
+        if (to) clearTimeout(to);
+        ttsFailUntil = Date.now() + 30000;
+        speakNative(text, actorIdx);
+    });
+}
+
+function speak(text, actorIdx) {
+    showBubble(actorIdx, text);
+    try {
+        if (!voiceOn) return;
+        speakAI(text, actorIdx);
     } catch (e) {}
 }
 
