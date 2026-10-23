@@ -1556,3 +1556,30 @@ body {
 #lobby-content #btn-gift { margin: 0; }
 #lobby-content .lobby-row { margin: 0; }
 #lobby-content .lobby-sub-btn { padding: 8px; }
+
+/* ===== r120: sảnh gọn theo ý Bảo — bỏ mô tả luật + cụm cấp/XP (chỉ giữ
+   số xu dạng pill), chia lại bố cục nút, nút Bắt đầu trang trí hoa văn =====
+   HTML đã xóa #lobby-sub, .xp-bar, #xp-text; JS renderLobbyMeta chỉ còn
+   ghi số xu vào #lobby-level. Lưới xếp lại: trái logo/tiêu đề/pill xu/quà,
+   phải Bắt đầu (nút chính, cao 2 hàng) / Chơi tiếp / hàng Cửa hàng-Nhiệm vụ. */
+#lobby-content #lobby-level { grid-column: 1; grid-row: 3; background: rgba(0,0,0,.30);
+    border: 1px solid rgba(255,215,0,.55); color: #ffd54f; border-radius: 999px;
+    padding: 6px 18px; font-size: 15px; font-weight: 800; letter-spacing: .4px; }
+#lobby-content #btn-gift { grid-column: 1; grid-row: 4; }
+#lobby-content #btn-start { grid-column: 2; grid-row: 1 / 3; align-self: center;
+    padding: 20px 30px; font-size: 22px; font-weight: 900; letter-spacing: 1.5px; text-transform: uppercase;
+    background:
+      radial-gradient(circle at 14px 50%, rgba(255,215,0,.55) 2.5px, transparent 4px),
+      radial-gradient(circle at calc(100% - 14px) 50%, rgba(255,215,0,.55) 2.5px, transparent 4px),
+      linear-gradient(180deg, #25d192, #0a7a54 55%, #065f42);
+    border: 1.5px solid #ffd700; border-radius: 999px; color: #fff;
+    text-shadow: 0 2px 5px rgba(0,0,0,.4);
+    box-shadow: 0 6px 0 #064e36, 0 18px 34px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.55), inset 0 0 0 3px rgba(255,215,0,.20), inset 0 -12px 20px rgba(0,0,0,.20); }
+#lobby-content #btn-continue { grid-column: 2; grid-row: 3; }
+#lobby-content .lobby-row { grid-column: 2; grid-row: 4; }
+
+/* r120b: các nút cột phải cùng bề rộng cho thẳng trục; khung hẹp lại 640
+   cho cân với lượng nội dung đã gọn. */
+#lobby-content #btn-start, #lobby-content #btn-continue, #lobby-content .lobby-row { width: 100%; }
+#lobby-content { width: min(640px, 92vw); }
+@media (orientation: portrait) { #lobby-content { width: min(640px, 92vh); } }

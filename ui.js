@@ -1142,11 +1142,7 @@ function renderLobbyMeta() {
     ensureDaily();
     const info = levelFromXp(meta.xp);
     const line = document.getElementById('lobby-level');
-    if (line) line.textContent = '⭐ Cấp ' + info.level + ' · ' + state.money.player + ' xu · 🔥 Đăng nhập ' + meta.login.streak + ' ngày';
-    const fill = document.getElementById('xp-fill');
-    if (fill) fill.style.width = Math.round(info.into / info.need * 100) + '%';
-    const xpText = document.getElementById('xp-text');
-    if (xpText) xpText.textContent = 'XP ' + info.into + '/' + info.need;
+    if (line) line.textContent = '🪙 ' + Number(state.money.player).toLocaleString('vi-VN') + ' xu';
     const gift = document.getElementById('btn-gift');
     if (gift) {
         gift.classList.toggle('hidden', !!meta.daily.claimed);

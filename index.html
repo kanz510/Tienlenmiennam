@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r119">
+    <link rel="stylesheet" href="style.css?v=r120">
 <script>
-window.__TLV = 'r119';
+window.__TLV = 'r120';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -158,11 +158,8 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <div id="lobby-content">
             <div id="lobby-logo"><img class="logo-back" src="assets/cards/AS.svg" alt=""><img class="logo-front" src="assets/cards/AH.svg" alt=""></div>
             <h1 id="lobby-title">TIẾN LÊN MIỀN NAM</h1>
-            <p id="lobby-sub">Ván đầu: người giữ 3♠ đi trước, nước đầu phải có 3♠.<br>Các ván sau: người thắng ván trước đi trước.</p>
             <div id="lobby-level">⭐ Cấp 1</div>
-            <div class="xp-bar"><div id="xp-fill"></div></div>
-            <div id="xp-text">XP 0/100</div>
-            <button id="btn-start">▶ Bắt đầu</button>
+            <button id="btn-start">✦ ▶ Bắt đầu ✦</button>
             <button id="btn-continue" class="hidden">⏩ Chơi tiếp ván dở</button>
             <div class="lobby-row">
                 <button id="btn-shop" class="lobby-sub-btn">🛒 Cửa hàng</button>
@@ -254,12 +251,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r119"></script>
-    <script src="audio.js?v=r119"></script>
-    <script src="cards-img.js?v=r119"></script>
-    <script src="bot.js?v=r119"></script>
-    <script src="ui.js?v=r119"></script>
-    <script src="game.js?v=r119"></script>
+    <script src="rules.js?v=r120"></script>
+    <script src="audio.js?v=r120"></script>
+    <script src="cards-img.js?v=r120"></script>
+    <script src="bot.js?v=r120"></script>
+    <script src="ui.js?v=r120"></script>
+    <script src="game.js?v=r120"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
