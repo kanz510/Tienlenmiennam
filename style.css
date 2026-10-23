@@ -1317,3 +1317,20 @@ body {
     border-color: rgba(248,241,220,.45);
     box-shadow: 0 1px 3px rgba(0,0,0,.12);
 }
+
+
+/* ===== r85: prevent double card frames around full-face SVG assets =====
+   The SVG face files already draw their own rounded card edge and shadow.
+   Remove the extra CSS frame from the wrapper; keep the selected-card glow. */
+.card.has-art {
+    border: 0 !important;
+    box-shadow: none;
+    background: transparent;
+}
+#played-cards .card.has-art {
+    border: 0 !important;
+    box-shadow: none;
+}
+.player-cards .card.has-art.selected {
+    box-shadow: 0 0 0 2px rgba(243,210,122,.95), 0 0 22px 6px rgba(255,205,64,.75), 0 14px 22px rgba(0,0,0,.5);
+}
