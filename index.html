@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r92">
+    <link rel="stylesheet" href="style.css?v=r93">
 <script>
-window.__TLV = 'r92';
+window.__TLV = 'r93';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -194,6 +194,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <label class="set-row"><span>Giọng cà khịa</span><input type="checkbox" id="set-voice"></label>
             <label class="set-row"><span>Tự động đánh khi hết giờ</span><input type="checkbox" id="set-autoplay"></label>
             <label class="set-row"><span>Tốc độ bot</span><select id="set-speed"><option value="cham">Chậm</option><option value="vua">Vừa</option><option value="nhanh">Nhanh</option></select></label>
+                        <label class="set-row"><span>Mức độ chửi (AI)</span><select id="set-swear"><option value="off">Không chửi</option><option value="vua">Chửi vừa</option><option value="tuc">Tục tĩu — câu nào cũng chửi 🤬</option></select></label>
             <label class="set-row"><span>Tính cách Hùng (AI)</span><select id="set-persona-left"><option value="goc">Gốc (mặc định của bot)</option><option value="hien">Hiền lành thân thiện</option><option value="vangtuc">Văng tục chợ búa 🤬</option><option value="genz">Cà khịa Gen Z 🔥</option><option value="rapper">Rapper gieo vần</option><option value="thayboi">Thầy bói phán quẻ</option></select></label>
             <label class="set-row"><span>Tính cách Tuấn (AI)</span><select id="set-persona-top"><option value="goc">Gốc (mặc định của bot)</option><option value="hien">Hiền lành thân thiện</option><option value="vangtuc">Văng tục chợ búa 🤬</option><option value="genz">Cà khịa Gen Z 🔥</option><option value="rapper">Rapper gieo vần</option><option value="thayboi">Thầy bói phán quẻ</option></select></label>
             <label class="set-row"><span>Tính cách Nam (AI)</span><select id="set-persona-right"><option value="goc">Gốc (mặc định của bot)</option><option value="hien">Hiền lành thân thiện</option><option value="vangtuc">Văng tục chợ búa 🤬</option><option value="genz">Cà khịa Gen Z 🔥</option><option value="rapper">Rapper gieo vần</option><option value="thayboi">Thầy bói phán quẻ</option></select></label>
@@ -239,12 +240,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r92"></script>
-    <script src="audio.js?v=r92"></script>
-    <script src="cards-img.js?v=r92"></script>
-    <script src="bot.js?v=r92"></script>
-    <script src="ui.js?v=r92"></script>
-    <script src="game.js?v=r92"></script>
+    <script src="rules.js?v=r93"></script>
+    <script src="audio.js?v=r93"></script>
+    <script src="cards-img.js?v=r93"></script>
+    <script src="bot.js?v=r93"></script>
+    <script src="ui.js?v=r93"></script>
+    <script src="game.js?v=r93"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });

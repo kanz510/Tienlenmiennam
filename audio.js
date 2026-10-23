@@ -178,6 +178,26 @@ const AI_STYLE = {
     genz:    'Nói kiểu cà khịa Gen Z: lồng tiếng lóng và câu trend đang hot một cách tự nhiên, ví dụ: ê nha, keo quá, đỉnh nóc kịch trần, hết nước chấm, xịt keo cứng họng, ô dề, gì dợ, báo quá báo, flex nhẹ, SOS, khum, u là trời, mê chữ ê kéo dài. Hài hước, bắt trend, không gượng ép, mỗi câu chỉ lồng 1-2 tiếng lóng thôi.',
     thayboi: 'Nói như thầy bói phán quẻ, mở đầu kiểu "ta xem quẻ thì...", phán về vận mệnh ván bài của đối thủ một cách huyền bí, hài hước.'
 };
+// MỨC ĐỘ CHỬI — phủ lên MỌI bot, MỌI tính cách (trừ khi tắt). Bảo yêu cầu câu nào cũng tục.
+const AI_SWEAR = {
+    vua: 'Nói giọng chợ búa như bạn bè thân chơi bài: thỉnh thoảng văng tục tự nhiên để gây cười (đm, vãi, tổ sư, chó má).',
+    tuc: 'BẮT BUỘC: câu nào mở miệng cũng phải có ít nhất 2 từ chửi thề chợ búa (đm, địt mẹ, vãi lồn, tổ sư, chó má, mẹ kiếp, con mẹ nó), câu nào cũng tục, không được sót câu nào, chửi phong phú không lặp lại. Chửi cái thế bài và đời cho vui kiểu bạn bè thân, không kỳ thị, không nhắm vào đặc điểm cá nhân nhạy cảm.'
+};
+function aiSwearLevel() {
+    try { if (typeof settings !== 'undefined' && settings && settings.swearLevel) return settings.swearLevel; } catch (e) {}
+    return 'tuc';
+}
+// Câu mẫu tục dùng khi hết kho câu AI ở mức chửi cao nhất — giữ đúng tông chợ búa.
+const TAUNTS_TUC = {
+    play: ['Đm, đánh nè con', 'Vãi lồn, đỡ đi nè', 'Tổ sư nó, to chưa', 'Chó má, chặn thử coi', 'Mẹ kiếp, qua được không'],
+    big:  ['Địt mẹ, hàng khủng nè', 'Đm, chặt chết mẹ mày chưa', 'Vãi lồn, tứ quý nè con', 'Tổ sư, bố mày tới rồi nè'],
+    pass: ['Đm, cay vãi lồn', 'Chó má, nhường nè', 'Mẹ kiếp, đợi đó', 'Địt, ván sau tính sổ']
+};
+function tucFallback(group) {
+    const arr = TAUNTS_TUC[group] || TAUNTS_TUC.play;
+    return arr[Math.floor(Math.random() * arr.length)];
+}
+
 function aiPersonaFor(botKey) {
     let p = AI_PERSONA[botKey] || '';
     try {
@@ -185,6 +205,8 @@ function aiPersonaFor(botKey) {
             const field = 'persona' + botKey.charAt(0).toUpperCase() + botKey.slice(1);
             const st = settings[field];
             if (st && st !== 'goc' && AI_STYLE[st]) p += ' ' + AI_STYLE[st];
+            const sw = aiSwearLevel();
+            if (sw !== 'off' && AI_SWEAR[sw]) p += ' ' + AI_SWEAR[sw];
         }
     } catch (e) {}
     return p;
@@ -245,6 +267,7 @@ function aiLine(actorIdx, group, fallback) {
             return line;
         }
         aiRefill(botKey, group);
+        if (aiSwearLevel() === 'tuc') return tucFallback(group);
         return fallback;
     } catch (e) { return fallback; }
 }

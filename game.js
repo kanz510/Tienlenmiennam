@@ -33,7 +33,7 @@ state.timeLeft = 15;
 // ============================================================
 //  CÀI ĐẶT + THỐNG KÊ (localStorage, luôn trong try/catch)
 // ============================================================
-const DEFAULT_SETTINGS = { sound: true, voice: true, autoPlay: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong', personaLeft: 'goc', personaTop: 'goc', personaRight: 'goc' };
+const DEFAULT_SETTINGS = { sound: true, voice: true, autoPlay: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong', personaLeft: 'goc', personaTop: 'goc', personaRight: 'goc', swearLevel: 'tuc' };
 let settings = { ...DEFAULT_SETTINGS };
 let stats = { games: 0, wins: 0, losses: 0, curStreak: 0, bestStreak: 0, biggestWin: 0 };
 
@@ -985,6 +985,7 @@ bindSetting('set-difficulty', el => settings.difficulty = el.value);
 bindSetting('set-bet', el => settings.bet = parseInt(el.value, 10) || 100);
 bindSetting('set-table', el => settings.tableColor = el.value);
 bindSetting('set-back', el => settings.backStyle = el.value);
+bindSetting('set-swear', el => { settings.swearLevel = el.value; try { aiClearPool('left'); aiClearPool('top'); aiClearPool('right'); } catch (e) {} });
 bindSetting('set-persona-left', el => { settings.personaLeft = el.value; try { aiClearPool('left'); } catch (e) {} });
 bindSetting('set-persona-top', el => { settings.personaTop = el.value; try { aiClearPool('top'); } catch (e) {} });
 bindSetting('set-persona-right', el => { settings.personaRight = el.value; try { aiClearPool('right'); } catch (e) {} });

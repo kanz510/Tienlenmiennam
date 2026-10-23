@@ -1002,6 +1002,7 @@ function syncSettingsForm() {
     setV('set-bet', settings.bet);
     setV('set-table', settings.tableColor);
     setV('set-back', settings.backStyle);
+    setV('set-swear', settings.swearLevel || 'tuc');
     setV('set-persona-left', settings.personaLeft || 'goc');
     setV('set-persona-top', settings.personaTop || 'goc');
     setV('set-persona-right', settings.personaRight || 'goc');
