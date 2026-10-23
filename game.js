@@ -529,6 +529,7 @@ function initOrResume() {
 // Sảnh chờ: Bắt đầu = ván đầu của phiên (3♠ đi trước); Chơi tiếp = vào ván đã lưu
 function showLobby(hasSave) {
     inLobby = true;
+    try { musicLobby(); } catch (e) {}
     const lobby = document.getElementById('lobby');
     if (lobby) lobby.classList.remove('hidden');
     if (typeof renderLobbyMeta === 'function') renderLobbyMeta();

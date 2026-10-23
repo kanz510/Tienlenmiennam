@@ -65,112 +65,91 @@ function playWin() {
     });
 }
 
-// ===== NHẠC NỀN JAZZ PIANO (sinh bằng Web Audio — không cần file nhạc) =====
-// Vòng I–VI–II–V kiểu jazz (Cmaj9 - A7 - Dm9 - G13), 76 BPM, bước 1/8 có swing.
-// Tiếng piano mô phỏng: lớp "dây" sine ngân dài + lớp "búa" hài cao tắt nhanh.
-// Đệm hợp âm rải nốt kiểu jazz comping, bass đi bộ 4 nốt/ô, chổi quét rất nhẹ.
-const MUSIC_CHORDS = [
-    { root: 130.81, tones: [261.63, 329.63, 392.00, 493.88, 587.33] },
-    { root: 110.00, tones: [220.00, 277.18, 329.63, 392.00] },
-    { root: 146.83, tones: [293.66, 349.23, 440.00, 523.25, 659.25] },
-    { root: 98.00,  tones: [196.00, 246.94, 293.66, 349.23, 659.25] }
-];
-const MUSIC_MELODY = [
-    0, 0, 659.25, 0, 0, 587.33, 493.88, 0,
-    523.25, 0, 0, 440.00, 0, 554.37, 659.25, 0,
-    587.33, 0, 0, 0, 523.25, 0, 440.00, 0,
-    493.88, 0, 587.33, 0, 783.99, 0, 659.25, 587.33
-];
-const MUSIC_WALK = [1, 1.4983, 1.3348, 1.1892];
-let musicGain = null, musicTimer = null, musicStep = 0, musicNextTime = 0, musicArmed = false, musicNoiseBuf = null, musicStepDur = 60 / 76 / 2;
+// ===== NHẠC NỀN: BẢN THU THÍNH PHÒNG THẬT (file cục bộ trong dự án) =====
+// Sảnh chờ: Pachelbel - Canon (dàn dây Strolling Strings).
+// Trong ván: Bach - Air on the G String (Air Force Strings).
+// Cả hai do Ban nhạc Không quân Hoa Kỳ biểu diễn — Public domain (tác phẩm
+// của chính phủ Hoa Kỳ), nguồn Wikimedia Commons, xem assets/CREDITS.md.
+// Phát bằng thẻ audio từ assets/audio/, lặp vòng, chuyển sảnh <-> ván bằng
+// mờ chéo (crossfade), không bao giờ phát chồng hai bản cùng lúc.
+const MUSIC_TRACKS = {
+    lobby: { src: 'assets/audio/lobby-canon.mp3', vol: 0.5 },
+    game:  { src: 'assets/audio/game-air.mp3', vol: 0.42 }
+};
+let musicMode = 'off'; // 'off' | 'lobby' | 'game'
+let musicArmed = false;
+let musicEls = {}, musicFadeTimer = null, musicUnlockBound = false;
 
-function musicPiano(freq, t, vol, dur) {
-    const ctx = audioCtx; if (!ctx || !musicGain) return;
-    const body = ctx.createGain();
-    body.gain.setValueAtTime(0.0001, t);
-    body.gain.exponentialRampToValueAtTime(vol, t + 0.007);
-    body.gain.exponentialRampToValueAtTime(Math.max(vol * 0.3, 0.0011), t + 0.3);
-    body.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    body.connect(musicGain);
-    const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
-    o.connect(body); o.start(t); o.stop(t + dur + 0.05);
-    const bd = Math.min(dur, 0.38);
-    const bright = ctx.createGain();
-    bright.gain.setValueAtTime(0.0001, t);
-    bright.gain.exponentialRampToValueAtTime(vol * 0.5, t + 0.005);
-    bright.gain.exponentialRampToValueAtTime(0.001, t + bd);
-    bright.connect(musicGain);
-    [[2, 0.5], [3, 0.16], [1, 0.5]].forEach(pair => {
-        const oo = ctx.createOscillator();
-        oo.type = pair[0] === 1 ? 'triangle' : 'sine';
-        oo.frequency.value = freq * pair[0];
-        const og = ctx.createGain(); og.gain.value = pair[1];
-        oo.connect(og); og.connect(bright); oo.start(t); oo.stop(t + bd + 0.05);
-    });
+function musicEl(key) {
+    if (musicEls[key]) return musicEls[key];
+    try {
+        const el = new Audio();
+        el.src = MUSIC_TRACKS[key].src;
+        el.loop = true;
+        el.preload = 'auto';
+        el.volume = 0;
+        el.addEventListener('error', () => { try { el.dataset.dead = '1'; } catch (e) {} });
+        musicEls[key] = el;
+        return el;
+    } catch (e) { return null; }
 }
-function musicBrush(t) {
-    const ctx = audioCtx; if (!ctx || !musicGain) return;
-    if (!musicNoiseBuf) {
-        const len = Math.floor(ctx.sampleRate * 0.16);
-        musicNoiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
-        const d = musicNoiseBuf.getChannelData(0);
-        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
-    }
-    const src = ctx.createBufferSource(); src.buffer = musicNoiseBuf;
-    const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 5200; f.Q.value = 0.7;
-    const g = ctx.createGain(); g.gain.value = 0.011;
-    src.connect(f); f.connect(g); g.connect(musicGain);
-    src.start(t);
+function musicWanted() {
+    return soundOn && !(typeof settings !== 'undefined' && settings && settings.music === false);
 }
-function musicScheduleStep(step, t) {
-    const bar = Math.floor(step / 8) % 4;
-    const s8 = step % 8;
-    const ch = MUSIC_CHORDS[bar];
-    const te = s8 % 2 === 1 ? t + musicStepDur * 0.3 : t; // swing cho nốt lẻ
-    if (s8 % 2 === 0) musicPiano(ch.root * MUSIC_WALK[s8 / 2], te, 0.05, 0.55); // bass đi bộ
-    if (s8 === 3) { // comping rải nốt
-        [1, 2, 3].forEach((k, i2) => { if (ch.tones[k]) musicPiano(ch.tones[k], te + i2 * 0.045, 0.027, 1.1); });
-    }
-    if (s8 === 6) {
-        [2, 3, 4].forEach((k, i2) => { const fr = ch.tones[k] || ch.tones[1]; if (fr) musicPiano(fr, te + i2 * 0.04, 0.022, 1.0); });
-        musicBrush(te);
-    }
-    if (s8 === 2) musicBrush(te);
-    const mel = MUSIC_MELODY[step % 32];
-    if (mel) musicPiano(mel, te, 0.058, 1.6);
-}
-function musicStart() {
-    musicArmed = true;
-    if (musicTimer) return;
-    if (typeof settings !== 'undefined' && settings && settings.music === false) return;
-    if (!soundOn) return;
-    const ctx = ensureAudio(); if (!ctx) return;
-    if (!musicGain) { musicGain = ctx.createGain(); musicGain.gain.value = 0.9; musicGain.connect(ctx.destination); }
-    musicStep = 0;
-    musicNextTime = ctx.currentTime + 0.08;
-    musicTimer = setInterval(() => {
-        if (!audioCtx || !musicGain) return;
-        while (musicNextTime < audioCtx.currentTime + 0.45) {
-            musicScheduleStep(musicStep, musicNextTime);
-            musicStep++;
-            musicNextTime += musicStepDur;
+function musicFadeStep() {
+    let anyAlive = false;
+    Object.keys(MUSIC_TRACKS).forEach(key => {
+        const el = musicEls[key];
+        if (!el) return;
+        const target = (musicMode === key && musicWanted()) ? MUSIC_TRACKS[key].vol : 0;
+        if (el.paused && target > 0 && !el.dataset.dead) {
+            const p = el.play();
+            if (p && p.catch) p.catch(() => { musicBindUnlock(); });
         }
-    }, 200);
-}
-function musicStop() {
-    if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
-    if (musicGain && audioCtx) {
-        try {
-            const g = musicGain; musicGain = null;
-            g.gain.setValueAtTime(g.gain.value, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-            setTimeout(() => { try { g.disconnect(); } catch (e) {} }, 250);
-        } catch (e) { musicGain = null; }
+        if (!el.paused) {
+            anyAlive = true;
+            const diff = target - el.volume;
+            if (Math.abs(diff) < 0.03) {
+                el.volume = target;
+                if (target === 0) { try { el.pause(); } catch (e) {} }
+            } else {
+                el.volume = Math.max(0, Math.min(1, el.volume + (diff > 0 ? 0.03 : -0.03)));
+            }
+        }
+    });
+    if (!anyAlive && (musicMode === 'off' || !musicWanted())) {
+        if (musicFadeTimer) { clearInterval(musicFadeTimer); musicFadeTimer = null; }
     }
 }
+function musicEnsureTimer() {
+    if (!musicFadeTimer) musicFadeTimer = setInterval(musicFadeStep, 60);
+}
+function musicBindUnlock() {
+    if (musicUnlockBound) return;
+    musicUnlockBound = true;
+    const unlock = () => {
+        musicEnsureTimer();
+        musicFadeStep();
+        let ok = false;
+        Object.keys(musicEls).forEach(k => { if (!musicEls[k].paused) ok = true; });
+        if (ok) { document.removeEventListener('pointerdown', unlock); musicUnlockBound = false; }
+    };
+    document.addEventListener('pointerdown', unlock);
+}
+function musicSetMode(mode) {
+    musicMode = mode;
+    if (mode !== 'off') musicEl(mode);
+    musicEnsureTimer();
+    musicFadeStep();
+}
+function musicStart() { musicArmed = true; musicSetMode('game'); }
+function musicLobby() { musicSetMode('lobby'); }
+function musicStop() { musicSetMode('off'); }
 function musicSync() {
-    const want = musicArmed && soundOn && !(typeof settings !== 'undefined' && settings && settings.music === false);
-    if (want) musicStart(); else musicStop();
+    if (musicMode === 'off') return;
+    musicEl(musicMode);
+    musicEnsureTimer();
+    musicFadeStep();
 }
 
 // ===== GIỌNG ĐỌC CÀ KHỊA (Text-to-Speech) =====
