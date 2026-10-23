@@ -319,3 +319,94 @@ body {
 @media (prefers-reduced-motion: reduce) {
   #game-container .player-cards .card { will-change: auto; }
 }
+
+
+/* r125 — layered tabletop, tactile cards and restrained ambient lighting. */
+#game-container {
+  outline: 1px solid rgba(255, 240, 195, .16);
+  outline-offset: -7px;
+}
+#game-container .table-area {
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(255,255,255,.11), transparent 52%),
+    radial-gradient(ellipse at 50% 110%, rgba(0,0,0,.22), transparent 55%),
+    linear-gradient(145deg, rgba(22,129,106,.32), rgba(2,47,42,.22));
+}
+#game-container .table-area::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.035) 36%, transparent 48%);
+  opacity: .85;
+}
+#game-container .card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  transform-style: preserve-3d;
+}
+#game-container .card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 4px;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.30), transparent 28%, transparent 76%, rgba(153,128,82,.08));
+}
+#game-container .player-cards .card.selected {
+  z-index: 21;
+}
+#game-container .back-card {
+  position: relative;
+  overflow: hidden;
+}
+#game-container .back-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(125deg, rgba(255,255,255,.20), transparent 30%, transparent 72%, rgba(0,0,0,.14));
+}
+#game-container .bot-info,
+#game-container .player-info {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+#lobby-content {
+  box-shadow:
+    0 18px 0 rgba(0,0,0,.28),
+    0 28px 55px rgba(0,0,0,.46),
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 0 0 4px rgba(216,174,89,.08),
+    0 0 36px rgba(46,210,169,.08);
+}
+#lobby-logo .logo-back {
+  transform: rotate(-13deg) translateY(3px);
+}
+#lobby-logo .logo-front {
+  transform: rotate(9deg) translateY(-2px);
+}
+#btn-start {
+  box-shadow:
+    0 6px 0 #69451e,
+    0 10px 20px rgba(0,0,0,.32),
+    inset 0 2px 0 rgba(255,255,255,.55),
+    inset 0 -2px 0 rgba(90,49,9,.22);
+}
+@media (max-width: 700px) {
+  #game-container .bot-info,
+  #game-container .player-info {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  #game-container .table-area::after {
+    opacity: .45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container .card,
+  #game-container .back-card,
+  #lobby-logo img { transform-style: flat; }
+}
