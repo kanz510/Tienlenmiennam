@@ -117,25 +117,26 @@ function musicSync() {
         const el = musicEls[key];
         if (el) { try { el.pause(); el.volume = 0; } catch (e) {} }
     });
-    active.volume = MUSIC_TRACKS[musicMode].vol;
-    if (!active.paused || musicPlayPending[musicMode]) return;
-    musicPlayPending[musicMode] = true;
+    const key = musicMode;
+    active.volume = MUSIC_TRACKS[key].vol;
+    if (!active.paused || musicPlayPending[key]) return;
+    musicPlayPending[key] = true;
     let p;
     try { p = active.play(); }
     catch (e) {
-        musicPlayPending[musicMode] = false;
+        musicPlayPending[key] = false;
         return;
     }
     if (p && typeof p.then === 'function') {
         p.then(() => {
-            musicPlayPending[musicMode] = false;
+            musicPlayPending[key] = false;
             // Nếu mode/setting đổi trong lúc play() đang chờ, áp dụng lại ngay.
-            if (musicMode !== Object.keys(MUSIC_TRACKS).find(k => musicEls[k] === active) || !musicWanted()) musicSync();
+            if (musicMode !== key || !musicWanted()) musicSync();
         }).catch(() => {
-            musicPlayPending[musicMode] = false;
+            musicPlayPending[key] = false;
         });
     } else {
-        musicPlayPending[musicMode] = false;
+        musicPlayPending[key] = false;
     }
 }
 function musicSetMode(mode) {
