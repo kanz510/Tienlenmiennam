@@ -571,7 +571,7 @@ function aiContextLine() {
 function aiSayNow(actorIdx, eventText, fallbackText, onSaid, urgent) {
     try {
         const botKey = PLAYERS[actorIdx || 0];
-        if (!botKey || botKey === 'player' || !aiEnabled() || aiNowBusy || (!urgent && Date.now() - aiNowLast < 5000)) {
+        if (!botKey || botKey === 'player' || !aiEnabled() || aiNowBusy || (!urgent && Date.now() - aiNowLast < 4000)) {
             if (fallbackText) speak(fallbackText, actorIdx);
             return;
         }
@@ -646,7 +646,7 @@ let banterTimer = null;
 function banterStart() {
     if (banterTimer) return;
     const loop = () => {
-        banterTimer = setTimeout(loop, 7000 + Math.random() * 6000);
+        banterTimer = setTimeout(loop, 4500 + Math.random() * 4000);
         try { banterTick(); } catch (e) {}
     };
     banterTimer = setTimeout(loop, 4500);
@@ -655,27 +655,27 @@ function banterTick() {
     if (typeof state === 'undefined' || !state || state.gameOver) return;
     if (typeof inLobby !== 'undefined' && inLobby) return;
     if (typeof voiceOn !== 'undefined' && !voiceOn) return;
-    if (Math.random() > 0.6) return; // không phải nhịp nào cũng có chuyện
+    if (Math.random() > 0.8) return; // không phải nhịp nào cũng có chuyện
     const bots = [1, 2, 3];
     const a = bots[Math.floor(Math.random() * 3)];
     const others = bots.filter(x => x !== a);
     const b = others[Math.floor(Math.random() * others.length)];
     const aKey = PLAYERS[a], bKey = PLAYERS[b];
     const mode = Math.random();
-    if (mode < 0.45) {
+    if (mode < 0.40) {
         // A chọc B, B đáp trả (70%), A chốt hạ (35%)
         aiSayNow(a, 'TÁM CHUYỆN: Mở lời với ' + AI_NAMES[bKey] + ' bằng một câu tự nhiên, có thể kể chuyện đời thường hoặc trêu bạn bè; không bắt buộc nhắc bài.', null, (line) => {
-            if (Math.random() > 0.7) return;
+            if (Math.random() > 0.8) return;
             setTimeout(() => {
                 try {
                     aiSayNow(b, 'TÁM CHUYỆN: ' + AI_NAMES[aKey] + ' vừa nói: "' + line + '" — đáp lại đúng ý câu đó, có thể phản bác, kể thêm hoặc bẻ lái hài hước; đừng chỉ chửi lại.', null, (line2) => {
-                        if (Math.random() > 0.35) return;
+                        if (Math.random() > 0.45) return;
                         setTimeout(() => { try { aiSayNow(a, 'TÁM CHUYỆN: ' + AI_NAMES[bKey] + ' vừa đáp: "' + line2 + '" — chốt lại bằng một câu duyên dáng hoặc bẻ sang chuyện khác.', null, null, true); } catch (e) {} }, 2600 + Math.random() * 2000);
                     }, true);
                 } catch (e) {}
             }, 2600 + Math.random() * 2000);
         });
-    } else if (mode < 0.7) {
+    } else if (mode < 0.60) {
         // Quay sang cà khịa người chơi
         aiSayNow(a, 'Giữa ván đang rảnh, hãy quay sang cà khịa người chơi một câu cho vui (người chơi đang còn ' + state.hands.player.length + ' lá bài trên tay).', null);
     } else {
