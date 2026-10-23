@@ -1394,9 +1394,11 @@ body {
 #chat-send { background: linear-gradient(180deg, #1d7a4f, #0e5a38); color: #fff; border: 1.5px solid rgba(206,164,52,.9); border-radius: 10px; padding: 8px 14px; font-weight: 800; cursor: pointer; }
 #chat-close { background: transparent; color: #ffe9a8; border: 1px solid rgba(206,164,52,.5); border-radius: 10px; padding: 8px 10px; cursor: pointer; }
 
-/* Bong bóng của người chơi: hiện phía TRÊN avatar (người chơi ở đáy màn hình) */
-#bubble-player { top: auto; bottom: calc(100% + 10px); transform-origin: bottom center; }
-#bubble-player::after { top: auto; bottom: -6px; border: 5px solid transparent; border-top-color: #fffdf4; border-bottom: 0; }
+/* Bong bóng của người chơi: nằm BÊN TRÁI avatar, ngang thanh người chơi —
+   vùng trống phía trái, không vươn lên che hàng bài của người chơi nữa */
+#bubble-player { left: auto; right: calc(100% + 12px); top: 50%; bottom: auto; transform: translateY(-50%) scale(.7); transform-origin: right center; }
+#bubble-player.show { transform: translateY(-50%) scale(1); }
+#bubble-player::after { left: auto; right: -6px; top: 50%; bottom: auto; transform: translateY(-50%); border: 5px solid transparent; border-left-color: #fffdf4; border-right: 0; }
 
 
 /* ===== r109: dời cụm thông báo giữa bàn xuống dưới (theo hình khoanh của Bảo) =====
