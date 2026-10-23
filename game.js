@@ -138,6 +138,7 @@ function addXp(n) {
         saveMoney();
         levelUpNote = '⭐ Lên cấp ' + after + '! Thưởng ' + bonus + ' xu (đã cộng).';
         floatMoney('player', '+' + bonus, true);
+        if (typeof fxLevelUp === 'function') fxLevelUp(); // r80: phát sáng avatar khi lên cấp
     }
     saveMeta();
 }
@@ -210,6 +211,7 @@ function claimLogin() {
     const day = loginCycleDay();
     const r = loginReward();
     state.money.player += r;
+    floatMoney('player', '+' + r, true); // r80: xu bay khi nhận thưởng đăng nhập
     let extra = '';
     if (day === 7 && !meta.owned.includes('frame-ngoc')) {
         meta.owned.push('frame-ngoc');
@@ -226,6 +228,8 @@ function claimDailyTask(key) {
     if (!def || !tk || tk.c || tk.p < def.goal) return false;
     tk.c = true;
     state.money.player += def.reward;
+    floatMoney('player', '+' + def.reward, true); // r80: xu bay khi nhận thưởng
+    floatMoney('player', '+' + def.reward, true); // r80: xu bay khi nhận thưởng
     saveMoney(); saveMeta();
     if (typeof renderTasks === 'function') renderTasks();
     showMessage('🎯 Hoàn thành nhiệm vụ: +' + def.reward + ' xu!');
@@ -253,6 +257,7 @@ function claimMilestone(key) {
     if (claimedCount(tasks) < def.need) return false;
     store[key] = true;
     state.money.player += def.reward;
+    floatMoney('player', '+' + def.reward, true); // r80: xu bay khi nhận thưởng
     saveMoney(); saveMeta();
     if (typeof renderTasks === 'function') renderTasks();
     showMessage('🏆 ' + def.name + ': +' + def.reward + ' xu!');
@@ -690,6 +695,7 @@ function trackPlay(whoKey, cards, combo, prevPlay) {
     }
     state.lastPlayWasChop = chopped;
     if (!chopped) state.lastChop = null;
+    if (chopped && typeof fxChop === 'function') fxChop(); // r80: hiệu ứng bàn khi có chặt heo/chặt chồng
 }
 
 function playerPlay() {

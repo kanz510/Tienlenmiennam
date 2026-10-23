@@ -669,11 +669,45 @@ function flashJustPlayed(who) {
 
 // Hình mặt J/Q/K cổ điển: mỗi rank một hình dùng cho cả 4 chất (chất phân biệt ở góc số)
 function faceArtFor(card) { return CARD_IMG['face-' + card.rank] || ''; }
+// r80: mặt bài đầy đủ (bộ Byron Knoll) — có file thì dùng ảnh thật, thiếu thì lùi về mặt vẽ cũ
+const SUIT_LETTER = { '♠': 'S', '♣': 'C', '♦': 'D', '♥': 'H' };
+function faceFullFor(card) {
+    if (typeof CARD_ART === 'undefined') return '';
+    return CARD_ART[card.rank + (SUIT_LETTER[card.suit] || '')] || '';
+}
+// r80: hiệu ứng chặt heo — bàn rung rất nhẹ + lóe viền vàng, không chặn thao tác
+let chopFxTimer = null;
+function fxChop() {
+    const gc = document.getElementById('game-container');
+    if (!gc) return;
+    gc.classList.remove('chop-flash');
+    void gc.offsetWidth;
+    gc.classList.add('chop-flash');
+    if (chopFxTimer) clearTimeout(chopFxTimer);
+    chopFxTimer = setTimeout(() => gc.classList.remove('chop-flash'), 520);
+}
+// r80: hiệu ứng lên cấp — vòng sáng vàng quanh avatar người chơi
+let levelFxTimer = null;
+function fxLevelUp() {
+    const w = document.getElementById('awrap-player');
+    if (!w) return;
+    w.classList.remove('levelup');
+    void w.offsetWidth;
+    w.classList.add('levelup');
+    if (levelFxTimer) clearTimeout(levelFxTimer);
+    levelFxTimer = setTimeout(() => w.classList.remove('levelup'), 1500);
+}
 
 function createCardEl(card) {
     const div = document.createElement('div');
     const isRed = (card.suit === '♥' || card.suit === '♦');
     div.className = 'card ' + (isRed ? 'red' : 'black');
+    const full = faceFullFor(card);
+    if (full) {
+        div.classList.add('has-art');
+        div.innerHTML = '<img class="face-full" src="' + full + '" alt="">';
+        return div;
+    }
     const face = faceArtFor(card);
     // Lá số/A: góc chỉ để con số, toàn lá chỉ có 1 hình chất to ở giữa (như Bảo chốt); lá mặt giữ chất nhỏ ở góc
     div.innerHTML = `
