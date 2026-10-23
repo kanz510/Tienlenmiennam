@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r114">
+    <link rel="stylesheet" href="style.css?v=r115">
 <script>
-window.__TLV = 'r114';
+window.__TLV = 'r115';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -104,18 +104,18 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <!-- Người chơi (dưới) -->
         <div class="player-area">
             <div class="player-cards" id="cards-player"></div>
-            <div class="player-bar">
+            <div class="player-bar"><div class="timer-box">
+                    ⌛ <span id="timer-text">15</span>
+                </div>
                 <div class="player-info">
-                    <div class="avatar-wrap" id="awrap-player"><div class="avatar">🧑</div><span class="just-badge hidden" id="just-player">VỪA ĐÁNH</span><span class="bubble" id="bubble-player"></span></div>
+                    <div class="avatar-wrap" id="awrap-player"><div class="avatar">🧑</div><span class="just-badge hidden" id="just-player">VỪA ĐÁNH</span></div>
                     <span class="bot-name">Bạn</span>
                     <span id="level-badge">⭐1</span>
                     <span class="pass-label" id="pass-player">BỎ LƯỢT</span>
                     <span class="card-count" id="count-player">13</span>
                     <span class="money" id="money-player">💰 1000</span>
                 </div>
-                <div class="timer-box">
-                    ⌛ <span id="timer-text">15</span>
-                </div>
+                <span class="bubble" id="bubble-player"></span>
                 <div class="controls">
                     <button id="btn-chat" class="btn-chat" title="Chat với bot">💬</button>
                     <button id="btn-pass" class="btn-pass">Bỏ lượt</button>
@@ -260,12 +260,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r114"></script>
-    <script src="audio.js?v=r114"></script>
-    <script src="cards-img.js?v=r114"></script>
-    <script src="bot.js?v=r114"></script>
-    <script src="ui.js?v=r114"></script>
-    <script src="game.js?v=r114"></script>
+    <script src="rules.js?v=r115"></script>
+    <script src="audio.js?v=r115"></script>
+    <script src="cards-img.js?v=r115"></script>
+    <script src="bot.js?v=r115"></script>
+    <script src="ui.js?v=r115"></script>
+    <script src="game.js?v=r115"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });

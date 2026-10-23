@@ -1426,3 +1426,15 @@ body {
 .player-bar .player-info { grid-column: 2; justify-self: center; }
 .player-bar .controls { grid-column: 3; justify-self: end; }
 .table-area { background: none; box-shadow: none; }
+
+
+/* ===== r115b: bong bóng người chơi neo ở khoảng trống góc trái dưới bàn =====
+   Neo cũ (bên trái avatar, căn giữa theo chiều dọc) khiến câu chat dài
+   vươn lên đè mép dưới 2 lá bài đầu tiên. Neo mới: bong bóng là con của
+   thanh dưới, nằm trên đồng hồ, trái của lá bài đầu tiên — chiều cao
+   tùy ý cũng không chạm bài, đồng hồ hay nút bấm. Đuôi chỉ xuống. */
+#bubble-player { left: 8px; right: auto; top: auto; bottom: 66px; max-width: 160px;
+    transform: translateY(8px) scale(.92); transform-origin: 30px 100%; }
+#bubble-player.show { transform: translateY(0) scale(1); }
+#bubble-player::after { left: 26px; right: auto; top: 100%; bottom: auto; transform: none;
+    border: 6px solid transparent; border-top-color: #fffdf4; border-bottom: 0; }
