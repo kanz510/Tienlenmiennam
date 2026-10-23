@@ -21,7 +21,8 @@ let state = {
     lastChop: null,
     hintsLeft: 3,
     sortMode: 'rank',
-    toiTrang: null
+    toiTrang: null,
+    aiLog: []
 };
 state.timer = null;
 state.timeLeft = 15;
@@ -609,6 +610,7 @@ function newGame() {
     state.gameOver = false;
     state.playedAny = { player: false, left: false, right: false, top: false };
     state.playedCards = [];
+    state.aiLog = [];
     state.ledger = [];
     state.lastPlayWasChop = false;
     state.lastChop = null;
@@ -662,6 +664,12 @@ function newGame() {
 function trackPlay(whoKey, cards, combo, prevPlay) {
     state.playedAny[whoKey] = true;
     cards.forEach(c => state.playedCards.push(c));
+    try {
+        if (typeof aiLogPush === 'function' && typeof AI_NAMES !== 'undefined') {
+            const vt = prevPlay ? ' đè bài của ' + (AI_NAMES[PLAYERS[prevPlay.player]] || 'đối thủ') : ' (mở vòng mới)';
+            aiLogPush((AI_NAMES[whoKey] || whoKey) + ' đánh ' + aiDescribeCombo(combo, cards) + vt + ', còn ' + state.hands[whoKey].length + ' lá');
+        }
+    } catch (e) {}
     let chopped = false;
     if (prevPlay && (combo.type === 'quad' || combo.type === 'double_straight')) {
         const victimKey = PLAYERS[prevPlay.player];
@@ -706,8 +714,20 @@ function trackPlay(whoKey, cards, combo, prevPlay) {
             const lc = state.lastChop;
             const ci = PLAYERS.indexOf(lc.chopper);
             const vi = PLAYERS.indexOf(lc.victim);
+            aiLogPush((AI_NAMES[lc.chopper] || lc.chopper) + ' chặt heo của ' + (AI_NAMES[lc.victim] || lc.victim) + ', đền ' + lc.amount + ' xu');
             if (lc.chopper !== 'player' && ci > 0) aiSayNow(ci, 'Bạn vừa chặt heo của ' + (AI_NAMES[lc.victim] || 'đối thủ') + ' và được đền ' + lc.amount + ' xu.', null);
             else if (lc.victim !== 'player' && vi > 0) aiSayNow(vi, 'Bạn vừa bị ' + (AI_NAMES[lc.chopper] || 'đối thủ') + ' chặt heo, mất ' + lc.amount + ' xu đền, rất cay cú.', null);
+    // Tương tác trực tiếp với NGƯỜI CHƠI khi đè qua đè lại (chặt heo đã xử lý riêng ở trên)
+    if (!chopped && prevPlay && typeof aiSayNow === 'function' && typeof AI_NAMES !== 'undefined') {
+        try {
+            const desc = aiDescribeCombo(combo, cards);
+            if (whoKey === 'player' && prevPlay.player > 0) {
+                if (Math.random() < 0.75) aiSayNow(prevPlay.player, 'Bạn vừa bị NGƯỜI CHƠI đè bài bằng ' + desc + '. Hãy lên tiếng cay cú, cà khịa thẳng NGƯỜI CHƠI một câu.', null);
+            } else if (whoKey !== 'player' && prevPlay.player === 0) {
+                if (Math.random() < 0.45) aiSayNow(PLAYERS.indexOf(whoKey), 'Bạn vừa đè bài của NGƯỜI CHƠI bằng ' + desc + '. Hãy khoe khoang, chọc tức NGƯỜI CHƠI một câu.', null);
+            }
+        } catch (e) {}
+    }
         } catch (e) {}
     }
 }
@@ -738,7 +758,7 @@ function playerPlay() {
     stopTimer();
     vibrate(40);
     playClick();
-    speakPlay(combo, 0);
+    speakPlay(combo, 0, { prevCombo: state.lastPlay ? state.lastPlay.combo : null, remaining: state.hands.player.length - cards.length, prevOwnerIdx: state.lastPlay ? state.lastPlay.player : null, cards });
 
     const flySrc = captureFlySource('player', cards); // chụp vị trí lá đã chọn trước khi cắt bài
     // Xóa bài khỏi tay (từ index lớn xuống)
@@ -755,6 +775,14 @@ function playerPlay() {
 
     render();
     playFlyAnimation('player', flySrc);
+    // Bot dè chừng, lên tiếng khi người chơi chỉ còn 1-2 lá
+    try {
+        const leftN = state.hands.player.length;
+        if ((leftN === 1 || leftN === 2) && typeof aiSayNow === 'function' && Math.random() < 0.9) {
+            const w = 1 + Math.floor(Math.random() * 3);
+            setTimeout(() => { try { aiSayNow(w, 'NGƯỜI CHƠI chỉ còn ' + leftN + ' lá bài, sắp thắng ván rồi! Hãy lên tiếng dè chừng, hù dọa hoặc bàn cách chặn nó.', null); } catch (e) {} }, 500);
+        }
+    } catch (e) {}
 
     if (state.hands.player.length === 0) {
         return endGame(0);
@@ -822,6 +850,14 @@ function nextTurn() {
 
 function doPass() {
     state.passed[PLAYERS[state.turn]] = true; // ghi dấu đã bỏ lượt trong vòng này (áp cho cả bot lẫn người chơi)
+    try {
+        if (typeof aiLogPush === 'function' && typeof AI_NAMES !== 'undefined') aiLogPush((AI_NAMES[PLAYERS[state.turn]] || 'Ai đó') + ' bỏ lượt');
+        if (state.turn === 0 && state.lastPlay && typeof aiSayNow === 'function') {
+            const owner = state.lastPlay.player;
+            const choser = owner > 0 ? owner : 1 + Math.floor(Math.random() * 3);
+            if (Math.random() < 0.55) setTimeout(() => { try { aiSayNow(choser, 'NGƯỜI CHƠI vừa phải bỏ lượt vì không đè được bài trên bàn. Hãy chọc quê NGƯỜI CHƠI một câu.', null); } catch (e) {} }, 600);
+        }
+    } catch (e) {}
     const lp = state.lastPlay;
     const bigPass = !!(lp && lp.combo && (lp.combo.type === 'quad' || lp.combo.type === 'double_straight' || (lp.cards || []).some(c => c.rank === '2')));
     speak(aiLine(state.turn, bigPass ? 'passbig' : 'pass', tauntFor('pass')), state.turn);
@@ -946,6 +982,55 @@ function endGame(winnerIdx) {
 //  EVENT LISTENERS
 // ============================================================
 document.getElementById('btn-play').addEventListener('click', playerPlay);
+
+// ===== CHAT CỦA NGƯỜI CHƠI: gõ chữ hoặc bấm nút nhanh, bot trả lời tương tác =====
+let playerChatLast = 0;
+function toggleChatPanel(force) {
+    const p = document.getElementById('chat-panel');
+    if (!p) return;
+    const show = typeof force === 'boolean' ? force : p.classList.contains('hidden');
+    p.classList.toggle('hidden', !show);
+    if (show) { const i = document.getElementById('chat-input'); if (i) setTimeout(() => { try { i.focus(); } catch (e) {} }, 60); }
+}
+function sendPlayerChat(text) {
+    text = (text || '').trim();
+    if (!text) return;
+    try { showBubble(0, text); } catch (e) {}
+    toggleChatPanel(false);
+    const inp = document.getElementById('chat-input'); if (inp) inp.value = '';
+    if (typeof state !== 'undefined' && state && state.gameOver) return;
+    if (typeof inLobby !== 'undefined' && inLobby) return;
+    const now = Date.now();
+    if (now - playerChatLast < 3500) return;
+    playerChatLast = now;
+    const low = text.toLowerCase();
+    let target = -1;
+    if (low.indexOf('hùng') >= 0 || low.indexOf('hung') >= 0) target = 1;
+    else if (low.indexOf('tuấn') >= 0 || low.indexOf('tuan') >= 0) target = 2;
+    else if (low.indexOf('nam') >= 0) target = 3;
+    if (target < 0) target = 1 + Math.floor(Math.random() * 3);
+    setTimeout(() => {
+        try {
+            aiSayNow(target, 'NGƯỜI CHƠI vừa chat với cả bàn: "' + text + '" — hãy trả lời lại NGƯỜI CHƠI một câu, tương tác trực tiếp và nhắc tới điều nó vừa nói.', null, (line) => {
+                if (Math.random() > 0.3) return;
+                const others = [1, 2, 3].filter(x => x !== target);
+                const other = others[Math.floor(Math.random() * others.length)];
+                setTimeout(() => { try { aiSayNow(other, (AI_NAMES[PLAYERS[target]] || 'Bạn cùng bàn') + ' vừa trả lời NGƯỜI CHƠI: "' + line + '" — hãy chêm vào một câu cho vui.', null, null, true); } catch (e) {} }, 2200 + Math.random() * 1800);
+            }, true);
+        } catch (e) {}
+    }, 700);
+}
+try {
+    const btnChat = document.getElementById('btn-chat');
+    if (btnChat) btnChat.addEventListener('click', () => toggleChatPanel());
+    const btnSend = document.getElementById('chat-send');
+    if (btnSend) btnSend.addEventListener('click', () => { const i = document.getElementById('chat-input'); sendPlayerChat(i ? i.value : ''); });
+    const inpChat = document.getElementById('chat-input');
+    if (inpChat) inpChat.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendPlayerChat(inpChat.value); });
+    const btnClose = document.getElementById('chat-close');
+    if (btnClose) btnClose.addEventListener('click', () => toggleChatPanel(false));
+    if (document.querySelectorAll) document.querySelectorAll('#chat-panel [data-chat]').forEach(b => b.addEventListener('click', () => sendPlayerChat(b.getAttribute('data-chat'))));
+} catch (e) {}
 document.getElementById('btn-pass').addEventListener('click', playerPass);
 document.getElementById('btn-new').addEventListener('click', newGame);
 document.getElementById('btn-overlay-new').addEventListener('click', () => {

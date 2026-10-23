@@ -17,7 +17,7 @@ const PASS_LABEL_IDS = { player: 'pass-player', left: 'pass-left', top: 'pass-to
 function showPassLabel(key) { const el = document.getElementById(PASS_LABEL_IDS[key]); if (el) el.classList.add('show'); }
 function clearPassLabels() { PLAYERS.forEach(k => { const el = document.getElementById(PASS_LABEL_IDS[k]); if (el) el.classList.remove('show'); }); }
 
-const BUBBLE_IDS = { left: 'bubble-left', top: 'bubble-top', right: 'bubble-right' };
+const BUBBLE_IDS = { player: 'bubble-player', left: 'bubble-left', top: 'bubble-top', right: 'bubble-right' };
 const bubbleTimers = {};
 // Giữ bong bóng chữ ở lại cho khớp tiếng đọc: khi tiếng bắt đầu phát thì hẹn
 // tắt theo lúc tiếng kết thúc (dự phòng tối đa ~6 giây), thay vì tắt cố định 2 giây.

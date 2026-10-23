@@ -342,10 +342,6 @@ function cardSpeech(combo) {
 // Đánh bài: 50% đọc số lá, 50% bốc câu cà khịa
 function speakPlay(combo, actorIdx, ctx) {
     try {
-        if (combo && Math.random() < 0.5) {
-            const line = cardSpeech(combo);
-            if (line) return speak(line, actorIdx);
-        }
         let group = 'play';
         if (combo && (combo.type === 'quad' || combo.type === 'double_straight')) group = 'big';
         else if (ctx && ctx.remaining === 1) {
@@ -357,6 +353,21 @@ function speakPlay(combo, actorIdx, ctx) {
             const hi = rankValue(combo.cards[combo.cards.length - 1]);
             if (ctx.prevCombo && hi >= 9) group = 'press';
             else if (!ctx.prevCombo && hi <= 5) group = 'probe';
+        }
+        const cards = (combo && combo.cards) || (ctx && ctx.cards) || [];
+        const notable = actorIdx > 0 && (group === 'big' || group === 'press' || group === 'winsoon' || cards.some(c => c.rank === '2'));
+        if (notable) {
+            // Nước đáng nói: sinh câu tại chỗ bám đúng nước đi này (đánh gì, đè ai, còn mấy lá)
+            let ev = 'Bạn vừa đánh ' + aiDescribeCombo(combo, cards);
+            if (ctx && ctx.prevCombo && ctx.prevOwnerIdx != null && PLAYERS[ctx.prevOwnerIdx]) ev += ' đè bài của ' + (AI_NAMES[PLAYERS[ctx.prevOwnerIdx]] || 'đối thủ');
+            if (ctx && typeof ctx.remaining === 'number') ev += '. Sau nước này bạn còn ' + ctx.remaining + ' lá bài trên tay';
+            ev += '.';
+            aiSayNow(actorIdx, ev, aiLine(actorIdx, group, tauntFor(combo ? combo.type : 'single')));
+            return;
+        }
+        if (combo && Math.random() < 0.5) {
+            const line = cardSpeech(combo);
+            if (line) return speak(line, actorIdx);
         }
         speak(aiLine(actorIdx, group, tauntFor(combo ? combo.type : 'single')), actorIdx);
     } catch (e) {}
@@ -517,10 +528,38 @@ function aiRefill(botKey, group) {
 const AI_NAMES = { player: 'người chơi', left: 'Hùng', top: 'Tuấn', right: 'Nam' };
 let aiNowBusy = false;
 let aiNowLast = 0;
+// Mô tả một bộ bài thành chữ trung tính cho AI dễ bám ngữ cảnh: "đôi Át", "sảnh 6 lá tới K"...
+function aiDescribeCombo(combo, cards) {
+    try {
+        if (!combo || !cards || !cards.length) return 'một nước bài';
+        const hi = cards.reduce((m, c) => (rankValue(c) > rankValue(m) ? c : m), cards[0]);
+        switch (combo.type) {
+            case 'single': return 'lá ' + hi.rank + (hi.suit || '');
+            case 'pair': return 'đôi ' + hi.rank;
+            case 'triple': return 'sám ' + hi.rank;
+            case 'quad': return 'tứ quý ' + hi.rank;
+            case 'straight': return 'sảnh ' + cards.length + ' lá tới ' + hi.rank;
+            case 'double_straight': return (cards.length / 2) + ' đôi thông';
+            default: return 'một bộ bài';
+        }
+    } catch (e) { return 'một nước bài'; }
+}
+// Nhật ký 5 hành động gần nhất của ván — AI đọc cái này để câu nói bám sát diễn biến
+function aiLogPush(text) {
+    try {
+        if (typeof state === 'undefined' || !state) return;
+        if (!Array.isArray(state.aiLog)) state.aiLog = [];
+        state.aiLog.push(text);
+        while (state.aiLog.length > 5) state.aiLog.shift();
+    } catch (e) {}
+}
 function aiContextLine() {
     try {
-        const parts = PLAYERS.map(k => (AI_NAMES[k] || k) + ' còn ' + (state.hands[k] ? state.hands[k].length : '?') + ' lá');
-        return 'Tình hình ván Tiến Lên hiện tại: ' + parts.join(', ') + '. Mức cược ' + ((typeof settings !== 'undefined' && settings && settings.bet) || 100) + ' xu.';
+        const parts = PLAYERS.map(k => (AI_NAMES[k] || k) + ' còn ' + (state.hands[k] ? state.hands[k].length : '?') + ' lá, có ' + ((state.money && state.money[k] != null) ? state.money[k] : '?') + ' xu');
+        let s = 'Tình hình ván Tiến Lên hiện tại: ' + parts.join('; ') + '. Mức cược ' + ((typeof settings !== 'undefined' && settings && settings.bet) || 100) + ' xu.';
+        if (state.lastPlay && state.lastPlay.combo) s += ' Bài đang trên bàn là ' + aiDescribeCombo(state.lastPlay.combo, state.lastPlay.cards) + ' của ' + (AI_NAMES[PLAYERS[state.lastPlay.player]] || 'ai đó') + '.';
+        if (state.aiLog && state.aiLog.length) s += ' Diễn biến gần đây: ' + state.aiLog.join(' -> ') + '.';
+        return s;
     } catch (e) { return ''; }
 }
 function aiSayNow(actorIdx, eventText, fallbackText, onSaid, urgent) {
