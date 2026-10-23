@@ -668,9 +668,9 @@ function banterTick() {
             if (Math.random() > 0.7) return;
             setTimeout(() => {
                 try {
-                    aiSayNow(b, AI_NAMES[aKey] + ' vừa chọc bạn: "' + line + '" — hãy đáp trả, chửi lại một câu thật gắt cho vui.', null, (line2) => {
+                    aiSayNow(b, 'TÁM CHUYỆN: ' + AI_NAMES[aKey] + ' vừa nói: "' + line + '" — đáp lại đúng ý câu đó, có thể phản bác, kể thêm hoặc bẻ lái hài hước; đừng chỉ chửi lại.', null, (line2) => {
                         if (Math.random() > 0.35) return;
-                        setTimeout(() => { try { aiSayNow(a, AI_NAMES[bKey] + ' vừa đáp trả bạn: "' + line2 + '" — kết luận, chốt hạ một câu cho cả bàn cười.', null, null, true); } catch (e) {} }, 2600 + Math.random() * 2000);
+                        setTimeout(() => { try { aiSayNow(a, 'TÁM CHUYỆN: ' + AI_NAMES[bKey] + ' vừa đáp: "' + line2 + '" — chốt lại bằng một câu duyên dáng hoặc bẻ sang chuyện khác.', null, null, true); } catch (e) {} }, 2600 + Math.random() * 2000);
                     }, true);
                 } catch (e) {}
             }, 2600 + Math.random() * 2000);
