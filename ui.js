@@ -695,8 +695,11 @@ function faceArtFor(card) { return CARD_IMG['face-' + card.rank] || ''; }
 // r80: mặt bài đầy đủ (bộ Byron Knoll) — có file thì dùng ảnh thật, thiếu thì lùi về mặt vẽ cũ
 const SUIT_LETTER = { '♠': 'S', '♣': 'C', '♦': 'D', '♥': 'H' };
 function faceFullFor(card) {
-    if (typeof CARD_ART === 'undefined') return '';
-    return CARD_ART[card.rank + (SUIT_LETTER[card.suit] || '')] || '';
+    const suitCode = SUIT_LETTER[card.suit] || '';
+    if (!suitCode || !card || !card.rank) return '';
+    // Bộ 52 SVG đã có sẵn trong assets/cards; dùng trực tiếp thay vì CARD_ART
+    // chưa được nạp trong index.html (nguyên nhân khiến lá bài rơi về mặt vẽ dự phòng).
+    return 'assets/cards/' + String(card.rank) + suitCode + '.svg';
 }
 // r80: hiệu ứng chặt heo — bàn rung rất nhẹ + lóe viền vàng, không chặn thao tác
 let chopFxTimer = null;
