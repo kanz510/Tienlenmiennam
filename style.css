@@ -592,15 +592,15 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 .pass-label.show { display: inline-block; animation: popIn .2s ease-out; }
 
 /* Bong bóng cà khịa */
-.bubble { position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%) scale(.7); transform-origin: top center; background: rgba(18,18,18,.9); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .18s ease, transform .18s ease; white-space: nowrap; z-index: 80; }
+.bubble { position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%) scale(.7); transform-origin: top center; background: #fffdf4; color: #23262b; font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 14px; border: 1.5px solid rgba(206,164,52,.9); box-shadow: 0 6px 16px rgba(0,0,0,.35); opacity: 0; pointer-events: none; transition: opacity .45s ease, transform .45s ease; white-space: nowrap; z-index: 80; }
 .bubble.show { opacity: 1; transform: translateX(-50%) scale(1); }
-.bubble::after { content: ''; position: absolute; left: 50%; top: -5px; transform: translateX(-50%); border: 5px solid transparent; border-bottom-color: rgba(18,18,18,.9); border-top: 0; }
+.bubble::after { content: ''; position: absolute; left: 50%; top: -6px; transform: translateX(-50%); border: 5px solid transparent; border-bottom-color: #fffdf4; border-top: 0; }
 .bot-left .bubble { left: calc(100% + 10px); top: 50%; transform: translateY(-50%) scale(.7); transform-origin: left center; }
 .bot-left .bubble.show { transform: translateY(-50%) scale(1); }
-.bot-left .bubble::after { left: -5px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: rgba(18,18,18,.9); border-left: 0; }
+.bot-left .bubble::after { left: -6px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: #fffdf4; border-left: 0; }
 .bot-right .bubble { left: auto; right: calc(100% + 10px); top: 50%; transform: translateY(-50%) scale(.7); transform-origin: right center; }
 .bot-right .bubble.show { transform: translateY(-50%) scale(1); }
-.bot-right .bubble::after { left: auto; right: -5px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-left-color: rgba(18,18,18,.9); border-right: 0; }
+.bot-right .bubble::after { left: auto; right: -6px; top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-left-color: #fffdf4; border-right: 0; }
 
 /* Tiền bay lên khi thắng/thua */
 .money-float { position: absolute; left: 50%; top: -2px; transform: translateX(-50%); font-size: 15px; font-weight: 900; pointer-events: none; z-index: 90; text-shadow: 0 1px 3px rgba(0,0,0,.6); animation: moneyFloat 1.3s ease-out forwards; white-space: nowrap; }

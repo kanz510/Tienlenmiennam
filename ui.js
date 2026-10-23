@@ -47,7 +47,9 @@ function showBubble(actorIdx, text) {
     el.textContent = text;
     el.classList.add('show');
     clearTimeout(bubbleTimers[key]);
-    bubbleTimers[key] = setTimeout(() => { el.classList.remove('show'); }, 2000);
+    // Ở lại theo độ dài câu cho kịp đọc (3.2s - 6.5s), rồi mờ dần đi (CSS .45s)
+    const hold = Math.min(6500, Math.max(3200, 1600 + String(text).length * 95));
+    bubbleTimers[key] = setTimeout(() => { el.classList.remove('show'); }, hold);
 }
 
 // Số tiền bay lên khỏi avatar của một người (thắng: xanh lá, thua: đỏ)

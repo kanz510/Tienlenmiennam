@@ -65,44 +65,60 @@ function playWin() {
     });
 }
 
-// ===== NHẠC NỀN (sinh bằng Web Audio — không cần file nhạc) =====
-// Vòng 4 hợp âm lounge vui (Cmaj7 - Am7 - Fmaj7 - G7), 96 BPM: giai điệu
-// pentatonic soạn sẵn + bass + pad + nhịp gõ rất nhẹ, âm lượng nhỏ dưới tiếng game.
+// ===== NHẠC NỀN JAZZ PIANO (sinh bằng Web Audio — không cần file nhạc) =====
+// Vòng I–VI–II–V kiểu jazz (Cmaj9 - A7 - Dm9 - G13), 76 BPM, bước 1/8 có swing.
+// Tiếng piano mô phỏng: lớp "dây" sine ngân dài + lớp "búa" hài cao tắt nhanh.
+// Đệm hợp âm rải nốt kiểu jazz comping, bass đi bộ 4 nốt/ô, chổi quét rất nhẹ.
 const MUSIC_CHORDS = [
-    { root: 130.81, tones: [261.63, 329.63, 392.00, 493.88] },
-    { root: 110.00, tones: [220.00, 261.63, 329.63, 392.00] },
-    { root: 87.31,  tones: [174.61, 220.00, 261.63, 329.63] },
-    { root: 98.00,  tones: [196.00, 246.94, 293.66, 349.23] }
+    { root: 130.81, tones: [261.63, 329.63, 392.00, 493.88, 587.33] },
+    { root: 110.00, tones: [220.00, 277.18, 329.63, 392.00] },
+    { root: 146.83, tones: [293.66, 349.23, 440.00, 523.25, 659.25] },
+    { root: 98.00,  tones: [196.00, 246.94, 293.66, 349.23, 659.25] }
 ];
 const MUSIC_MELODY = [
-    659, 0, 784, 0, 880, 784, 659, 0,
-    659, 0, 587, 659, 523, 0, 587, 0,
-    698, 0, 659, 587, 659, 0, 523, 0,
-    587, 0, 784, 0, 880, 784, 587, 0
+    0, 0, 659.25, 0, 0, 587.33, 493.88, 0,
+    523.25, 0, 0, 440.00, 0, 554.37, 659.25, 0,
+    587.33, 0, 0, 0, 523.25, 0, 440.00, 0,
+    493.88, 0, 587.33, 0, 783.99, 0, 659.25, 587.33
 ];
-let musicGain = null, musicTimer = null, musicStep = 0, musicNextTime = 0, musicArmed = false, musicNoiseBuf = null;
+const MUSIC_WALK = [1, 1.4983, 1.3348, 1.1892];
+let musicGain = null, musicTimer = null, musicStep = 0, musicNextTime = 0, musicArmed = false, musicNoiseBuf = null, musicStepDur = 60 / 76 / 2;
 
-function musicNote(freq, t, dur, type, vol) {
+function musicPiano(freq, t, vol, dur) {
     const ctx = audioCtx; if (!ctx || !musicGain) return;
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.type = type; o.frequency.value = freq;
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-    o.connect(g); g.connect(musicGain);
-    o.start(t); o.stop(t + dur + 0.05);
+    const body = ctx.createGain();
+    body.gain.setValueAtTime(0.0001, t);
+    body.gain.exponentialRampToValueAtTime(vol, t + 0.007);
+    body.gain.exponentialRampToValueAtTime(Math.max(vol * 0.3, 0.0011), t + 0.3);
+    body.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    body.connect(musicGain);
+    const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
+    o.connect(body); o.start(t); o.stop(t + dur + 0.05);
+    const bd = Math.min(dur, 0.38);
+    const bright = ctx.createGain();
+    bright.gain.setValueAtTime(0.0001, t);
+    bright.gain.exponentialRampToValueAtTime(vol * 0.5, t + 0.005);
+    bright.gain.exponentialRampToValueAtTime(0.001, t + bd);
+    bright.connect(musicGain);
+    [[2, 0.5], [3, 0.16], [1, 0.5]].forEach(pair => {
+        const oo = ctx.createOscillator();
+        oo.type = pair[0] === 1 ? 'triangle' : 'sine';
+        oo.frequency.value = freq * pair[0];
+        const og = ctx.createGain(); og.gain.value = pair[1];
+        oo.connect(og); og.connect(bright); oo.start(t); oo.stop(t + bd + 0.05);
+    });
 }
-function musicHat(t) {
+function musicBrush(t) {
     const ctx = audioCtx; if (!ctx || !musicGain) return;
     if (!musicNoiseBuf) {
-        const len = Math.floor(ctx.sampleRate * 0.05);
+        const len = Math.floor(ctx.sampleRate * 0.16);
         musicNoiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
         const d = musicNoiseBuf.getChannelData(0);
-        for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len);
     }
     const src = ctx.createBufferSource(); src.buffer = musicNoiseBuf;
-    const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 6500;
-    const g = ctx.createGain(); g.gain.value = 0.012;
+    const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 5200; f.Q.value = 0.7;
+    const g = ctx.createGain(); g.gain.value = 0.011;
     src.connect(f); f.connect(g); g.connect(musicGain);
     src.start(t);
 }
@@ -110,15 +126,18 @@ function musicScheduleStep(step, t) {
     const bar = Math.floor(step / 8) % 4;
     const s8 = step % 8;
     const ch = MUSIC_CHORDS[bar];
-    if (s8 === 0) { // pad đầu ô nhịp
-        ch.tones.slice(0, 3).forEach(fr => musicNote(fr, t, 2.3, 'sine', 0.016));
-        musicNote(ch.root / 2, t, 0.25, 'sine', 0.05); // kick nhẹ giả bằng bass trầm
+    const te = s8 % 2 === 1 ? t + musicStepDur * 0.3 : t; // swing cho nốt lẻ
+    if (s8 % 2 === 0) musicPiano(ch.root * MUSIC_WALK[s8 / 2], te, 0.05, 0.55); // bass đi bộ
+    if (s8 === 3) { // comping rải nốt
+        [1, 2, 3].forEach((k, i2) => { if (ch.tones[k]) musicPiano(ch.tones[k], te + i2 * 0.045, 0.027, 1.1); });
     }
-    if (s8 === 0 || s8 === 4) musicNote(ch.root, t, 0.32, 'sine', 0.075);
-    if (s8 === 6) musicNote(ch.root * 1.5, t, 0.25, 'sine', 0.05);
+    if (s8 === 6) {
+        [2, 3, 4].forEach((k, i2) => { const fr = ch.tones[k] || ch.tones[1]; if (fr) musicPiano(fr, te + i2 * 0.04, 0.022, 1.0); });
+        musicBrush(te);
+    }
+    if (s8 === 2) musicBrush(te);
     const mel = MUSIC_MELODY[step % 32];
-    if (mel) musicNote(mel, t, 0.3, 'triangle', 0.05);
-    if (s8 % 2 === 1) musicHat(t);
+    if (mel) musicPiano(mel, te, 0.058, 1.6);
 }
 function musicStart() {
     musicArmed = true;
@@ -129,13 +148,12 @@ function musicStart() {
     if (!musicGain) { musicGain = ctx.createGain(); musicGain.gain.value = 0.9; musicGain.connect(ctx.destination); }
     musicStep = 0;
     musicNextTime = ctx.currentTime + 0.08;
-    const stepDur = 60 / 96 / 2;
     musicTimer = setInterval(() => {
         if (!audioCtx || !musicGain) return;
         while (musicNextTime < audioCtx.currentTime + 0.45) {
             musicScheduleStep(musicStep, musicNextTime);
             musicStep++;
-            musicNextTime += stepDur;
+            musicNextTime += musicStepDur;
         }
     }, 200);
 }
