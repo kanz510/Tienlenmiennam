@@ -1364,3 +1364,17 @@ body {
 .fx-coin.c5 { left: 68%; width: 13px; animation-duration: 9.6s; animation-delay: -6.8s; opacity: .65; }
 @keyframes coinFall { 0% { transform: translateY(-6vh) rotate(0deg) scaleX(1); } 25% { transform: translateY(24vh) rotate(150deg) scaleX(.22); } 50% { transform: translateY(54vh) rotate(275deg) scaleX(1); } 75% { transform: translateY(82vh) rotate(430deg) scaleX(.22); } 100% { transform: translateY(112vh) rotate(560deg) scaleX(1); } }
 @media (prefers-reduced-motion: reduce) { .fx-coin { animation: none !important; } }
+
+/* ===== r87: tay bai cong 3D + do day la bai ===== */
+.player-cards { perspective: 720px; }
+.player-cards .card { transform: rotateY(calc(var(--p, 0) * -5.5deg)) translateY(calc(var(--q, 0) * 7px)); transform-origin: 50% 100%; }
+.player-cards .card.selected { transform: translateY(-22px) scale(1.06) rotateY(0deg); }
+#played-cards .card { box-shadow: 1px 1px 0 #ddd6c2, 2px 2px 0 #cfc7ae, 3px 3px 0 #bfb797, 0 8px 14px rgba(0,0,0,.40); }
+.player-cards .card { box-shadow: 1px 1px 0 #e3dcc8, 2px 2px 0 #d2c9ac, 0 7px 12px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.9); }
+.player-cards .card.selected { box-shadow: 0 0 18px 5px rgba(255,215,0,.85), 0 10px 18px rgba(0,0,0,.55); }
+#played-ghost .card { box-shadow: none; }
+.fly-flip { perspective: 720px; }
+.fly-inner { position: absolute; inset: 0; transform-style: preserve-3d; }
+.fly-front { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.fly-back { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; transform: rotateY(180deg); backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.coin-fly { position: absolute; pointer-events: none; z-index: 60; filter: drop-shadow(0 3px 5px rgba(0,0,0,.35)); }

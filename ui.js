@@ -40,6 +40,49 @@ function floatMoney(key, text, win) {
     f.textContent = text;
     wrap.appendChild(f);
     setTimeout(() => { try { f.remove(); } catch (e) {} }, 1400);
+    if (win) spawnCoins(wrap);
+}
+
+// r87: xu vang LAT bay tu giua ban ve avatar nguoi an tien (3 dong, lech pha nhau).
+// Dung chung he toa do flyMatrix/measureFly voi he thong bay bai nen dung ca khi
+// khung dang xoay doc. Loi o bat ky buoc nao thi bo qua — tien bay chu van chay.
+function spawnCoins(targetWrap) {
+    try {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const probe = document.createElement('div');
+        if (!probe.animate) return;
+        const layer = document.getElementById('fly-layer');
+        const table = document.getElementById('played-cards');
+        if (!layer || !table || !targetWrap) return;
+        const m = flyMatrix();
+        if (!m) return;
+        const src = measureFly(table, m);
+        const dst = measureFly(targetWrap, m);
+        if (!src.cx || !dst.cx) return;
+        const dx = dst.cx - src.cx, dy = dst.cy - src.cy;
+        for (let i = 0; i < 3; i++) {
+            const img = document.createElement('img');
+            img.src = 'assets/coin.svg';
+            img.alt = '';
+            img.className = 'coin-fly';
+            const size = 19 + i * 4;
+            img.style.width = size + 'px';
+            img.style.height = size + 'px';
+            img.style.left = (src.cx - size / 2) + 'px';
+            img.style.top = (src.cy - size / 2) + 'px';
+            layer.appendChild(img);
+            setTimeout(() => { try { img.remove(); } catch (e) {} }, 1900);
+            try {
+                const a = img.animate([
+                    { transform: 'translate(0px, 0px) rotate(0deg) scaleX(1)', opacity: 1 },
+                    { transform: 'translate(' + (dx * .38) + 'px, ' + (dy * .38 - 36) + 'px) rotate(210deg) scaleX(.22)', opacity: 1, offset: .38 },
+                    { transform: 'translate(' + (dx * .74) + 'px, ' + (dy * .74 - 12) + 'px) rotate(430deg) scaleX(1)', opacity: 1, offset: .74 },
+                    { transform: 'translate(' + dx + 'px, ' + dy + 'px) rotate(600deg) scaleX(.9)', opacity: 0 }
+                ], { duration: 820, delay: i * 85, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'forwards' });
+                a.finished.then(() => { try { img.remove(); } catch (e) {} }).catch(() => {});
+            } catch (e) { try { img.remove(); } catch (e2) {} }
+        }
+    } catch (e) { /* hieu ung phu: bo qua */ }
 }
 
 function spawnConfetti() {
@@ -282,9 +325,15 @@ function handleCardClick(idx) {
 function renderPlayerHand() {
     const el = document.getElementById('cards-player');
     el.innerHTML = '';
+    const nHand = state.hands.player.length;
+    const midHand = (nHand - 1) / 2;
     state.hands.player.forEach((card, i) => {
         const c = createCardEl(card);
         c.dataset.idx = i;
+        // r87: biến vị trí cho hiệu ứng tay cong 3D (lệch tâm + độ võng hai đầu)
+        const p = midHand ? (i - midHand) / midHand : 0;
+        c.style.setProperty('--p', p.toFixed(3));
+        c.style.setProperty('--q', (p * p).toFixed(3));
         c.style.zIndex = i + 1; // lá sau nằm trên lá trước: góc số/chất bên trái luôn lộ rõ
         if (state.selected.has(i)) c.classList.add('selected');
         c.addEventListener('click', () => handleCardClick(i));
@@ -602,8 +651,33 @@ function playFlyAnimation(who, srcList) {
             clone.style.height = boxH + 'px';
             clone.style.margin = '0';
             clone.style.zIndex = 10 + i;
-            layer.appendChild(clone);
-            clones.push(clone);
+            // r87: bot danh bai thi la bay LAT 3D — boc la dich trong khung lat:
+            // mat truoc la chinh la dich, mat sau la lung bai (class back-card
+            // nen an theo dung theme lung dang dung). Khung ngoai van bay bang
+            // quy dao cu, khung trong tu lat up -> ngua dong bo theo chuyen bay.
+            let flyEl = clone;
+            let flipInner = null;
+            if (fromBot) {
+                try {
+                    const wrapF = document.createElement('div');
+                    wrapF.className = 'fly-flip';
+                    wrapF.style.cssText = 'position:absolute;left:' + clone.style.left + ';top:' + clone.style.top + ';width:' + clone.style.width + ';height:' + clone.style.height + ';margin:0;z-index:' + clone.style.zIndex + ';';
+                    const innerF = document.createElement('div');
+                    innerF.className = 'fly-inner';
+                    const backF = document.createElement('div');
+                    backF.className = 'back-card fly-back';
+                    clone.classList.add('fly-front');
+                    clone.style.left = '0'; clone.style.top = '0';
+                    clone.style.width = '100%'; clone.style.height = '100%';
+                    innerF.appendChild(clone);
+                    innerF.appendChild(backF);
+                    wrapF.appendChild(innerF);
+                    flyEl = wrapF;
+                    flipInner = innerF;
+                } catch (e) { flyEl = clone; flipInner = null; }
+            }
+            layer.appendChild(flyEl);
+            clones.push(flyEl);
             dEl.style.visibility = 'hidden';
             hiddenEls.push(dEl);
             const dx = d.cx - s.cx;
@@ -621,16 +695,24 @@ function playFlyAnimation(who, srcList) {
             const uniK = Math.sqrt((d.w / boxW) * (d.h / boxH));
             const midK = (1 + uniK) / 2;
             try {
-                anims.push(clone.animate([
+                anims.push(flyEl.animate([
                     { transform: 'translate(0px, 0px) scale(1) rotate(' + startRot + 'deg)', opacity: 1 },
                     { transform: 'translate(' + (dx * .55) + 'px, ' + (dy * .55 - 10) + 'px) scale(' + midK + ') rotate(' + (startRot + (tilt - startRot) * .55) + 'deg)', opacity: 1, offset: .55 },
                     { transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(' + uniK + ') rotate(' + tilt + 'deg)', opacity: 1 }
                 ], { duration: 430, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
+                if (flipInner) {
+                    try {
+                        anims.push(flipInner.animate([
+                            { transform: 'rotateY(180deg)' },
+                            { transform: 'rotateY(0deg)' }
+                        ], { duration: 430, delay: i * 25, easing: 'cubic-bezier(.25,.8,.35,1)', fill: 'forwards' }));
+                    } catch (e2) { /* lat loi thi la ngua san van bay nhu cu */ }
+                }
             } catch (e) {
                 // r80-fix2: tạo hoạt ảnh lỗi ở lá này -> gỡ bản bay, hiện lại lá
                 // đích ngay lập tức, các lá còn lại vẫn bay bình thường.
-                clone.remove();
-                const ix = clones.indexOf(clone);
+                flyEl.remove();
+                const ix = clones.indexOf(flyEl);
                 if (ix >= 0) clones.splice(ix, 1);
                 dEl.style.visibility = '';
                 const hx = hiddenEls.indexOf(dEl);
