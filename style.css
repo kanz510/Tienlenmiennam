@@ -1237,3 +1237,14 @@ body {
 #game-container.tier-tiny #played-cards .card { flex-basis: 38px; }
 #game-container.tier-tiny #played-cards .card + .card { margin-left: -7px; }
 #played-cards .card.has-art img.face-full { object-fit: fill; }
+
+
+/* r84: bàn chơi hiển thị toàn bộ mặt lá, xếp ngang như bộ bài mẫu */
+#played-cards { flex-wrap: nowrap; gap: 2px; max-width: 100%; }
+#played-cards .card { box-sizing: border-box; flex: 0 1 60px; min-width: 0; transform: none !important; overflow: hidden; }
+#played-cards .card + .card { margin-left: -8px; }
+#game-container.tier-short #played-cards .card { flex-basis: 48px; }
+#game-container.tier-short #played-cards .card + .card { margin-left: -6px; }
+#game-container.tier-tiny #played-cards .card { flex-basis: 38px; }
+#game-container.tier-tiny #played-cards .card + .card { margin-left: -4px; }
+#played-cards .card.has-art img.face-full { width: 100%; height: 100%; object-fit: contain; object-position: center; }
