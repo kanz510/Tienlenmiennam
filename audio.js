@@ -94,7 +94,7 @@ function tauntFor(type) {
 const TTS_VOICES = {
     player: { voice: 'confident-male-vietnamese', rate: 1.0 },
     left:   { voice: 'confident-male-vietnamese', rate: 1.09 },  // Hùng: nam Việt, nói nhanh hổ báo
-    top:    { voice: 'deep-male',                   rate: 0.9 },   // Tuấn: Tây trầm, chậm, bí ẩn
+    top:    { voice: 'standard-female-vietnamese',  rate: 0.92 },  // Tuấn: nữ Việt chuẩn, chậm, thâm trầm (giọng Tây đọc chữ Việt thành tiếng Anh nên đã bỏ)
     right:  { voice: 'sweet-female-vietnamese',     rate: 1.12 }   // Nam: nữ ngọt, nhanh, láu cá
 };
 const ttsCache = {};   // "giong|cau" -> object URL của file tiếng
