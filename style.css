@@ -1211,3 +1211,13 @@ body {
 @media (prefers-reduced-motion: reduce) {
     #game-container.chop-flash .table-area, #awrap-player.levelup { animation: none !important; }
 }
+
+/* ===== r81: khử mảng vuông của lớp bài cũ mờ (played-ghost) =====
+   Từ khi mặt bài là ảnh đầy đủ, bản nhân của nước cũ ở lớp mờ vẫn giữ nguyên
+   hình chữ nhật + họa tiết sắc nét, lộ ra sau bài hiện tại thành mảng xanh
+   rõ hình. Nay lớp mờ bị phá hình hẳn (mờ đục, gần như khử màu, tối đi) và
+   lùi sâu hơn xuống dưới bài hiện tại — chỉ còn là một vệt mờ vô định hình,
+   không còn ô vuông hay hình lá cũ nào nhận ra được. */
+#played-ghost { opacity: .16; filter: blur(1.5px) saturate(.15) brightness(.72); margin-bottom: -58px; transform: scale(.88); }
+#game-container.tier-short #played-ghost { margin-bottom: -47px; }
+#game-container.tier-tiny #played-ghost { margin-bottom: -37px; }
