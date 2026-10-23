@@ -1299,3 +1299,23 @@ body {
   box-shadow: 0 4px 0 #96700f, 0 10px 22px rgba(0,0,0,.35), inset 0 2px 0 rgba(255,255,255,.55), 0 0 18px rgba(240,200,80,.35);
 }
 #lobby-sub { order: 9; text-align: center; color: rgba(238,232,210,.55); font-size: 11.5px; line-height: 1.5; margin: 13px 4px 2px; }
+
+/* r82 vá bố cục: bỏ cơ chế logo nhô ra khỏi khung (bị thanh cuộn cắt mất vương miện),
+   nén các khoảng để mọi nút vừa khung ngang thấp mà không phải cuộn */
+#lobby-content { padding: 20px 26px 14px; }
+#lobby-logo { margin: 15px auto 9px; }
+@media (max-height: 430px) {
+  #lobby-content { padding: 12px 22px 10px; }
+  #lobby-logo { width: 46px; height: 60px; font-size: 31px; margin: 13px auto 6px; }
+  #lobby-logo::before { font-size: 20px; top: -19px; }
+  #lobby-title { font-size: 21px; margin-bottom: 3px; }
+  #lobby-level { font-size: 13px; }
+  .xp-bar { margin-top: 6px; height: 8px; }
+  #xp-text { margin-top: 3px; font-size: 11px; }
+  #btn-start { margin-top: 9px; padding: 10px 24px; font-size: 18px; }
+  #btn-continue { margin-top: 7px; padding: 8px 16px; }
+  .lobby-row { margin-top: 8px; }
+  .lobby-sub-btn { padding: 8px 8px; font-size: 13.5px; }
+  #btn-gift { margin-top: 8px; padding: 9px 14px; font-size: 13.5px; }
+  #lobby-sub { display: none; }
+}
