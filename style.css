@@ -1583,3 +1583,13 @@ body {
 #lobby-content #btn-start, #lobby-content #btn-continue, #lobby-content .lobby-row { width: 100%; }
 #lobby-content { width: min(640px, 92vw); }
 @media (orientation: portrait) { #lobby-content { width: min(640px, 92vh); } }
+
+/* Lobby polish: clearer title separation, one-line daily reward, quieter scenery. */
+#lobby-content #lobby-title { margin-top: 8px; }
+#lobby-content #btn-gift {
+  padding: 9px 10px;
+  font-size: clamp(11px, 1.55vw, 13px);
+  white-space: nowrap;
+}
+.lobby-fx { opacity: .72; }
+.lobby-fx .fx-card { opacity: .42; }

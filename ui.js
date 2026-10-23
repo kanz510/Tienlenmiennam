@@ -1146,7 +1146,7 @@ function renderLobbyMeta() {
     const gift = document.getElementById('btn-gift');
     if (gift) {
         gift.classList.toggle('hidden', !!meta.daily.claimed);
-        gift.textContent = '🎁 Nhận thưởng đăng nhập +' + loginReward() + ' xu' + (loginCycleDay() === 7 ? ' + khung Ngọc' : '');
+        gift.textContent = '🎁 Điểm danh +' + loginReward() + ' xu' + (loginCycleDay() === 7 ? ' · khung Ngọc' : '');
     }
 }
 let shopTab = 'back', shopSel = null;
