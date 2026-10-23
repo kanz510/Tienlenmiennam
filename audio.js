@@ -199,6 +199,18 @@ function tucFallback(group) {
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// Bộ lọc câu lỗi: loại câu bị chêm từ nước ngoài lạ (model dự phòng Mistral
+// tiếng Việt yếu, từng sinh câu kiểu "Mutter cita..."). Một "từ" bị coi là lạ
+// nếu dài >= 4 ký tự, toàn chữ Latin không dấu và không có trong danh sách cho phép.
+const AI_WORD_OK = { flex: 1, game: 1, over: 1, trend: 1, xong: 1, chua: 1, ngang: 1, sang: 1, phang: 1, choang: 1, shock: 1, live: 1, like: 1, dead: 1, win: 1, chill: 1, stress: 1 };
+function aiForeignFree(line) {
+    const toks = String(line).toLowerCase().replace(/[^a-zàáảãạăắằẳẵặâấầẩẫậđèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵ\s]/g, ' ').split(/\s+/);
+    for (const t of toks) {
+        if (t.length >= 4 && /^[a-z]+$/.test(t) && !/[àáảãạăâđèéẻẽẹêìíỉĩịòóỏõọôơùúủũụưỳý]/.test(t) && !AI_WORD_OK[t]) return false;
+    }
+    return true;
+}
+
 function aiPersonaFor(botKey) {
     let p = AI_PERSONA[botKey] || '';
     try {
@@ -229,8 +241,9 @@ function aiRefill(botKey, group) {
     const persona = aiPersonaFor(botKey);
     if (!persona) return;
     aiBusy = true; aiLastCall = now;
-    const userMsg = (AI_SITUATION[group] || AI_SITUATION.play) + ' Viết đúng 3 câu cà khịa NGẮN bằng tiếng Việt (mỗi câu tối đa 9 từ), mỗi câu một dòng, không đánh số, không ngoặc kép, không emoji, ba câu khác nhau, tránh câu sáo rỗng.';
-    const attempt = (model, isRetry) => {
+    const userMsg = (AI_SITUATION[group] || AI_SITUATION.play) + ' Viết đúng 3 câu cà khịa NGẮN bằng tiếng Việt (mỗi câu tối đa 9 từ), mỗi câu một dòng, không đánh số, không ngoặc kép, không emoji, ba câu khác nhau, tránh câu sáo rỗng. Chỉ viết tiếng Việt, tuyệt đối không chêm từ tiếng nước ngoài.';
+    const safePersona = (AI_PERSONA[botKey] || '') + ' Nói chợ búa nhẹ nhàng bằng các từ viết đầy đủ: đù má, đéo mẹ, đụ mạ, vãi, tổ sư, mẹ kiếp.';
+    const attempt = (model, personaText, stage) => {
         const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
         const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 8000) : null;
         const done = (lines) => {
@@ -239,8 +252,10 @@ function aiRefill(botKey, group) {
                 aiBusy = false;
                 const k = botKey + '|' + group;
                 aiPool[k] = (aiPool[k] || []).concat(lines).slice(0, 6);
-            } else if (!isRetry) {
-                attempt(AI_CHAT_MODEL_FALLBACK, true); // model chính lỗi/bị lọc chặn -> model dự phòng thoáng hơn
+            } else if (stage === 0) {
+                attempt(AI_CHAT_MODEL, safePersona, 1); // bị bộ lọc chặn -> thử lại model chính bằng giọng nhẹ
+            } else if (stage === 1) {
+                attempt(AI_CHAT_MODEL_FALLBACK, persona, 2); // vẫn lỗi -> model dự phòng thoáng hơn
             } else {
                 aiBusy = false;
             }
@@ -251,7 +266,7 @@ function aiRefill(botKey, group) {
             body: JSON.stringify({
                 model,
                 messages: [
-                    { role: 'system', content: persona },
+                    { role: 'system', content: personaText },
                     { role: 'user', content: userMsg }
                 ],
                 max_tokens: 130, temperature: 1.05
@@ -260,11 +275,11 @@ function aiRefill(botKey, group) {
         }).then(r => (r && r.ok) ? r.json() : null).then(j => {
             const txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
             if (!txt) return done(null);
-            const lines = String(txt).split('\n').map(s => s.replace(/^[\d\.\-\*\u201C"\s]+/, '').replace(/[\u201D"]+$/, '').trim()).map(s => s.replace(/đm+/gi, 'địt mẹ')).filter(s => s.length >= 4 && s.length <= 60);
+            const lines = String(txt).split('\n').map(s => s.replace(/^[\d\.\-\*\u201C"\s]+/, '').replace(/[\u201D"]+$/, '').trim()).map(s => s.replace(/đm+/gi, 'địt mẹ')).filter(s => s.length >= 4 && s.length <= 60 && aiForeignFree(s));
             done(lines.length ? lines : null);
         }).catch(() => done(null));
     };
-    attempt(AI_CHAT_MODEL, false);
+    attempt(AI_CHAT_MODEL, persona, 0);
 }
 
 // Lấy 1 câu nói cho bot: ưu tiên câu AI trong kho; chưa có thì câu mẫu + nạp nền.
