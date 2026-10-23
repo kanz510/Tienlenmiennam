@@ -83,12 +83,30 @@ function applySettings() {
 //  META GAME (r61): CẤP ĐỘ + NHIỆM VỤ NGÀY + THƯỞNG ĐĂNG NHẬP + CỬA HÀNG
 //  Lưu ở localStorage 'tlMeta', chạy offline, dùng chung hệ xu (tlMoney) và thống kê (tlStats)
 // ============================================================
-const TASK_DEFS = {
-    chop:   { name: 'Chặt 1 heo',           goal: 1, reward: 150 },
-    wins:   { name: 'Thắng 3 ván trong ngày', goal: 3, reward: 150 },
-    streak: { name: 'Thắng 3 ván liên tiếp',  goal: 3, reward: 300 }
+// r79: bộ nhiệm vụ ngày (3 mức độ) + nhiệm vụ tuần + mốc hoàn thành.
+// Tiến độ chỉ tăng từ sự kiện chơi thật (updateStats / onPlayerChop qua bumpProgress).
+const DAILY_TASK_DEFS = {
+    play3:  { tier: 'de',   name: 'Chơi 3 ván',        goal: 3, reward: 80 },
+    win1:   { tier: 'de',   name: 'Thắng 1 ván',       goal: 1, reward: 100 },
+    win3:   { tier: 'tb',   name: 'Thắng 3 ván',       goal: 3, reward: 200 },
+    chop1:  { tier: 'tb',   name: 'Chặt 1 heo',        goal: 1, reward: 180 },
+    win5:   { tier: 'kho',  name: 'Thắng 5 ván',       goal: 5, reward: 350 },
+    trang1: { tier: 'kho',  name: 'Tới trắng 1 lần',   goal: 1, reward: 400 }
 };
-let meta = { xp: 0, owned: [], equipped: { avatar: '🧑', frame: 'none' }, daily: null, login: { lastDate: '', streak: 0 } };
+const WEEKLY_TASK_DEFS = {
+    wplay30: { name: 'Chơi 30 ván trong tuần',  goal: 30, reward: 600 },
+    wwin15:  { name: 'Thắng 15 ván trong tuần', goal: 15, reward: 800 },
+    wchop5:  { name: 'Chặt 5 heo trong tuần',   goal: 5,  reward: 700 },
+    wtrang2: { name: 'Tới trắng 2 lần trong tuần', goal: 2, reward: 1200 }
+};
+const MILESTONE_DEFS = {
+    d3:   { scope: 'd', need: 3, name: 'Hoàn thành 3 nhiệm vụ ngày',  reward: 200 },
+    dall: { scope: 'd', need: 6, name: 'Hoàn thành tất cả nhiệm vụ ngày', reward: 400 },
+    w2:   { scope: 'w', need: 2, name: 'Hoàn thành 2 nhiệm vụ tuần',  reward: 500 }
+};
+// Đường thưởng đăng nhập 7 ngày: ngày 7 có thêm khung avatar Ngọc (frame-ngoc)
+const LOGIN_REWARDS = [50, 75, 100, 125, 150, 200, 500];
+let meta = { xp: 0, owned: [], equipped: { avatar: '🧑', frame: 'none' }, daily: null, weekly: null, login: { lastDate: '', streak: 0 } };
 let levelUpNote = ''; // ghi chú lên cấp/thưởng XP để hiện kèm bảng kê cuối ván
 let lastXpGain = 0; // XP nhận được ở ván vừa kết thúc (hiện trên bảng kết ván)
 
@@ -99,9 +117,11 @@ function loadMeta() {
         if (raw) {
             const m = JSON.parse(raw);
             if (m) meta = { ...meta, ...m, equipped: { ...meta.equipped, ...(m.equipped || {}) }, login: { ...meta.login, ...(m.login || {}) } };
+            if (m && m.weekly) meta.weekly = m.weekly;
         }
     } catch (e) {}
     ensureDaily();
+    ensureWeekly();
 }
 function levelFromXp(xp) {
     let lv = 1, need = 100, rest = xp;
@@ -125,43 +145,123 @@ function todayStr(d) {
     d = d || new Date();
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
+function emptyTasks(defs) { const o = {}; Object.keys(defs).forEach(k => { o[k] = { p: 0, c: false }; }); return o; }
 function ensureDaily() {
     const t = todayStr();
     if (!meta.daily || meta.daily.date !== t) {
         const y = todayStr(new Date(Date.now() - 86400000));
         meta.login.streak = (meta.login.lastDate === y) ? (meta.login.streak || 0) + 1 : 1;
         meta.login.lastDate = t;
-        meta.daily = { date: t, claimed: false, tasks: { chop: { p: 0, c: false }, wins: { p: 0, c: false }, streak: { p: 0, c: false } } };
+        meta.daily = { date: t, claimed: false, tasks: emptyTasks(DAILY_TASK_DEFS), milestones: { d3: false, dall: false } };
+        saveMeta();
+        return;
+    }
+    // r79 di trú: daily hôm nay theo cấu trúc cũ (chop/wins/streak) -> cấu trúc mới,
+    // giữ nguyên tiến độ và trạng thái đã nhận để không ai mất thưởng hay farm lại.
+    const tk = meta.daily.tasks || {};
+    if (!tk.play3) {
+        const oldWins = tk.wins || { p: 0, c: false };
+        const oldChop = tk.chop || { p: 0, c: false };
+        const nt = emptyTasks(DAILY_TASK_DEFS);
+        nt.win1.p = Math.min(1, oldWins.p || 0); nt.win1.c = !!oldWins.c;
+        nt.win3.p = Math.min(3, oldWins.p || 0); nt.win3.c = !!oldWins.c;
+        nt.win5.p = Math.min(5, oldWins.p || 0);
+        nt.chop1.p = Math.min(1, oldChop.p || 0); nt.chop1.c = !!oldChop.c;
+        meta.daily.tasks = nt;
         saveMeta();
     }
+    if (!meta.daily.milestones) meta.daily.milestones = { d3: false, dall: false };
 }
-function loginReward() { return (meta.login.streak % 7 === 0) ? 500 : 100; }
+function weekKey() {
+    const d = new Date();
+    const day = (d.getDay() + 6) % 7; // 0 = thứ Hai
+    d.setDate(d.getDate() - day);
+    return todayStr(d);
+}
+function ensureWeekly() {
+    const wk = weekKey();
+    if (!meta.weekly || meta.weekly.week !== wk) {
+        meta.weekly = { week: wk, tasks: emptyTasks(WEEKLY_TASK_DEFS), milestones: { w2: false } };
+        saveMeta();
+    }
+    if (!meta.weekly.milestones) meta.weekly.milestones = { w2: false };
+}
+// Tăng tiến độ nhiệm vụ từ sự kiện chơi thật: 'play' | 'win' | 'chop' | 'trang'
+function bumpProgress(kind) {
+    ensureDaily(); ensureWeekly();
+    const bump = (tasks, defs, keys) => {
+        keys.forEach(k => {
+            const tk = tasks[k], def = defs[k];
+            if (tk && def && tk.p < def.goal) tk.p++;
+        });
+    };
+    if (kind === 'play') { bump(meta.daily.tasks, DAILY_TASK_DEFS, ['play3']); bump(meta.weekly.tasks, WEEKLY_TASK_DEFS, ['wplay30']); }
+    else if (kind === 'win') { bump(meta.daily.tasks, DAILY_TASK_DEFS, ['win1', 'win3', 'win5']); bump(meta.weekly.tasks, WEEKLY_TASK_DEFS, ['wwin15']); }
+    else if (kind === 'chop') { bump(meta.daily.tasks, DAILY_TASK_DEFS, ['chop1']); bump(meta.weekly.tasks, WEEKLY_TASK_DEFS, ['wchop5']); }
+    else if (kind === 'trang') { bump(meta.daily.tasks, DAILY_TASK_DEFS, ['trang1']); bump(meta.weekly.tasks, WEEKLY_TASK_DEFS, ['wtrang2']); }
+    saveMeta();
+}
+function loginCycleDay() { return ((Math.max(1, meta.login.streak || 1) - 1) % 7) + 1; }
+function loginReward() { return LOGIN_REWARDS[loginCycleDay() - 1]; }
 function claimLogin() {
     ensureDaily();
     if (meta.daily.claimed) return;
     meta.daily.claimed = true;
+    const day = loginCycleDay();
     const r = loginReward();
     state.money.player += r;
+    let extra = '';
+    if (day === 7 && !meta.owned.includes('frame-ngoc')) {
+        meta.owned.push('frame-ngoc');
+        extra = ' + khung avatar Ngọc 🎁';
+    }
     saveMoney(); saveMeta();
     if (typeof renderLobbyMeta === 'function') renderLobbyMeta();
-    showMessage('🎁 Thưởng đăng nhập ngày ' + meta.login.streak + ': +' + r + ' xu!');
+    if (typeof renderTasks === 'function') renderTasks();
+    showMessage('🎁 Thưởng đăng nhập ngày ' + day + '/7: +' + r + ' xu!' + extra);
 }
-function claimTask(key) {
+function claimDailyTask(key) {
     ensureDaily();
-    const def = TASK_DEFS[key], tk = meta.daily.tasks[key];
+    const def = DAILY_TASK_DEFS[key], tk = meta.daily.tasks[key];
     if (!def || !tk || tk.c || tk.p < def.goal) return false;
     tk.c = true;
     state.money.player += def.reward;
     saveMoney(); saveMeta();
     if (typeof renderTasks === 'function') renderTasks();
-    showMessage('🎯 Hoàn thành nhiệm vụ "' + def.name + '": +' + def.reward + ' xu!');
+    showMessage('🎯 Hoàn thành nhiệm vụ: +' + def.reward + ' xu!');
+    return true;
+}
+function claimWeeklyTask(key) {
+    ensureWeekly();
+    const def = WEEKLY_TASK_DEFS[key], tk = meta.weekly.tasks[key];
+    if (!def || !tk || tk.c || tk.p < def.goal) return false;
+    tk.c = true;
+    state.money.player += def.reward;
+    saveMoney(); saveMeta();
+    if (typeof renderTasks === 'function') renderTasks();
+    showMessage('🗓️ Hoàn thành nhiệm vụ tuần: +' + def.reward + ' xu!');
+    return true;
+}
+function claimedCount(tasks) { return Object.keys(tasks).filter(k => tasks[k].c).length; }
+function claimMilestone(key) {
+    ensureDaily(); ensureWeekly();
+    const def = MILESTONE_DEFS[key];
+    if (!def) return false;
+    const store = def.scope === 'd' ? meta.daily.milestones : meta.weekly.milestones;
+    if (!store || store[key]) return false;
+    const tasks = def.scope === 'd' ? meta.daily.tasks : meta.weekly.tasks;
+    if (claimedCount(tasks) < def.need) return false;
+    store[key] = true;
+    state.money.player += def.reward;
+    saveMoney(); saveMeta();
+    if (typeof renderTasks === 'function') renderTasks();
+    showMessage('🏆 ' + def.name + ': +' + def.reward + ' xu!');
     return true;
 }
 function onPlayerChop() {
     ensureDaily();
     addXp(15);
-    const tk = meta.daily.tasks.chop;
-    if (tk.p < TASK_DEFS.chop.goal) { tk.p++; saveMeta(); }
+    bumpProgress('chop');
 }
 
 function loadStats() {
@@ -185,18 +285,17 @@ function updateStats(winnerIdx, playerTotalDelta) {
         stats.curStreak = 0;
     }
     saveStats();
-    // r61: XP + tiến độ nhiệm vụ ngày
+    // r61 + r79: XP + tiến độ nhiệm vụ ngày/tuần từ sự kiện ván vừa xong
     ensureDaily();
+    bumpProgress('play');
     if (winnerIdx === 0) {
         lastXpGain = state.toiTrang ? 50 : 30;
         addXp(lastXpGain);
-        const w = meta.daily.tasks.wins;
-        if (w.p < TASK_DEFS.wins.goal) w.p++;
-        meta.daily.tasks.streak.p = Math.min(TASK_DEFS.streak.goal, stats.curStreak);
+        bumpProgress('win');
+        if (state.toiTrang) bumpProgress('trang');
     } else {
         lastXpGain = 10;
         addXp(10);
-        meta.daily.tasks.streak.p = 0;
     }
     saveMeta();
 }

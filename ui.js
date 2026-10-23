@@ -864,19 +864,31 @@ function renderBreakdown(totalDelta) {
 //  r61: CỬA HÀNG + NHIỆM VỤ — giao diện và mua/bán (dữ liệu ở game.js: meta/TASK_DEFS)
 // ============================================================
 const SHOP_ITEMS = [
-    { id: 'back-vangkim',   kind: 'back',   name: 'Lưng bài Vàng kim',  price: 500,  value: 'vangkim' },
-    { id: 'back-timmong',   kind: 'back',   name: 'Lưng bài Tím mộng',  price: 800,  value: 'timmong' },
-    { id: 'back-denhuyen',  kind: 'back',   name: 'Lưng bài Đen huyền', price: 800,  value: 'denhuyen' },
-    { id: 'table-tim',      kind: 'table',  name: 'Màu bàn Tím',        price: 600,  value: 'tim' },
-    { id: 'table-den',      kind: 'table',  name: 'Màu bàn Đen',        price: 1000, value: 'den' },
-    { id: 'avatar-sutu',    kind: 'avatar', name: 'Mặt Sư tử',          price: 300,  value: '🦁' },
-    { id: 'avatar-gautruc', kind: 'avatar', name: 'Mặt Gấu trúc',       price: 300,  value: '🐼' },
-    { id: 'avatar-kylan',   kind: 'avatar', name: 'Mặt Kỳ lân',         price: 800,  value: '🦄' },
-    { id: 'avatar-rong',    kind: 'avatar', name: 'Mặt Rồng',           price: 800,  value: '🐲' },
-    { id: 'frame-bac',      kind: 'frame',  name: 'Khung avatar Bạc',   price: 400,  value: 'bac' },
-    { id: 'frame-vang',     kind: 'frame',  name: 'Khung avatar Vàng',  price: 800,  value: 'vang' },
-    { id: 'frame-lua',      kind: 'frame',  name: 'Khung avatar Lửa',   price: 1500, value: 'lua' }
+    { id: 'back-vangkim',   kind: 'back',   name: 'Lưng bài Vàng kim',  price: 500,  value: 'vangkim',  rarity: 'hiem',    desc: 'Họa tiết kim cương mạ vàng, sang trọng cổ điển.' },
+    { id: 'back-xanhngoc',  kind: 'back',   name: 'Lưng bài Xanh ngọc', price: 650,  value: 'xanhngoc', rarity: 'hiem',    desc: 'Xanh ngọc lục bảo mát mắt với vân sóng nhẹ.' },
+    { id: 'back-timmong',   kind: 'back',   name: 'Lưng bài Tím mộng',  price: 800,  value: 'timmong',  rarity: 'hiem',    desc: 'Sắc tím mộng mơ điểm những chấm sao lấp lánh.' },
+    { id: 'back-denhuyen',  kind: 'back',   name: 'Lưng bài Đen huyền', price: 800,  value: 'denhuyen', rarity: 'hiem',    desc: 'Đen sâu huyền bí, điểm sáng như bầu trời đêm.' },
+    { id: 'back-hoanggia',  kind: 'back',   name: 'Lưng bài Hoàng gia', price: 1200, value: 'hoanggia', rarity: 'suthi',   desc: 'Đỏ hoàng gia viền vàng, khí chất vương giả.' },
+    { id: 'back-rongvang',  kind: 'back',   name: 'Lưng bài Rồng vàng', price: 1600, value: 'rongvang', rarity: 'huyen',   desc: 'Vảy rồng vàng óng ánh — biểu tượng của huyền thoại.' },
+    { id: 'table-tim',      kind: 'table',  name: 'Màu bàn Tím',        price: 600,  value: 'tim',      rarity: 'hiem',    desc: 'Tông tím trầm ấm, dịu mắt khi chơi lâu.' },
+    { id: 'table-huyet',    kind: 'table',  name: 'Màu bàn Huyết',      price: 900,  value: 'huyet',    rarity: 'hiem',    desc: 'Đỏ huyết đậm — căng thẳng như một ván đấu lớn.' },
+    { id: 'table-den',      kind: 'table',  name: 'Màu bàn Đen',        price: 1000, value: 'den',      rarity: 'suthi',   desc: 'Đen tuyền tối giản, tôn lên từng lá bài.' },
+    { id: 'table-hoangkim', kind: 'table',  name: 'Màu bàn Hoàng kim',  price: 1200, value: 'hoangkim', rarity: 'suthi',   desc: 'Nâu vàng casino ấm áp, sang như sòng bài lớn.' },
+    { id: 'avatar-ech',     kind: 'avatar', name: 'Mặt Ếch',            price: 250,  value: '🐸',       rarity: 'thuong',  desc: 'Ếch xanh vui nhộn, nhìn là muốn cười.' },
+    { id: 'avatar-tho',     kind: 'avatar', name: 'Mặt Thỏ',            price: 250,  value: '🐰',       rarity: 'thuong',  desc: 'Thỏ trắng nhanh nhẹn, chuyên lật kèo phút chót.' },
+    { id: 'avatar-sutu',    kind: 'avatar', name: 'Mặt Sư tử',          price: 300,  value: '🦁',       rarity: 'thuong',  desc: 'Sư tử oai phong, vua của bàn đấu.' },
+    { id: 'avatar-gautruc', kind: 'avatar', name: 'Mặt Gấu trúc',       price: 300,  value: '🐼',       rarity: 'thuong',  desc: 'Gấu trúc điềm tĩnh, thắng thua không nao núng.' },
+    { id: 'avatar-cu',      kind: 'avatar', name: 'Mặt Cú',             price: 500,  value: '🦉',       rarity: 'hiem',    desc: 'Cú mèo tỉnh táo, soi thấu bài của đối thủ.' },
+    { id: 'avatar-cavoi',   kind: 'avatar', name: 'Mặt Cá voi',         price: 500,  value: '🐳',       rarity: 'hiem',    desc: 'Cá voi hiền hòa nhưng ví thì không hề nhỏ.' },
+    { id: 'avatar-kylan',   kind: 'avatar', name: 'Mặt Kỳ lân',         price: 800,  value: '🦄',       rarity: 'suthi',   desc: 'Kỳ lân may mắn, ra bài nào cũng như có phép.' },
+    { id: 'avatar-rong',    kind: 'avatar', name: 'Mặt Rồng',           price: 800,  value: '🐲',       rarity: 'suthi',   desc: 'Rồng lửa uy nghi, đối thủ nhìn đã rén.' },
+    { id: 'frame-bac',      kind: 'frame',  name: 'Khung avatar Bạc',   price: 400,  value: 'bac',      rarity: 'thuong',  desc: 'Viền bạc sáng gọn, khởi đầu của mọi cao thủ.' },
+    { id: 'frame-vang',     kind: 'frame',  name: 'Khung avatar Vàng',  price: 800,  value: 'vang',     rarity: 'hiem',    desc: 'Viền vàng phát sáng — đẳng cấp nhà giàu mới nổi.' },
+    { id: 'frame-lua',      kind: 'frame',  name: 'Khung avatar Lửa',   price: 1500, value: 'lua',      rarity: 'suthi',   desc: 'Viền lửa cháy rực, khí thế không ai dập nổi.' },
+    { id: 'frame-kimcuong', kind: 'frame',  name: 'Khung avatar Kim cương', price: 2000, value: 'kimcuong', rarity: 'huyen', desc: 'Viền kim cương phát sáng lạnh — đỉnh cao đẳng cấp.' },
+    { id: 'frame-ngoc',     kind: 'frame',  name: 'Khung avatar Ngọc',  price: 0,    value: 'ngoc',     rarity: 'dacbiet', locked: 'login7', desc: 'Vật phẩm đặc biệt: phần thưởng đăng nhập đủ 7 ngày trong một chu kỳ.' }
 ];
+const RARITY_NAMES = { thuong: 'Thường', hiem: 'Hiếm', suthi: 'Sử thi', huyen: 'Huyền thoại', dacbiet: 'Đặc biệt' };
 function owns(id) { return meta.owned.includes(id); }
 function isEquipped(it) {
     if (it.kind === 'back') return settings.backStyle === it.value;
@@ -886,6 +898,7 @@ function isEquipped(it) {
     return false;
 }
 function equipItem(it) {
+    if (!owns(it.id)) return; // r79: không trang bị vật phẩm chưa sở hữu
     if (it.kind === 'back') { settings.backStyle = it.value; saveSettings(); applySettings(); }
     else if (it.kind === 'table') { settings.tableColor = it.value; saveSettings(); applySettings(); }
     else if (it.kind === 'avatar') { meta.equipped.avatar = it.value; saveMeta(); applyMetaVisuals(); }
@@ -894,6 +907,7 @@ function equipItem(it) {
 function buyItem(id) {
     const it = SHOP_ITEMS.find(x => x.id === id);
     if (!it || owns(id)) return false;
+    if (it.locked) { showMessage('🔒 Vật phẩm đặc biệt — nhận qua đường đăng nhập 7 ngày trong mục Nhiệm vụ!'); return false; }
     if (state.money.player < it.price) { showMessage('Không đủ xu! Cần ' + it.price + ' xu cho "' + it.name + '".'); return false; }
     state.money.player -= it.price;
     meta.owned.push(id);
@@ -908,7 +922,7 @@ function applyMetaVisuals() {
     if (wrap) {
         const av = wrap.querySelector ? wrap.querySelector('.avatar') : null;
         if (av) av.textContent = meta.equipped.avatar || '🧑';
-        wrap.classList.remove('frame-bac', 'frame-vang', 'frame-lua');
+        wrap.classList.remove('frame-bac', 'frame-vang', 'frame-lua', 'frame-ngoc', 'frame-kimcuong');
         if (meta.equipped.frame && meta.equipped.frame !== 'none') wrap.classList.add('frame-' + meta.equipped.frame);
     }
     const badge = document.getElementById('level-badge');
@@ -926,46 +940,123 @@ function renderLobbyMeta() {
     const gift = document.getElementById('btn-gift');
     if (gift) {
         gift.classList.toggle('hidden', !!meta.daily.claimed);
-        gift.textContent = '🎁 Nhận thưởng đăng nhập +' + loginReward() + ' xu';
+        gift.textContent = '🎁 Nhận thưởng đăng nhập +' + loginReward() + ' xu' + (loginCycleDay() === 7 ? ' + khung Ngọc' : '');
     }
+}
+let shopTab = 'back', shopSel = null;
+function shopPreviewHTML(it, big) {
+    const cls = big ? 'pv pv-big' : 'pv';
+    if (it.kind === 'back') return '<div class="' + cls + ' pv-back pv-' + it.value + '"><span>✦</span></div>';
+    if (it.kind === 'table') return '<div class="' + cls + ' pv-table pv-t-' + it.value + '"></div>';
+    if (it.kind === 'avatar') return '<div class="' + cls + ' pv-avatar"><span>' + it.value + '</span></div>';
+    return '<div class="' + cls + ' pv-framewrap"><div class="pv-frame pv-f-' + it.value + '"><span>🧑</span></div></div>';
+}
+function shopActionHTML(it) {
+    const has = owns(it.id), eq = has && isEquipped(it);
+    if (it.locked && !has) return '<button class="modal-btn shop-act" disabled>🔒 Thưởng đăng nhập 7 ngày</button>';
+    if (eq) return '<button class="modal-btn shop-act" disabled>✓ Đang dùng</button>';
+    if (has) return '<button class="modal-btn shop-act primary" data-equip="' + it.id + '">Dùng ngay</button>';
+    return '<button class="modal-btn shop-act primary" data-buy="' + it.id + '">Mua · ' + it.price + ' xu</button>';
 }
 function renderShop() {
     const box = document.getElementById('shop-body');
     if (!box) return;
     const money = document.getElementById('shop-money');
     if (money) money.textContent = '💰 ' + state.money.player + ' xu';
-    const groups = { back: '🂠 Lưng bài', table: '🎨 Màu bàn', avatar: '😀 Mặt nhân vật (của bạn)', frame: '🖼️ Khung avatar (của bạn)' };
-    let html = '';
-    ['back', 'table', 'avatar', 'frame'].forEach(kind => {
-        html += '<div class="shop-group">' + groups[kind] + '</div>';
-        SHOP_ITEMS.filter(it => it.kind === kind).forEach(it => {
-            const has = owns(it.id), eq = has && isEquipped(it);
-            html += '<div class="shop-item"><span>' + it.name + (it.kind === 'avatar' || it.kind === 'frame' ? '' : '') + '</span>' +
-                (eq ? '<button class="modal-btn shop-btn" disabled>Đang dùng</button>'
-                    : has ? '<button class="modal-btn shop-btn" data-equip="' + it.id + '">Dùng</button>'
-                    : '<button class="modal-btn shop-btn" data-buy="' + it.id + '">' + it.price + ' xu</button>') + '</div>';
-        });
+    const tabs = { back: '🂠 Lưng bài', table: '🎨 Màu bàn', avatar: '😀 Avatar', frame: '🖼️ Khung' };
+    const items = SHOP_ITEMS.filter(it => it.kind === shopTab);
+    if (!items.some(it => it.id === shopSel)) shopSel = items.length ? items[0].id : null;
+    const sel = SHOP_ITEMS.find(it => it.id === shopSel);
+    let html = '<div class="shop-tabs">' + Object.keys(tabs).map(k =>
+        '<button class="shop-tab' + (k === shopTab ? ' on' : '') + '" data-tab="' + k + '">' + tabs[k] + '</button>').join('') + '</div>';
+    if (sel) {
+        html += '<div class="shop-preview">' + shopPreviewHTML(sel, true) +
+            '<div class="pv-info"><div class="pv-name">' + sel.name + '</div>' +
+            '<div class="pv-rarity rar-' + sel.rarity + '">' + (RARITY_NAMES[sel.rarity] || '') + (sel.locked ? '' : ' · ' + sel.price + ' xu') + '</div>' +
+            '<div class="pv-desc">' + sel.desc + '</div>' + shopActionHTML(sel) + '</div></div>';
+    }
+    html += '<div class="shop-grid">';
+    items.forEach(it => {
+        const has = owns(it.id), eq = has && isEquipped(it);
+        const state = it.locked && !has ? '<span class="sc-state locked">🔒 Đặc biệt</span>'
+            : eq ? '<span class="sc-state eq">✓ Đang dùng</span>'
+            : has ? '<span class="sc-state own">Đã có</span>'
+            : '<span class="sc-price">' + it.price + ' xu</span>';
+        html += '<div class="shop-card' + (it.id === shopSel ? ' sel' : '') + '" data-sel="' + it.id + '">' + shopPreviewHTML(it, false) +
+            '<div class="sc-name">' + it.name + '</div><div class="pv-rarity rar-' + it.rarity + '">' + (RARITY_NAMES[it.rarity] || '') + '</div>' + state + '</div>';
     });
+    html += '</div>';
     box.innerHTML = html;
-    (box.querySelectorAll ? box.querySelectorAll('[data-buy]') : []).forEach(b => b.addEventListener('click', () => { if (buyItem(b.getAttribute('data-buy'))) renderShop(); }));
-    (box.querySelectorAll ? box.querySelectorAll('[data-equip]') : []).forEach(b => b.addEventListener('click', () => {
+    const q = sel2 => (box.querySelectorAll ? box.querySelectorAll(sel2) : []);
+    q('[data-tab]').forEach(b => b.addEventListener('click', () => { shopTab = b.getAttribute('data-tab'); renderShop(); }));
+    q('[data-sel]').forEach(c => c.addEventListener('click', () => { shopSel = c.getAttribute('data-sel'); renderShop(); }));
+    q('[data-buy]').forEach(b => b.addEventListener('click', () => { if (buyItem(b.getAttribute('data-buy'))) renderShop(); }));
+    q('[data-equip]').forEach(b => b.addEventListener('click', () => {
         const it = SHOP_ITEMS.find(x => x.id === b.getAttribute('data-equip'));
         if (it) { equipItem(it); renderShop(); }
     }));
 }
+function taskRowHTML(def, tk, attr) {
+    const done = tk.p >= def.goal;
+    const pct = Math.min(100, Math.round(tk.p / def.goal * 100));
+    return '<div class="task-row"><div class="task-main"><div class="task-name">' + def.name +
+        ' <span class="task-prog">' + Math.min(tk.p, def.goal) + '/' + def.goal + '</span></div>' +
+        '<div class="tbar"><div class="tfill" style="width:' + pct + '%"></div></div></div>' +
+        (tk.c ? '<button class="modal-btn shop-btn" disabled>✓ Đã nhận</button>'
+            : done ? '<button class="modal-btn shop-btn claim" ' + attr + '>Nhận ' + def.reward + ' xu</button>'
+            : '<button class="modal-btn shop-btn" disabled>' + def.reward + ' xu</button>') + '</div>';
+}
+function milestoneHTML(key) {
+    const def = MILESTONE_DEFS[key];
+    const store = def.scope === 'd' ? meta.daily.milestones : meta.weekly.milestones;
+    const tasks = def.scope === 'd' ? meta.daily.tasks : meta.weekly.tasks;
+    const cnt = claimedCount(tasks);
+    const got = store && store[key];
+    return '<div class="task-row mile"><div class="task-main"><div class="task-name">🏆 ' + def.name +
+        ' <span class="task-prog">' + Math.min(cnt, def.need) + '/' + def.need + '</span></div>' +
+        '<div class="tbar"><div class="tfill gold" style="width:' + Math.min(100, Math.round(cnt / def.need * 100)) + '%"></div></div></div>' +
+        (got ? '<button class="modal-btn shop-btn" disabled>✓ Đã nhận</button>'
+            : cnt >= def.need ? '<button class="modal-btn shop-btn claim" data-mile="' + key + '">Nhận ' + def.reward + ' xu</button>'
+            : '<button class="modal-btn shop-btn" disabled>' + def.reward + ' xu</button>') + '</div>';
+}
 function renderTasks() {
-    ensureDaily();
+    ensureDaily(); ensureWeekly();
     const box = document.getElementById('tasks-body');
     if (!box) return;
-    let html = '<div class="shop-group">🔥 Chuỗi đăng nhập: ' + meta.login.streak + ' ngày · ' + (meta.daily.claimed ? 'đã nhận thưởng hôm nay' : 'chưa nhận thưởng hôm nay (ra sảnh chờ nhận)') + '</div>';
-    Object.keys(TASK_DEFS).forEach(key => {
-        const def = TASK_DEFS[key], tk = meta.daily.tasks[key];
-        const done = tk.p >= def.goal;
-        html += '<div class="shop-item"><span>' + def.name + ' (' + Math.min(tk.p, def.goal) + '/' + def.goal + ')</span>' +
-            (tk.c ? '<button class="modal-btn shop-btn" disabled>Đã nhận</button>'
-                : done ? '<button class="modal-btn shop-btn" data-claim="' + key + '">Nhận ' + def.reward + ' xu</button>'
-                : '<button class="modal-btn shop-btn" disabled>Chưa xong</button>') + '</div>';
+    // --- Duong dang nhap 7 ngay ---
+    const cyc = loginCycleDay();
+    let html = '<div class="shop-group">🎁 Đăng nhập 7 ngày · chuỗi hiện tại: ' + meta.login.streak + ' ngày</div><div class="login-track">';
+    for (let i = 1; i <= 7; i++) {
+        const isToday = i === cyc, past = i < cyc;
+        const label = '+' + LOGIN_REWARDS[i - 1] + (i === 7 ? ' 🖼️' : '');
+        let st;
+        if (isToday && !meta.daily.claimed) st = '<button class="lt-btn" data-login="1">Nhận</button>';
+        else if (isToday) st = '<span class="lt-done">✓ Đã nhận</span>';
+        else if (past) st = '<span class="lt-done">✓</span>';
+        else st = '<span class="lt-lock">🔒</span>';
+        html += '<div class="lt-day' + (isToday ? ' today' : '') + (past ? ' past' : '') + '"><div class="lt-d">Ngày ' + i + '</div><div class="lt-r">' + label + '</div>' + st + '</div>';
+    }
+    html += '</div>';
+    // --- Nhiem vu ngay theo do kho ---
+    const tiers = { de: '🟢 Dễ', tb: '🟡 Trung bình', kho: '🔴 Khó' };
+    html += '<div class="shop-group">🎯 Nhiệm vụ ngày</div>';
+    Object.keys(tiers).forEach(t => {
+        html += '<div class="task-tier">' + tiers[t] + '</div>';
+        Object.keys(DAILY_TASK_DEFS).filter(k => DAILY_TASK_DEFS[k].tier === t).forEach(k => {
+            html += taskRowHTML(DAILY_TASK_DEFS[k], meta.daily.tasks[k], 'data-claim="' + k + '"');
+        });
     });
+    html += milestoneHTML('d3') + milestoneHTML('dall');
+    // --- Nhiem vu tuan ---
+    html += '<div class="shop-group">🗓️ Nhiệm vụ tuần</div>';
+    Object.keys(WEEKLY_TASK_DEFS).forEach(k => {
+        html += taskRowHTML(WEEKLY_TASK_DEFS[k], meta.weekly.tasks[k], 'data-claimw="' + k + '"');
+    });
+    html += milestoneHTML('w2');
     box.innerHTML = html;
-    (box.querySelectorAll ? box.querySelectorAll('[data-claim]') : []).forEach(b => b.addEventListener('click', () => { claimTask(b.getAttribute('data-claim')); }));
+    const q = sel2 => (box.querySelectorAll ? box.querySelectorAll(sel2) : []);
+    q('[data-claim]').forEach(b => b.addEventListener('click', () => { claimDailyTask(b.getAttribute('data-claim')); }));
+    q('[data-claimw]').forEach(b => b.addEventListener('click', () => { claimWeeklyTask(b.getAttribute('data-claimw')); }));
+    q('[data-mile]').forEach(b => b.addEventListener('click', () => { claimMilestone(b.getAttribute('data-mile')); }));
+    q('[data-login]').forEach(b => b.addEventListener('click', () => { claimLogin(); }));
 }

@@ -1093,3 +1093,87 @@ body {
 /* Panel đối thủ: tăng nhẹ độ tương phản của họ tên cho dễ đọc ngoài sáng */
 .bot-full { color: rgba(236,242,252,.74); }
 .bot-nick { text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+
+/* ===== r79: vật phẩm mới (lưng bài / màu bàn / khung) ===== */
+#game-container.back-xanhngoc .back-card { background: repeating-linear-gradient(45deg, rgba(255,255,255,.14) 0 5px, rgba(255,255,255,0) 5px 10px), linear-gradient(135deg, #0e9f8a, #065f52); }
+#game-container.back-hoanggia .back-card { background: radial-gradient(circle, rgba(255,215,0,.5) 1.8px, transparent 2.6px) 0 0 / 11px 11px, linear-gradient(135deg, #8e1f2f, #5c1220); border-color: #d4af37; }
+#game-container.back-rongvang .back-card { background: repeating-linear-gradient(60deg, rgba(120,72,0,.35) 0 4px, rgba(255,255,255,0) 4px 8px), repeating-linear-gradient(-60deg, rgba(120,72,0,.35) 0 4px, rgba(255,255,255,0) 4px 8px), linear-gradient(135deg, #f2c14e, #b8860b); }
+#game-container.theme-huyet { background: radial-gradient(circle, #6d1420, #330a12); }
+#game-container.theme-huyet .table-area { background: repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 14px, transparent 14px 28px), repeating-linear-gradient(-45deg, rgba(0,0,0,.03) 0 14px, transparent 14px 28px), radial-gradient(ellipse at center, #8e2434 0%, #6d1420 55%, #3d0b14 100%); }
+#game-container.theme-hoangkim { background: radial-gradient(circle, #6b4f16, #2e2008); }
+#game-container.theme-hoangkim .table-area { background: repeating-linear-gradient(45deg, rgba(255,255,255,.022) 0 14px, transparent 14px 28px), repeating-linear-gradient(-45deg, rgba(0,0,0,.03) 0 14px, transparent 14px 28px), radial-gradient(ellipse at center, #96762a 0%, #6b4f16 55%, #33250a 100%); }
+#awrap-player.frame-ngoc { border-color: #34d399; box-shadow: 0 0 0 2px #047857, 0 0 16px rgba(52,211,153,.95); }
+#awrap-player.frame-kimcuong { border-color: #e0f7fa; box-shadow: 0 0 0 2px #4dd0e1, 0 0 18px rgba(178,235,242,1); }
+
+/* ===== r79: Cửa hàng + Nhiệm vụ premium (nền tối emerald/navy, điểm vàng) ===== */
+#shop-modal .modal-box, #tasks-modal .modal-box {
+    background: linear-gradient(165deg, #0a2e2a 0%, #071c26 60%, #05131c 100%);
+    border: 2px solid rgba(212,175,55,.55); color: #eef4ea;
+    box-shadow: 0 22px 55px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.14);
+}
+#shop-modal .modal-box h3, #tasks-modal .modal-box h3 { color: #ffd54f; }
+#shop-modal .shop-money, #tasks-modal .shop-money { color: #ffd54f; }
+#shop-modal .modal-btn, #tasks-modal .modal-btn { background: rgba(255,255,255,.08); border-color: rgba(212,175,55,.45); color: #ffe9a8; }
+#shop-modal .modal-btn.primary { background: linear-gradient(180deg, #1db981, #0a7a54); color: #fffdf4; border-color: #d4af37; }
+#shop-modal .modal-btn:disabled, #tasks-modal .modal-btn:disabled { opacity: .55; }
+.shop-tabs { display: flex; gap: 6px; margin: 4px 0 10px; }
+.shop-tab { flex: 1; padding: 8px 2px; font-size: 12.5px; font-weight: 800; border-radius: 999px; border: 1.5px solid rgba(212,175,55,.4); background: rgba(255,255,255,.06); color: #dce8dc; cursor: pointer; }
+.shop-tab.on { background: linear-gradient(180deg, #c9a227, #8a6d1a); color: #fff8e1; border-color: #ffe082; box-shadow: 0 3px 10px rgba(0,0,0,.35); }
+.shop-preview { display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,.05); border: 1px solid rgba(212,175,55,.35); border-radius: 16px; padding: 12px; margin-bottom: 12px; text-align: left; }
+.pv { border-radius: 10px; flex: none; display: flex; align-items: center; justify-content: center; }
+.pv-big { width: 76px; height: 104px; font-size: 30px; }
+.shop-card .pv { width: 100%; height: 62px; font-size: 22px; margin-bottom: 6px; }
+.pv-back { color: rgba(255,248,225,.9); border: 1.5px solid rgba(255,255,255,.35); box-shadow: inset 0 0 0 3px rgba(0,0,0,.15); }
+.pv-vangkim { background: radial-gradient(circle, rgba(255,255,255,.35) 1.6px, transparent 2.4px) 0 0 / 10px 10px, linear-gradient(135deg, #d4af37, #8a6420); }
+.pv-xanhngoc { background: repeating-linear-gradient(45deg, rgba(255,255,255,.14) 0 5px, rgba(255,255,255,0) 5px 10px), linear-gradient(135deg, #0e9f8a, #065f52); }
+.pv-timmong { background: radial-gradient(circle, rgba(255,255,255,.28) 1.6px, transparent 2.4px) 0 0 / 10px 10px, linear-gradient(135deg, #7b1fa2, #4a1166); }
+.pv-denhuyen { background: radial-gradient(circle, rgba(255,255,255,.18) 1.4px, transparent 2.2px) 0 0 / 9px 9px, linear-gradient(135deg, #2b2b30, #0c0c0e); }
+.pv-hoanggia { background: radial-gradient(circle, rgba(255,215,0,.5) 1.8px, transparent 2.6px) 0 0 / 11px 11px, linear-gradient(135deg, #8e1f2f, #5c1220); }
+.pv-rongvang { background: repeating-linear-gradient(60deg, rgba(120,72,0,.35) 0 4px, rgba(255,255,255,0) 4px 8px), repeating-linear-gradient(-60deg, rgba(120,72,0,.35) 0 4px, rgba(255,255,255,0) 4px 8px), linear-gradient(135deg, #f2c14e, #b8860b); }
+.pv-t-tim { background: radial-gradient(ellipse at center, #7e57a8 0%, #4a2364 60%, #241031 100%); }
+.pv-t-huyet { background: radial-gradient(ellipse at center, #8e2434 0%, #6d1420 60%, #3d0b14 100%); }
+.pv-t-den { background: radial-gradient(ellipse at center, #3a3a40 0%, #2e2e33 60%, #0e0e10 100%); }
+.pv-t-hoangkim { background: radial-gradient(ellipse at center, #96762a 0%, #6b4f16 60%, #33250a 100%); }
+.pv-avatar { background: radial-gradient(circle at 35% 30%, #274b5c, #0d2231); border: 1.5px solid rgba(212,175,55,.4); border-radius: 50%; }
+.shop-card .pv-avatar { border-radius: 14px; }
+.pv-framewrap { background: transparent; }
+.pv-frame { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #274b5c, #0d2231); border: 2.5px solid rgba(255,255,255,.35); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+.shop-card .pv-frame { width: 42px; height: 42px; font-size: 19px; margin: 0 auto; }
+.pv-f-bac { border-color: #cfd8dc; box-shadow: 0 0 0 2px #78909c, 0 0 12px rgba(207,216,220,.8); }
+.pv-f-vang { border-color: #ffd700; box-shadow: 0 0 0 2px #b8860b, 0 0 14px rgba(255,215,0,.95); }
+.pv-f-lua { border-color: #ff7043; box-shadow: 0 0 0 2px #d84315, 0 0 16px rgba(255,87,34,.95); }
+.pv-f-ngoc { border-color: #34d399; box-shadow: 0 0 0 2px #047857, 0 0 14px rgba(52,211,153,.95); }
+.pv-f-kimcuong { border-color: #e0f7fa; box-shadow: 0 0 0 2px #4dd0e1, 0 0 16px rgba(178,235,242,1); }
+.pv-info { flex: 1; min-width: 0; }
+.pv-name { font-size: 16.5px; font-weight: 900; color: #fff8e1; }
+.pv-rarity { font-size: 11.5px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase; margin: 1px 0; }
+.rar-thuong { color: #b0bec5; } .rar-hiem { color: #64b5f6; } .rar-suthi { color: #ce93d8; } .rar-huyen { color: #ffb74d; } .rar-dacbiet { color: #34d399; }
+.pv-desc { font-size: 12.5px; color: rgba(238,244,234,.78); line-height: 1.35; margin-bottom: 8px; }
+.shop-act { width: auto; display: inline-block; margin-top: 0; padding: 8px 18px; }
+.shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.shop-card { background: rgba(255,255,255,.045); border: 1.5px solid rgba(255,255,255,.12); border-radius: 14px; padding: 9px; cursor: pointer; text-align: center; }
+.shop-card.sel { border-color: #ffd54f; box-shadow: 0 0 0 1.5px rgba(255,213,79,.5), 0 6px 16px rgba(0,0,0,.35); }
+.sc-name { font-size: 13px; font-weight: 800; color: #f2f5ee; line-height: 1.25; }
+.sc-price { font-size: 13px; font-weight: 900; color: #ffd54f; }
+.sc-state { font-size: 12px; font-weight: 800; }
+.sc-state.eq { color: #69f0ae; } .sc-state.own { color: #90caf9; } .sc-state.locked { color: #a5d6a7; }
+#tasks-modal .shop-group, #shop-modal .shop-group { color: #ffd54f; }
+.task-tier { color: rgba(238,244,234,.85); font-weight: 800; font-size: 13px; margin: 9px 0 3px; text-align: left; }
+.task-row { display: flex; align-items: center; gap: 10px; padding: 7px 2px; border-bottom: 1px dashed rgba(255,255,255,.14); text-align: left; }
+.task-main { flex: 1; min-width: 0; }
+.task-name { font-size: 13.5px; font-weight: 700; color: #eef4ea; }
+.task-prog { color: #ffd54f; font-weight: 900; }
+.tbar { height: 7px; border-radius: 999px; background: rgba(255,255,255,.14); overflow: hidden; margin-top: 4px; }
+.tfill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #1db981, #69f0ae); transition: width .3s; }
+.tfill.gold { background: linear-gradient(90deg, #c9a227, #ffd54f); }
+.task-row .shop-btn { flex: none; margin-top: 0; width: auto; }
+.task-row .shop-btn.claim { background: linear-gradient(180deg, #1db981, #0a7a54); color: #fffdf4; border-color: #d4af37; }
+.login-track { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin: 6px 0 10px; }
+.lt-day { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.13); border-radius: 10px; padding: 6px 2px; text-align: center; }
+.lt-day.today { border-color: #ffd54f; box-shadow: 0 0 0 1.5px rgba(255,213,79,.55); background: rgba(255,213,79,.08); }
+.lt-day.past { opacity: .75; }
+.lt-d { font-size: 10px; font-weight: 800; color: rgba(238,244,234,.75); }
+.lt-r { font-size: 11.5px; font-weight: 900; color: #ffd54f; margin: 2px 0; }
+.lt-btn { font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 999px; border: 1px solid #d4af37; background: linear-gradient(180deg, #1db981, #0a7a54); color: #fff; cursor: pointer; }
+.lt-done { font-size: 10.5px; font-weight: 800; color: #69f0ae; }
+.lt-lock { font-size: 10.5px; opacity: .6; }
