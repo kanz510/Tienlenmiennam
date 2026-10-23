@@ -1221,3 +1221,8 @@ body {
 #played-ghost { opacity: .16; filter: blur(1.5px) saturate(.15) brightness(.72); margin-bottom: -58px; transform: scale(.88); }
 #game-container.tier-short #played-ghost { margin-bottom: -47px; }
 #game-container.tier-tiny #played-ghost { margin-bottom: -37px; }
+
+
+/* r82: loại bỏ lớp clone bài cũ gây lộ mảng chữ nhật xanh phía sau nước đánh hiện tại.
+   Giữ nguyên played-cards, luật chơi và hiệu ứng của bài đang được đánh. */
+#played-ghost { display: none !important; }
