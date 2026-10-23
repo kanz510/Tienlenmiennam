@@ -1476,3 +1476,17 @@ body {
 .bot-right .bubble::after { border-left-color: rgba(238,246,255,.5); }
 .bot-top .bubble::after { border-bottom-color: rgba(238,246,255,.5); }
 #bubble-player::after { border-top-color: rgba(238,246,255,.5); }
+
+
+/* ===== r117: bong bóng người chơi về sát khung thông tin + bỏ nút chat nhanh =====
+   Đợt r115 dời bong bóng ra góc trái dưới bàn để né bài khiến nó nằm quá
+   xa khung thông tin. Nay đưa về kề sát mép trái của .player-info (làm
+   con của chính khung này), căn giữa theo chiều dọc, đuôi chỉ phải về
+   phía khung. Vùng trái khung thông tin giờ là khoảng trống rộng giữa
+   đồng hồ và khung nên bong bóng có chỗ nằm gọn. */
+.player-info { position: relative; }
+#bubble-player { left: auto; right: calc(100% + 10px); top: 50%; bottom: auto; max-width: 170px;
+    transform: translateY(-50%) scale(.92); transform-origin: right center; }
+#bubble-player.show { transform: translateY(-50%) scale(1); }
+#bubble-player::after { left: auto; right: -6px; top: 50%; bottom: auto; transform: translateY(-50%);
+    border: 6px solid transparent; border-left-color: rgba(238,246,255,.5); border-right: 0; }

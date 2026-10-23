@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r116">
+    <link rel="stylesheet" href="style.css?v=r117">
 <script>
-window.__TLV = 'r116';
+window.__TLV = 'r117';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -108,6 +108,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
                     ⌛ <span id="timer-text">15</span>
                 </div>
                 <div class="player-info">
+                    <span class="bubble" id="bubble-player"></span>
                     <div class="avatar-wrap" id="awrap-player"><div class="avatar">🧑</div><span class="just-badge hidden" id="just-player">VỪA ĐÁNH</span></div>
                     <span class="bot-name">Bạn</span>
                     <span id="level-badge">⭐1</span>
@@ -115,7 +116,6 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
                     <span class="card-count" id="count-player">13</span>
                     <span class="money" id="money-player">💰 1000</span>
                 </div>
-                <span class="bubble" id="bubble-player"></span>
                 <div class="controls">
                     <button id="btn-chat" class="btn-chat" title="Chat với bot">💬</button>
                     <button id="btn-pass" class="btn-pass">Bỏ lượt</button>
@@ -125,12 +125,6 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
         <!-- Chat của người chơi -->
         <div id="chat-panel" class="hidden">
-            <div class="chat-quick">
-                <button data-chat="Ê tụi bây, nhìn tao nè 😤">Ê tụi bây 😤</button>
-                <button data-chat="Ngon thì nhào vô!">Ngon nhào vô!</button>
-                <button data-chat="Chơi gà vậy cũng đòi thắng à">Gà vậy 🐔</button>
-                <button data-chat="Sợ chưa? Sợ chưa? 😏">Sợ chưa 😏</button>
-            </div>
             <div class="chat-row">
                 <input id="chat-input" type="text" maxlength="120" placeholder="Chat với tụi nó..." autocomplete="off">
                 <button id="chat-send">Gửi</button>
@@ -260,12 +254,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r116"></script>
-    <script src="audio.js?v=r116"></script>
-    <script src="cards-img.js?v=r116"></script>
-    <script src="bot.js?v=r116"></script>
-    <script src="ui.js?v=r116"></script>
-    <script src="game.js?v=r116"></script>
+    <script src="rules.js?v=r117"></script>
+    <script src="audio.js?v=r117"></script>
+    <script src="cards-img.js?v=r117"></script>
+    <script src="bot.js?v=r117"></script>
+    <script src="ui.js?v=r117"></script>
+    <script src="game.js?v=r117"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
