@@ -415,6 +415,31 @@ function renderLastPlay() {
         info.classList.add('show');
         info.classList.toggle('big-play', isBigPlay(state.lastPlay.combo, state.lastPlayWasChop));
     }
+    // r88: giấu lá đích NGAY từ lúc dựng mỗi khi nước thay đổi — bài chỉ hiện
+    // khi chính chuyến bay của nước đó hạ cánh (cơ chế dọn dẹp của chuyến bay
+    // sẽ gỡ giấu). Trước đây lá đích chỉ được giấu khi hiệu ứng bay bắt đầu,
+    // nên bất kỳ lần vẽ lại nào chen giữa cũng làm bài hiện sẵn trên bàn trong
+    // khi lá bay còn đang tới, phá mất hiệu ứng "bay tới mới hiện bài".
+    // Đồng hồ canh dự phòng: nếu chuyến bay không chạy (không có nguồn bay,
+    // bị lỗi...) và không còn chuyến nào đang bay thì tự gỡ giấu để không
+    // bao giờ mất bài.
+    if (animate) {
+        const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (!reduced) {
+            [...el.children].forEach(c => { c.style.visibility = 'hidden'; c.dataset.flyWait = '1'; });
+            clearTimeout(window.__destWaitTimer);
+            window.__destWaitTimer = setTimeout(() => {
+                try {
+                    if (flyCleanup) return;
+                    const destNow = document.getElementById('played-cards');
+                    if (!destNow) return;
+                    [...destNow.children].forEach(c => {
+                        if (c.dataset && c.dataset.flyWait) { c.style.visibility = ''; delete c.dataset.flyWait; }
+                    });
+                } catch (e) {}
+            }, 750);
+        }
+    }
 }
 
 // ===== r68/r69: BAY BÀI TỪ VỊ TRÍ THẬT + NHẤN SÁNG NGƯỜI VỪA ĐÁNH =====
