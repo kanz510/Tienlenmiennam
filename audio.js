@@ -132,9 +132,13 @@ function musicBindUnlock() {
         musicFadeStep();
         let ok = false;
         Object.keys(musicEls).forEach(k => { if (!musicEls[k].paused) ok = true; });
-        if (ok) { document.removeEventListener('pointerdown', unlock); musicUnlockBound = false; }
+        if (ok) {
+            ['pointerdown', 'click', 'touchend'].forEach(ev => document.removeEventListener(ev, unlock));
+            musicUnlockBound = false;
+        }
     };
-    document.addEventListener('pointerdown', unlock);
+    // iOS Safari mở khóa tiếng chắc nhất qua touchend/click trong thao tác chạm thật
+    ['pointerdown', 'click', 'touchend'].forEach(ev => document.addEventListener(ev, unlock));
 }
 function musicSetMode(mode) {
     musicMode = mode;
