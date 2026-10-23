@@ -1305,3 +1305,15 @@ body {
     width: 100% !important;
     height: 100% !important;
 }
+
+
+/* ===== r84: tone down previous-play ghost so it cannot look like a duplicate card frame =====
+   The ghost pile is decorative only; keep it subtle beneath the active trick. */
+#played-ghost {
+    opacity: .10;
+    filter: saturate(.25) brightness(.9);
+}
+#played-ghost .card {
+    border-color: rgba(248,241,220,.45);
+    box-shadow: 0 1px 3px rgba(0,0,0,.12);
+}
