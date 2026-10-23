@@ -65,20 +65,16 @@ function playWin() {
     });
 }
 
-// ===== NHẠC NỀN: BẢN THU THÍNH PHÒNG THẬT (file cục bộ trong dự án) =====
-// Sảnh chờ: Pachelbel - Canon (dàn dây Strolling Strings).
-// Trong ván: Bach - Air on the G String (Air Force Strings).
-// Cả hai do Ban nhạc Không quân Hoa Kỳ biểu diễn — Public domain (tác phẩm
-// của chính phủ Hoa Kỳ), nguồn Wikimedia Commons, xem assets/CREDITS.md.
-// Phát bằng thẻ audio từ assets/audio/, lặp vòng, chuyển sảnh <-> ván bằng
-// mờ chéo (crossfade), không bao giờ phát chồng hai bản cùng lúc.
+// ===== NHẠC NỀN: PHÁT RIÊNG TỪNG TRACK, TẮT NGAY KHI MUTE =====
+// Sảnh chờ: Pachelbel - Canon. Trong ván: Bach - Air on the G String.
+// Nguồn và ghi công: assets/CREDITS.md.
 const MUSIC_TRACKS = {
     lobby: { src: 'assets/audio/Nh%E1%BA%A1c%20s%E1%BA%A3nh%20ch%E1%BB%9D.mp3', vol: 0.5 },
     game:  { src: 'assets/audio/Nh%E1%BA%A1c%20trong%20v%C3%A1n.mp3', vol: 0.42 }
 };
 let musicMode = 'off'; // 'off' | 'lobby' | 'game'
-let musicArmed = false;
-let musicEls = {}, musicFadeTimer = null, musicUnlockBound = false;
+let musicEls = {};
+const musicPlayPending = {};
 
 function musicEl(key) {
     if (musicEls[key]) return musicEls[key];
@@ -88,74 +84,87 @@ function musicEl(key) {
         el.loop = true;
         el.preload = 'auto';
         el.volume = 0;
-        el.addEventListener('error', () => { try { el.dataset.dead = '1'; } catch (e) {} });
+        el.addEventListener('error', () => { el.dataset.dead = '1'; });
         musicEls[key] = el;
         return el;
     } catch (e) { return null; }
 }
 function musicWanted() {
-    return soundOn && !(typeof settings !== 'undefined' && settings && settings.music === false);
+    return !!soundOn && !(typeof settings !== 'undefined' && settings && settings.music === false);
 }
-function musicFadeStep() {
-    let anyAlive = false;
-    Object.keys(MUSIC_TRACKS).forEach(key => {
+function musicPauseAll() {
+    Object.keys(musicEls).forEach(key => {
         const el = musicEls[key];
         if (!el) return;
-        const target = (musicMode === key && musicWanted()) ? MUSIC_TRACKS[key].vol : 0;
-        if (el.paused && target > 0 && !el.dataset.dead) {
-            const p = el.play();
-            if (p && p.catch) p.catch(() => { musicBindUnlock(); });
-        }
-        if (!el.paused) {
-            anyAlive = true;
-            const diff = target - el.volume;
-            if (Math.abs(diff) < 0.03) {
-                el.volume = target;
-                if (target === 0) { try { el.pause(); } catch (e) {} }
-            } else {
-                el.volume = Math.max(0, Math.min(1, el.volume + (diff > 0 ? 0.03 : -0.03)));
-            }
-        }
+        try { el.pause(); el.volume = 0; } catch (e) {}
     });
-    if (!anyAlive && (musicMode === 'off' || !musicWanted())) {
-        if (musicFadeTimer) { clearInterval(musicFadeTimer); musicFadeTimer = null; }
+}
+function musicSync() {
+    if (musicMode === 'off') {
+        musicPauseAll();
+        return;
+    }
+    // Âm thanh bị tắt: dừng tức thì, không chờ fade/timer.
+    if (!musicWanted()) {
+        musicPauseAll();
+        return;
+    }
+    const active = musicEl(musicMode);
+    if (!active || active.dataset.dead) return;
+    // Không để hai bài cùng phát; dừng hẳn track cũ trước khi mở track mới.
+    Object.keys(musicEls).forEach(key => {
+        if (key === musicMode) return;
+        const el = musicEls[key];
+        if (el) { try { el.pause(); el.volume = 0; } catch (e) {} }
+    });
+    active.volume = MUSIC_TRACKS[musicMode].vol;
+    if (!active.paused || musicPlayPending[musicMode]) return;
+    musicPlayPending[musicMode] = true;
+    let p;
+    try { p = active.play(); }
+    catch (e) {
+        musicPlayPending[musicMode] = false;
+        return;
+    }
+    if (p && typeof p.then === 'function') {
+        p.then(() => {
+            musicPlayPending[musicMode] = false;
+            // Nếu mode/setting đổi trong lúc play() đang chờ, áp dụng lại ngay.
+            if (musicMode !== Object.keys(MUSIC_TRACKS).find(k => musicEls[k] === active) || !musicWanted()) musicSync();
+        }).catch(() => {
+            musicPlayPending[musicMode] = false;
+        });
+    } else {
+        musicPlayPending[musicMode] = false;
     }
 }
-function musicEnsureTimer() {
-    if (!musicFadeTimer) musicFadeTimer = setInterval(musicFadeStep, 60);
-}
-function musicBindUnlock() {
-    if (musicUnlockBound) return;
-    musicUnlockBound = true;
-    const unlock = () => {
-        musicEnsureTimer();
-        musicFadeStep();
-        let ok = false;
-        Object.keys(musicEls).forEach(k => { if (!musicEls[k].paused) ok = true; });
-        if (ok) {
-            ['pointerdown', 'click', 'touchend'].forEach(ev => document.removeEventListener(ev, unlock));
-            musicUnlockBound = false;
-        }
-    };
-    // iOS Safari mở khóa tiếng chắc nhất qua touchend/click trong thao tác chạm thật
-    ['pointerdown', 'click', 'touchend'].forEach(ev => document.addEventListener(ev, unlock));
-}
 function musicSetMode(mode) {
-    musicMode = mode;
-    if (mode !== 'off') musicEl(mode);
-    musicEnsureTimer();
-    musicFadeStep();
+    musicMode = Object.prototype.hasOwnProperty.call(MUSIC_TRACKS, mode) ? mode : 'off';
+    musicSync();
 }
-function musicStart() { musicArmed = true; musicSetMode('game'); }
+function musicStart() { musicSetMode('game'); }
 function musicLobby() { musicSetMode('lobby'); }
 function musicStop() { musicSetMode('off'); }
-function musicSync() {
-    if (musicMode === 'off') return;
-    musicEl(musicMode);
-    musicEnsureTimer();
-    musicFadeStep();
-}
 
+// Trình duyệt thường chặn autoplay trước tương tác đầu tiên.
+// Thử phát lại khi người chơi chạm/click/phím; sau đó gỡ các listener này.
+(function bindMusicUnlock() {
+    const unlock = () => {
+        musicSync();
+        const active = musicEls[musicMode];
+        if (active && !active.paused) {
+            document.removeEventListener('pointerdown', unlock, true);
+            document.removeEventListener('keydown', unlock, true);
+            document.removeEventListener('touchend', unlock, true);
+        }
+    };
+    document.addEventListener('pointerdown', unlock, true);
+    document.addEventListener('keydown', unlock, true);
+    document.addEventListener('touchend', unlock, true);
+})();
+
+// Nút âm thanh trên màn hình chơi trước đây chưa được gắn handler.
+document.getElementById('btn-sound')?.addEventListener('click', toggleSound);
 // ===== GIỌNG ĐỌC CÀ KHỊA (Text-to-Speech) =====
 
 const TAUNTS = {
