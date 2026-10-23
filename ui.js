@@ -1014,6 +1014,7 @@ function syncSettingsForm() {
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
     const setV = (id, v) => { const el = document.getElementById(id); if (el) el.value = String(v); };
     set('set-sound', settings.sound);
+    set('set-music', settings.music !== false);
     set('set-voice', settings.voice);
     set('set-autoplay', settings.autoPlay);
     setV('set-speed', settings.botSpeed);

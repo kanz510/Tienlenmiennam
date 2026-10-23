@@ -33,7 +33,7 @@ state.timeLeft = 15;
 // ============================================================
 //  CÀI ĐẶT + THỐNG KÊ (localStorage, luôn trong try/catch)
 // ============================================================
-const DEFAULT_SETTINGS = { sound: true, voice: true, autoPlay: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong', personaLeft: 'goc', personaTop: 'goc', personaRight: 'goc', swearLevel: 'tuc' };
+const DEFAULT_SETTINGS = { sound: true, music: true, voice: true, autoPlay: true, botSpeed: 'vua', difficulty: 'thuong', bet: 100, tableColor: 'xanh', backStyle: 'kimcuong', personaLeft: 'goc', personaTop: 'goc', personaRight: 'goc', swearLevel: 'tuc' };
 let settings = { ...DEFAULT_SETTINGS };
 let stats = { games: 0, wins: 0, losses: 0, curStreak: 0, bestStreak: 0, biggestWin: 0 };
 
@@ -54,6 +54,7 @@ function saveSettings() {
 function applySettings() {
     soundOn = settings.sound;
     voiceOn = settings.voice;
+    try { musicSync(); } catch (e) {}
     if (document.body) {
         document.body.classList.remove('theme-do', 'theme-duong', 'theme-tim', 'theme-den');
         if (settings.tableColor === 'do') document.body.classList.add('theme-do');
@@ -576,6 +577,7 @@ function newGame() {
     const deck = shuffle(createDeck());
     playShuffle();
     try { aiWarmUp(); } catch (e) {}
+    try { musicStart(); } catch (e) {}
     try { banterStart(); } catch (e) {}
     state.hands.player = sortHand(deck.slice(0, 13));
     state.hands.left   = sortHand(deck.slice(13, 26));
@@ -1004,6 +1006,7 @@ function bindSetting(id, fn) {
     if (el) el.addEventListener('change', () => { fn(el); saveSettings(); applySettings(); });
 }
 bindSetting('set-sound', el => settings.sound = el.checked);
+bindSetting('set-music', el => settings.music = el.checked);
 bindSetting('set-voice', el => settings.voice = el.checked);
 bindSetting('set-autoplay', el => settings.autoPlay = el.checked);
 bindSetting('set-speed', el => settings.botSpeed = el.value);

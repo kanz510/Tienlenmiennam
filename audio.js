@@ -65,6 +65,96 @@ function playWin() {
     });
 }
 
+// ===== NHẠC NỀN (sinh bằng Web Audio — không cần file nhạc) =====
+// Vòng 4 hợp âm lounge vui (Cmaj7 - Am7 - Fmaj7 - G7), 96 BPM: giai điệu
+// pentatonic soạn sẵn + bass + pad + nhịp gõ rất nhẹ, âm lượng nhỏ dưới tiếng game.
+const MUSIC_CHORDS = [
+    { root: 130.81, tones: [261.63, 329.63, 392.00, 493.88] },
+    { root: 110.00, tones: [220.00, 261.63, 329.63, 392.00] },
+    { root: 87.31,  tones: [174.61, 220.00, 261.63, 329.63] },
+    { root: 98.00,  tones: [196.00, 246.94, 293.66, 349.23] }
+];
+const MUSIC_MELODY = [
+    659, 0, 784, 0, 880, 784, 659, 0,
+    659, 0, 587, 659, 523, 0, 587, 0,
+    698, 0, 659, 587, 659, 0, 523, 0,
+    587, 0, 784, 0, 880, 784, 587, 0
+];
+let musicGain = null, musicTimer = null, musicStep = 0, musicNextTime = 0, musicArmed = false, musicNoiseBuf = null;
+
+function musicNote(freq, t, dur, type, vol) {
+    const ctx = audioCtx; if (!ctx || !musicGain) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g); g.connect(musicGain);
+    o.start(t); o.stop(t + dur + 0.05);
+}
+function musicHat(t) {
+    const ctx = audioCtx; if (!ctx || !musicGain) return;
+    if (!musicNoiseBuf) {
+        const len = Math.floor(ctx.sampleRate * 0.05);
+        musicNoiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+        const d = musicNoiseBuf.getChannelData(0);
+        for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    }
+    const src = ctx.createBufferSource(); src.buffer = musicNoiseBuf;
+    const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 6500;
+    const g = ctx.createGain(); g.gain.value = 0.012;
+    src.connect(f); f.connect(g); g.connect(musicGain);
+    src.start(t);
+}
+function musicScheduleStep(step, t) {
+    const bar = Math.floor(step / 8) % 4;
+    const s8 = step % 8;
+    const ch = MUSIC_CHORDS[bar];
+    if (s8 === 0) { // pad đầu ô nhịp
+        ch.tones.slice(0, 3).forEach(fr => musicNote(fr, t, 2.3, 'sine', 0.016));
+        musicNote(ch.root / 2, t, 0.25, 'sine', 0.05); // kick nhẹ giả bằng bass trầm
+    }
+    if (s8 === 0 || s8 === 4) musicNote(ch.root, t, 0.32, 'sine', 0.075);
+    if (s8 === 6) musicNote(ch.root * 1.5, t, 0.25, 'sine', 0.05);
+    const mel = MUSIC_MELODY[step % 32];
+    if (mel) musicNote(mel, t, 0.3, 'triangle', 0.05);
+    if (s8 % 2 === 1) musicHat(t);
+}
+function musicStart() {
+    musicArmed = true;
+    if (musicTimer) return;
+    if (typeof settings !== 'undefined' && settings && settings.music === false) return;
+    if (!soundOn) return;
+    const ctx = ensureAudio(); if (!ctx) return;
+    if (!musicGain) { musicGain = ctx.createGain(); musicGain.gain.value = 0.9; musicGain.connect(ctx.destination); }
+    musicStep = 0;
+    musicNextTime = ctx.currentTime + 0.08;
+    const stepDur = 60 / 96 / 2;
+    musicTimer = setInterval(() => {
+        if (!audioCtx || !musicGain) return;
+        while (musicNextTime < audioCtx.currentTime + 0.45) {
+            musicScheduleStep(musicStep, musicNextTime);
+            musicStep++;
+            musicNextTime += stepDur;
+        }
+    }, 200);
+}
+function musicStop() {
+    if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+    if (musicGain && audioCtx) {
+        try {
+            const g = musicGain; musicGain = null;
+            g.gain.setValueAtTime(g.gain.value, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+            setTimeout(() => { try { g.disconnect(); } catch (e) {} }, 250);
+        } catch (e) { musicGain = null; }
+    }
+}
+function musicSync() {
+    const want = musicArmed && soundOn && !(typeof settings !== 'undefined' && settings && settings.music === false);
+    if (want) musicStart(); else musicStop();
+}
+
 // ===== GIỌNG ĐỌC CÀ KHỊA (Text-to-Speech) =====
 
 const TAUNTS = {
@@ -261,6 +351,7 @@ function toggleSound() {
     const b = document.getElementById('btn-sound');
     if (b) b.textContent = soundOn ? '🔊' : '🔇';
     if (typeof syncSettingsForm === 'function') syncSettingsForm();
+    try { musicSync(); } catch (e) {}
     if (soundOn) playClick();
 }
 
