@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="260" viewBox="0 0 180 260">
+<defs>
+  <linearGradient id="felt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#195b50"/><stop offset=".48" stop-color="#0b3038"/><stop offset="1" stop-color="#061d29"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0.9" y2="1"><stop stop-color="#fff0b4"/><stop offset=".28" stop-color="#d5a64e"/><stop offset=".58" stop-color="#fff0bd"/><stop offset="1" stop-color="#9d6a27"/></linearGradient>
+  <radialGradient id="glow" cx=".5" cy=".36" r=".8"><stop stop-color="#5eb7a0" stop-opacity=".34"/><stop offset="1" stop-color="#051c28" stop-opacity="0"/></radialGradient>
+  <pattern id="grain" width="7" height="7" patternUnits="userSpaceOnUse"><path d="M0 7L7 0" stroke="#fff" stroke-opacity=".035" stroke-width=".7"/></pattern>
+</defs>
+<rect width="180" height="260" rx="7" fill="url(#felt)"/>
+<rect width="180" height="260" rx="7" fill="url(#glow)"/>
+<rect width="180" height="260" rx="7" fill="url(#grain)"/>
+<rect x="8" y="8" width="164" height="244" rx="4" fill="none" stroke="url(#gold)" stroke-width="2"/>
+<rect x="13" y="13" width="154" height="234" rx="3" fill="none" stroke="#f7e1a0" stroke-opacity=".42"/>
+<g fill="none" stroke="url(#gold)" stroke-width="1.7">
+  <path d="M90 30C76 45 61 47 47 34C52 52 44 63 29 67C47 76 49 91 38 104C57 101 72 111 75 128C84 113 96 113 105 128C108 111 123 101 142 104C131 91 133 76 151 67C136 63 128 52 133 34C119 47 104 45 90 30Z"/>
+  <path d="M90 43C78 57 66 62 54 57C62 70 61 82 50 91C66 91 77 99 80 113C86 103 94 103 100 113C103 99 114 91 130 91C119 82 118 70 126 57C114 62 102 57 90 43Z"/>
+  <path d="M90 60L100 79L121 82L106 97L110 118L90 108L70 118L74 97L59 82L80 79Z"/>
+  <path d="M28 28l13 5-5 13-8-8-8 8-5-13zM152 28l13 5-5 13-8-8-8 8-5-13z"/>
+  <path d="M28 232l13-5-5-13-8 8-8-8-5 13zM152 232l13-5-5-13-8 8-8-8-5 13z"/>
+  <path d="M22 126q13 8 0 16q13 8 0 16M158 126q-13 8 0 16q-13 8 0 16"/>
+</g>
+<g fill="#f6dda0" opacity=".92">
+  <circle cx="90" cy="20" r="2"/><circle cx="90" cy="240" r="2"/><circle cx="20" cy="130" r="2"/><circle cx="160" cy="130" r="2"/>
+  <path d="M90 88l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>
+</g>
+<path d="M18 18L162 242" stroke="#fff" stroke-opacity=".045" stroke-width="14"/>
+</svg>
