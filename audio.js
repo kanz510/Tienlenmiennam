@@ -101,9 +101,17 @@ const ttsCache = {};   // "giong|cau" -> object URL của file tiếng
 let ttsCacheKeys = [];
 let ttsAudio = null;     // file tiếng đang phát (để ngắt khi có câu mới)
 let ttsFailUntil = 0;    // sau 1 lần lỗi, nghỉ gọi AI 30 giây (chơi bằng giọng máy tạm)
+let voiceBusyUntil = 0;  // mốc thời gian câu đang đọc dự kiến đọc xong (bot chờ tới đó)
+let speakSeq = 0;        // số thứ tự câu nói — câu nào về trễ, đã qua lượt, thì không phát nữa
+function markVoiceBusy(text, rate) {
+    const dur = Math.max(900, Math.min(4600, 500 + String(text).length * 92)) / (rate || 1);
+    voiceBusyUntil = Date.now() + dur;
+}
 
 function speakNative(text, actorIdx) {
     try {
+        markVoiceBusy(text, 1);
+        if (ttsAudio) { try { ttsAudio.pause(); } catch (e) {} }
         if (typeof window === 'undefined' || !window.speechSynthesis) return;
         window.speechSynthesis.cancel();
         const u = new SpeechSynthesisUtterance(text);
@@ -117,9 +125,11 @@ function speakNative(text, actorIdx) {
     } catch (e) {}
 }
 
-function ttsPlay(url, rate, actorIdx) {
+function ttsPlay(url, rate, actorIdx, text) {
+    if (text) markVoiceBusy(text, rate);
     try {
         if (ttsAudio) { try { ttsAudio.pause(); } catch (e) {} }
+        try { if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
         const au = new Audio(url);
         au.playbackRate = rate || 1;
         try { au.preservesPitch = false; } catch (e) {}
@@ -176,14 +186,16 @@ function aiPrefetchTTS(botKey, lines) {
 }
 
 function speakAI(text, actorIdx) {
+    const mySeq = ++speakSeq;
     const key = PLAYERS[actorIdx || 0];
     const conf = TTS_VOICES[key] || TTS_VOICES.player;
     const ck = conf.voice + '|' + text;
-    if (ttsCache[ck]) { ttsPlay(ttsCache[ck], conf.rate, actorIdx); return; }
+    if (ttsCache[ck]) { ttsPlay(ttsCache[ck], conf.rate, actorIdx, text); return; }
     if (typeof fetch !== 'function' || Date.now() < ttsFailUntil) { speakNative(text, actorIdx); return; }
     if (typeof bubbleKeep === 'function') bubbleKeep(actorIdx, 5000); // giữ chữ chờ tiếng về
     ttsFetchToCache(text, conf).then(url => {
-        if (url) ttsPlay(url, conf.rate, actorIdx);
+        if (mySeq !== speakSeq) return; // câu này về trễ, bot đã nói câu khác — bỏ qua kẻo chồng tiếng
+        if (url) ttsPlay(url, conf.rate, actorIdx, text);
         else speakNative(text, actorIdx);
     });
 }

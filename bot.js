@@ -4,7 +4,16 @@
 
 // Tốc độ bot theo cài đặt
 function botDelay() {
-    return settings.botSpeed === 'cham' ? 1300 : settings.botSpeed === 'nhanh' ? 350 : 800;
+    const base = settings.botSpeed === 'cham' ? 1300 : settings.botSpeed === 'nhanh' ? 350 : 800;
+    // Đệm tiếng: câu cà khịa đang đọc dở thì chờ đọc xong mới ra bài tiếp,
+    // tránh tiếng chồng chéo (tối đa chờ thêm 1.8 giây). Tắt giọng thì không chờ.
+    try {
+        if (typeof voiceOn !== 'undefined' && voiceOn && typeof voiceBusyUntil !== 'undefined') {
+            const wait = voiceBusyUntil - Date.now();
+            if (wait > 0) return base + Math.min(wait, 1800);
+        }
+    } catch (e) {}
+    return base;
 }
 
 function botPlay() {
