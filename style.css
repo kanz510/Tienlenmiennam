@@ -1272,3 +1272,36 @@ body {
 .back-card::after {
     border-radius: 4px;
 }
+
+
+/* ===== r83: make full-face SVG artwork fill the actual card box =====
+   Absolutely position the artwork so flex layout/intrinsic SVG dimensions cannot
+   shrink it into a small inner rectangle, especially in the played-card pile. */
+.card.has-art {
+    position: relative;
+    padding: 0 !important;
+    overflow: hidden;
+    isolation: isolate;
+}
+.card.has-art > img.face-full {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none;
+    max-height: none;
+    min-width: 100%;
+    min-height: 100%;
+    object-fit: fill;
+    object-position: center;
+    margin: 0;
+    border-radius: inherit;
+    clip-path: inset(0 round 9px);
+    flex: none;
+}
+#played-cards .card.has-art > img.face-full,
+#played-ghost .card.has-art > img.face-full {
+    width: 100% !important;
+    height: 100% !important;
+}
