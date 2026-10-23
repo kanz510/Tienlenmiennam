@@ -73,8 +73,8 @@ function playWin() {
 // Phát bằng thẻ audio từ assets/audio/, lặp vòng, chuyển sảnh <-> ván bằng
 // mờ chéo (crossfade), không bao giờ phát chồng hai bản cùng lúc.
 const MUSIC_TRACKS = {
-    lobby: { src: 'assets/audio/lobby-canon.mp3', vol: 0.5 },
-    game:  { src: 'assets/audio/game-air.mp3', vol: 0.42 }
+    lobby: { src: 'assets/audio/Nh%E1%BA%A1c%20s%E1%BA%A3nh%20ch%E1%BB%9D.mp3', vol: 0.5 },
+    game:  { src: 'assets/audio/Nh%E1%BA%A1c%20trong%20v%C3%A1n.mp3', vol: 0.42 }
 };
 let musicMode = 'off'; // 'off' | 'lobby' | 'game'
 let musicArmed = false;

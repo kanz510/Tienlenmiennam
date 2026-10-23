@@ -15,5 +15,5 @@ Mọi tài nguyên khác (mặt J/Q/K vẽ tay dự phòng, biểu tượng, hi�
 
 
 ## Nhạc nền (bản thu thật, Public domain)
-- `assets/audio/lobby-canon.mp3` — Johann Pachelbel, *Canon in D*, biểu diễn: Strolling Strings, United States Air Force Band (2004). Nguồn: Wikimedia Commons — Public domain (tác phẩm của chính phủ Hoa Kỳ). Đã cắt còn 3:41, chuẩn hóa âm lượng -17 LUFS, nén MP3 96kbps, fade đầu/cuối cho vòng lặp.
-- `assets/audio/game-air.mp3` — J. S. Bach, *Air on the G String* (Orchestral Suite No. 3, BWV 1068), biểu diễn: Air Force Strings, United States Air Force Band. Nguồn: Wikimedia Commons — Public domain (tác phẩm của chính phủ Hoa Kỳ). Đã cắt còn 2:53, chuẩn hóa âm lượng -17 LUFS, nén MP3 96kbps, fade đầu/cuối cho vòng lặp.
+- `assets/audio/Nhạc sảnh chờ.mp3` (tên gốc khi xử lý: lobby-canon.mp3) — Johann Pachelbel, *Canon in D*, biểu diễn: Strolling Strings, United States Air Force Band (2004). Nguồn: Wikimedia Commons — Public domain (tác phẩm của chính phủ Hoa Kỳ). Đã cắt còn 3:41, chuẩn hóa âm lượng -17 LUFS, nén MP3 96kbps, fade đầu/cuối cho vòng lặp.
+- `assets/audio/Nhạc trong ván.mp3` (tên gốc khi xử lý: game-air.mp3) — J. S. Bach, *Air on the G String* (Orchestral Suite No. 3, BWV 1068), biểu diễn: Air Force Strings, United States Air Force Band. Nguồn: Wikimedia Commons — Public domain (tác phẩm của chính phủ Hoa Kỳ). Đã cắt còn 2:53, chuẩn hóa âm lượng -17 LUFS, nén MP3 96kbps, fade đầu/cuối cho vòng lặp.
