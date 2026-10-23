@@ -1248,3 +1248,27 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .player-cards .card { filter: none; }
 }
+
+
+/* ===== r82: consistent rounded card corners, including full-face artwork =====
+   Clip the artwork itself so SVG/image edges cannot appear square at the card corners. */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    background-clip: padding-box;
+}
+.card.has-art img.face-full {
+    border-radius: inherit;
+    clip-path: inset(0 round 9px);
+}
+#played-cards .card {
+    border-radius: 10px;
+}
+.back-card {
+    border-radius: 8px;
+    overflow: hidden;
+    background-clip: padding-box;
+}
+.back-card::after {
+    border-radius: 4px;
+}
