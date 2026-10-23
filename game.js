@@ -697,6 +697,16 @@ function trackPlay(whoKey, cards, combo, prevPlay) {
     state.lastPlayWasChop = chopped;
     if (!chopped) state.lastChop = null;
     if (chopped && typeof fxChop === 'function') fxChop(); // r80: hiệu ứng bàn khi có chặt heo/chặt chồng
+    // Phương án C: chặt heo là khoảnh khắc lớn — người chặt (hoặc người bị chặt) nói câu sinh tại chỗ theo đúng sự việc
+    if (chopped && state.lastChop && typeof aiSayNow === 'function' && typeof AI_NAMES !== 'undefined') {
+        try {
+            const lc = state.lastChop;
+            const ci = PLAYERS.indexOf(lc.chopper);
+            const vi = PLAYERS.indexOf(lc.victim);
+            if (lc.chopper !== 'player' && ci > 0) aiSayNow(ci, 'Bạn vừa chặt heo của ' + (AI_NAMES[lc.victim] || 'đối thủ') + ' và được đền ' + lc.amount + ' xu.', null);
+            else if (lc.victim !== 'player' && vi > 0) aiSayNow(vi, 'Bạn vừa bị ' + (AI_NAMES[lc.chopper] || 'đối thủ') + ' chặt heo, mất ' + lc.amount + ' xu đền, rất cay cú.', null);
+        } catch (e) {}
+    }
 }
 
 function playerPlay() {
@@ -809,7 +819,9 @@ function nextTurn() {
 
 function doPass() {
     state.passed[PLAYERS[state.turn]] = true; // ghi dấu đã bỏ lượt trong vòng này (áp cho cả bot lẫn người chơi)
-    speak(aiLine(state.turn, 'pass', tauntFor('pass')), state.turn);
+    const lp = state.lastPlay;
+    const bigPass = !!(lp && lp.combo && (lp.combo.type === 'quad' || lp.combo.type === 'double_straight' || (lp.cards || []).some(c => c.rank === '2')));
+    speak(aiLine(state.turn, bigPass ? 'passbig' : 'pass', tauntFor('pass')), state.turn);
     showPassLabel(PLAYERS[state.turn]);
     state.passCount++;
     if (state.passCount >= 3) {
@@ -910,6 +922,19 @@ function endGame(winnerIdx) {
     if (oc) oc.classList.toggle('player-won', winnerIdx === 0);
     toggleReview(false);
     overlay.classList.remove('hidden');
+
+    // Phương án C: kết ván — người thắng (hoặc bot suýt thắng khi người chơi thắng) nói câu sinh tại chỗ
+    try {
+        if (typeof aiSayNow === 'function') {
+            if (winnerIdx > 0) {
+                aiSayNow(winnerIdx, 'Bạn vừa THẮNG ván Tiến Lên này' + (state.toiTrang ? ' bằng TỚI TRẮNG' : '') + ', tổng ăn được ' + Math.abs(totalDelta[winnerKey]) + ' xu từ cả bàn.', null);
+            } else {
+                let best = -1, bestLeft = 99;
+                PLAYERS.forEach((k2, i2) => { if (i2 > 0 && state.hands[k2].length < bestLeft) { bestLeft = state.hands[k2].length; best = i2; } });
+                if (best > 0) aiSayNow(best, 'Bạn vừa THUA ván Tiến Lên này — người chơi thắng ván. Bạn chỉ còn ' + bestLeft + ' lá nữa thôi là thắng, cực kỳ tiếc và cay cú.', null);
+            }
+        }
+    } catch (e) {}
 
     updateButtons();
 }

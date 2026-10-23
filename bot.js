@@ -130,7 +130,7 @@ function botCommit(who, cardsToPlay) {
     state.passCount = 0;
 
     playClick();
-    speakPlay(combo, state.turn);
+    speakPlay(combo, state.turn, { prevCombo: prevPlay ? prevPlay.combo : null, remaining: hand.length });
     render();
     playFlyAnimation(who, flySrc);
     if (!state.lastPlayWasChop) showMessage(`${PLAYER_NAMES[who]} đánh ${formatCombo(combo)}`);

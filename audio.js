@@ -233,13 +233,25 @@ function cardSpeech(combo) {
 }
 
 // Đánh bài: 50% đọc số lá, 50% bốc câu cà khịa
-function speakPlay(combo, actorIdx) {
+function speakPlay(combo, actorIdx, ctx) {
     try {
         if (combo && Math.random() < 0.5) {
             const line = cardSpeech(combo);
             if (line) return speak(line, actorIdx);
         }
-        speak(aiLine(actorIdx, (combo && (combo.type === 'quad' || combo.type === 'double_straight')) ? 'big' : 'play', tauntFor(combo ? combo.type : 'single')), actorIdx);
+        let group = 'play';
+        if (combo && (combo.type === 'quad' || combo.type === 'double_straight')) group = 'big';
+        else if (ctx && ctx.remaining === 1) {
+            aiSayNow(actorIdx, 'Bạn vừa đánh và chỉ còn đúng 1 lá bài trên tay — sắp thắng ván này rồi.', tauntFor('big'));
+            return;
+        }
+        else if (ctx && ctx.remaining === 2) group = 'winsoon';
+        else if (ctx && combo && combo.cards && combo.cards.length) {
+            const hi = rankValue(combo.cards[combo.cards.length - 1]);
+            if (ctx.prevCombo && hi >= 9) group = 'press';
+            else if (!ctx.prevCombo && hi <= 5) group = 'probe';
+        }
+        speak(aiLine(actorIdx, group, tauntFor(combo ? combo.type : 'single')), actorIdx);
     } catch (e) {}
 }
 
@@ -272,7 +284,11 @@ const AI_PERSONA = {
 const AI_SITUATION = {
     play: 'Bạn vừa đánh ra một nước bài trong ván Tiến Lên.',
     big:  'Bạn vừa tung hàng khủng (tứ quý hoặc đôi thông) hoặc vừa chặt heo của đối thủ trong ván Tiến Lên.',
-    pass: 'Bạn bị đối thủ dồn ép nên phải bỏ lượt trong ván Tiến Lên, trong lòng đang cay cú.'
+    pass: 'Bạn bị đối thủ dồn ép nên phải bỏ lượt trong ván Tiến Lên, trong lòng đang cay cú.',
+    probe: 'Bạn vừa đánh một nước nhỏ thăm dò đối thủ trong ván Tiến Lên.',
+    press: 'Bạn vừa đánh một nước to đè lên nước của đối thủ trong ván Tiến Lên, đang áp đảo.',
+    winsoon: 'Bạn sắp thắng ván Tiến Lên này, trên tay chỉ còn đúng 2 lá bài.',
+    passbig: 'Bạn bị đối thủ tung hàng quá to dồn ép nên phải bỏ lượt trong ván Tiến Lên, cực kỳ cay cú.'
 };
 // Phong cách nói chuyện chọn thêm trong Cài đặt (mặc định: tính cách gốc của bot).
 // 'vangtuc' = chợ búa văng tục kiểu bạn bè thân chơi bài — Bảo yêu cầu.
@@ -299,7 +315,7 @@ const TAUNTS_TUC = {
     pass: ['Đụ mạ, cay vãi lồn', 'Chó má, nhường nè', 'Mẹ kiếp, đợi đó', 'Đéo mẹ, ván sau tính sổ']
 };
 function tucFallback(group) {
-    const arr = TAUNTS_TUC[group] || TAUNTS_TUC.play;
+    const arr = TAUNTS_TUC[group] || (group === 'passbig' ? TAUNTS_TUC.pass : TAUNTS_TUC.play);
     return arr[Math.floor(Math.random() * arr.length)];
 }
 
@@ -387,6 +403,62 @@ function aiRefill(botKey, group) {
     attempt(AI_CHAT_MODEL, persona, 0);
 }
 
+// ===== SINH CÂU TẠI CHỖ THEO NGỮ CẢNH (phương án C) =====
+// Dành cho khoảnh khắc lớn: chặt heo, còn 1 lá, thắng/thua ván. Game gửi kèm
+// "bản tin ván bài" (số lá từng người, mức cược, sự kiện) để câu bám đúng ván.
+const AI_NAMES = { player: 'người chơi', left: 'Hùng', top: 'Tuấn', right: 'Nam' };
+let aiNowBusy = false;
+let aiNowLast = 0;
+function aiContextLine() {
+    try {
+        const parts = PLAYERS.map(k => (AI_NAMES[k] || k) + ' còn ' + (state.hands[k] ? state.hands[k].length : '?') + ' lá');
+        return 'Tình hình ván Tiến Lên hiện tại: ' + parts.join(', ') + '. Mức cược ' + ((typeof settings !== 'undefined' && settings && settings.bet) || 100) + ' xu.';
+    } catch (e) { return ''; }
+}
+function aiSayNow(actorIdx, eventText, fallbackText) {
+    try {
+        const botKey = PLAYERS[actorIdx || 0];
+        if (!botKey || botKey === 'player' || !aiEnabled() || aiNowBusy || Date.now() - aiNowLast < 5000) {
+            if (fallbackText) speak(fallbackText, actorIdx);
+            return;
+        }
+        aiNowBusy = true; aiNowLast = Date.now();
+        const persona = aiPersonaFor(botKey);
+        const userMsg = aiContextLine() + ' Sự kiện vừa xảy ra: ' + eventText + ' Hãy viết đúng 1 câu cà khịa NGẮN bằng tiếng Việt (tối đa 12 từ) bám đúng sự kiện và tình hình này, nhắc tên người liên quan nếu có. Chỉ viết 1 câu duy nhất, không ngoặc kép, không emoji, chỉ tiếng Việt, không chêm từ nước ngoài.';
+        const attempt = (model, isRetry) => {
+            const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+            const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 5000) : null;
+            const fail = () => {
+                if (to) clearTimeout(to);
+                if (!isRetry) { attempt(AI_CHAT_MODEL_FALLBACK, true); }
+                else { aiNowBusy = false; if (fallbackText) speak(fallbackText, actorIdx); }
+            };
+            fetch(AI_CHAT_URL, {
+                method: 'POST',
+                headers: AI_CHAT_KEY ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_CHAT_KEY } : { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model,
+                    messages: [
+                        { role: 'system', content: persona },
+                        { role: 'user', content: userMsg }
+                    ],
+                    max_tokens: 70, temperature: 1.05
+                }),
+                signal: ctrl ? ctrl.signal : undefined
+            }).then(r => (r && r.ok) ? r.json() : null).then(j => {
+                if (to) clearTimeout(to);
+                const txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+                let line = txt ? String(txt).split('\n')[0].replace(/^[\d\.\-\*\u201C"\s]+/, '').replace(/[\u201D"]+$/, '').trim().replace(/đm+/gi, 'địt mẹ') : '';
+                if (line && line.length >= 4 && line.length <= 90 && aiForeignFree(line)) {
+                    aiNowBusy = false;
+                    speak(line, actorIdx);
+                } else fail();
+            }).catch(fail);
+        };
+        attempt(AI_CHAT_MODEL, false);
+    } catch (e) { aiNowBusy = false; if (fallbackText) speak(fallbackText, actorIdx); }
+}
+
 // Lấy 1 câu nói cho bot: ưu tiên câu AI trong kho; chưa có thì câu mẫu + nạp nền.
 function aiLine(actorIdx, group, fallback) {
     try {
@@ -411,5 +483,6 @@ function aiWarmUp() {
     ['left', 'top', 'right'].forEach((k, i) => {
         setTimeout(() => aiRefill(k, 'play'), 600 + i * 2600);
         setTimeout(() => aiRefill(k, 'big'), 2100 + i * 2600);
+        setTimeout(() => aiRefill(k, 'winsoon'), 3400 + i * 2600);
     });
 }
