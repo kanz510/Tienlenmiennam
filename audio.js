@@ -169,6 +169,30 @@ const AI_SITUATION = {
     big:  'Bạn vừa tung hàng khủng (tứ quý hoặc đôi thông) hoặc vừa chặt heo của đối thủ trong ván Tiến Lên.',
     pass: 'Bạn bị đối thủ dồn ép nên phải bỏ lượt trong ván Tiến Lên, trong lòng đang cay cú.'
 };
+// Phong cách nói chuyện chọn thêm trong Cài đặt (mặc định: tính cách gốc của bot).
+// 'vangtuc' = chợ búa văng tục kiểu bạn bè thân chơi bài — Bảo yêu cầu.
+const AI_STYLE = {
+    hien:    'Nói năng hiền lành, thân thiện, vui vẻ động viên đối thủ, tuyệt đối không chửi thề, không cà khịa gắt.',
+    vangtuc: 'Nói giọng chợ búa như bạn bè thân thiết ngồi chơi bài với nhau: văng tục tự nhiên, vừa phải để gây cười (kiểu đm, vãi, tổ sư, mẹ kiếp, chó má), chửi cái thế bài và sự đời chứ không xúc phạm nặng nề cá nhân, không kỳ thị vùng miền hay chủng tộc.',
+    rapper:  'Nói câu nào cũng gieo vần như đang rap, có nhịp điệu, chơi chữ.',
+    genz:    'Nói kiểu cà khịa Gen Z: lồng tiếng lóng và câu trend đang hot một cách tự nhiên, ví dụ: ê nha, keo quá, đỉnh nóc kịch trần, hết nước chấm, xịt keo cứng họng, ô dề, gì dợ, báo quá báo, flex nhẹ, SOS, khum, u là trời, mê chữ ê kéo dài. Hài hước, bắt trend, không gượng ép, mỗi câu chỉ lồng 1-2 tiếng lóng thôi.',
+    thayboi: 'Nói như thầy bói phán quẻ, mở đầu kiểu "ta xem quẻ thì...", phán về vận mệnh ván bài của đối thủ một cách huyền bí, hài hước.'
+};
+function aiPersonaFor(botKey) {
+    let p = AI_PERSONA[botKey] || '';
+    try {
+        if (typeof settings !== 'undefined' && settings) {
+            const field = 'persona' + botKey.charAt(0).toUpperCase() + botKey.slice(1);
+            const st = settings[field];
+            if (st && st !== 'goc' && AI_STYLE[st]) p += ' ' + AI_STYLE[st];
+        }
+    } catch (e) {}
+    return p;
+}
+function aiClearPool(botKey) {
+    Object.keys(aiPool).forEach(k => { if (k.indexOf(botKey + '|') === 0) delete aiPool[k]; });
+}
+
 const aiPool = {};       // "botKey|nhom" -> [câu, ...]
 let aiBusy = false;      // chỉ 1 request tại một thời điểm
 let aiLastCall = 0;      // mốc request gần nhất (cooldown chống spam)
@@ -179,7 +203,7 @@ function aiRefill(botKey, group) {
     if (!aiEnabled() || aiBusy) return;
     const now = Date.now();
     if (now - aiLastCall < 5000) return;
-    const persona = AI_PERSONA[botKey];
+    const persona = aiPersonaFor(botKey);
     if (!persona) return;
     aiBusy = true; aiLastCall = now;
     const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;

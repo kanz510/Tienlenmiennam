@@ -1002,6 +1002,9 @@ function syncSettingsForm() {
     setV('set-bet', settings.bet);
     setV('set-table', settings.tableColor);
     setV('set-back', settings.backStyle);
+    setV('set-persona-left', settings.personaLeft || 'goc');
+    setV('set-persona-top', settings.personaTop || 'goc');
+    setV('set-persona-right', settings.personaRight || 'goc');
     const rf = document.getElementById('btn-refill');
     if (rf) rf.disabled = state.money.player >= 100;
     // r61: khóa lựa chọn chưa sở hữu trong Cửa hàng
