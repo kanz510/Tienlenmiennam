@@ -152,12 +152,13 @@ function toggleSound() {
 
 
 // ===== BOT NÓI CHUYỆN BẰNG AI (xKiro) — chỉ giọng điệu, cách đánh bài giữ nguyên =====
-// Key do Bảo cung cấp, gắn thẳng theo ý Bảo (gói free). Game giữ "kho câu" cho
+// Key xKiro nằm ở trạm trung chuyển của Bảo (Worker), vì xKiro chặn trình
+// duyệt gọi chéo domain. Game giữ "kho câu" cho
 // từng bot: nạp nền từ trước, khi cần nói thì lấy ngay (không chờ mạng).
 // Hết kho / lỗi mạng / không có fetch -> tự dùng câu mẫu TAUNTS như cũ.
-const AI_CHAT_KEY = 'sk-xt-3f9d635ecec0668a30ddc477467f94d3d4873a77b9d7a7bc';
+const AI_CHAT_KEY = ''; // key nằm ở TRẠM TRUNG CHUYỂN (Cloudflare Worker), game không giữ key nữa
 const AI_CHAT_MODEL = 'qwen/qwen3.5-flash:free';
-const AI_CHAT_URL = 'https://api.xkiro.com/v1/chat/completions';
+const AI_CHAT_URL = 'https://soft-fog-4383.tanbaonguyen2409.workers.dev/'; // trạm trung chuyển của Bảo (gắn key + mở CORS rồi gọi xKiro hộ)
 const AI_PERSONA = {
     left:  'Bạn là Hùng Sấm Sét, dân chơi Tiến Lên Miền Nam tính hổ báo, hung hăng, nói cộc lốc, thích đe dọa đối thủ.',
     top:   'Bạn là Tuấn Cao Thủ, dân chơi Tiến Lên Miền Nam thâm trầm, ít nói, lạnh lùng khinh khỉnh, câu nào chất câu đó.',
@@ -172,7 +173,7 @@ const aiPool = {};       // "botKey|nhom" -> [câu, ...]
 let aiBusy = false;      // chỉ 1 request tại một thời điểm
 let aiLastCall = 0;      // mốc request gần nhất (cooldown chống spam)
 
-function aiEnabled() { return !!AI_CHAT_KEY && typeof fetch === 'function'; }
+function aiEnabled() { return !!AI_CHAT_URL && typeof fetch === 'function'; }
 
 function aiRefill(botKey, group) {
     if (!aiEnabled() || aiBusy) return;
@@ -185,7 +186,7 @@ function aiRefill(botKey, group) {
     const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 8000) : null;
     fetch(AI_CHAT_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_CHAT_KEY },
+        headers: AI_CHAT_KEY ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_CHAT_KEY } : { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             model: AI_CHAT_MODEL,
             messages: [
