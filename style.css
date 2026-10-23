@@ -1490,3 +1490,51 @@ body {
 #bubble-player.show { transform: translateY(-50%) scale(1); }
 #bubble-player::after { left: auto; right: -6px; top: 50%; bottom: auto; transform: translateY(-50%);
     border: 6px solid transparent; border-left-color: rgba(238,246,255,.5); border-right: 0; }
+
+/* ===== r118: sảnh chờ giao diện NGANG luôn (việc thử giao aider — nó trượt vì
+   model free chạm trần token giữa chừng + định sửa luật cũ trái kỷ luật,
+   nên bản này Muse tự làm theo đúng đề bài đã soạn) =====
+   Hai phần: (1) nội dung sảnh chia 2 cột ngang — trái: logo/tiêu đề/mô tả,
+   phải: cấp/XP/nút; (2) khi máy ở chiều dọc, #lobby tự xoay 90 độ bằng
+   đúng cơ chế của khung game (.rotate-90) để sảnh ngang giống hệt ván. */
+#lobby-content { display: grid; grid-template-columns: 1fr 1fr; column-gap: 30px; align-items: center;
+    justify-items: center; width: min(700px, 92vw); max-width: none; }
+#lobby-logo { grid-column: 1; grid-row: 1; }
+#lobby-title { grid-column: 1; grid-row: 2; }
+#lobby-sub { grid-column: 1; grid-row: 3; margin-bottom: 0; }
+#lobby-level { grid-column: 2; grid-row: 1; margin-top: 0; }
+#lobby .xp-bar { grid-column: 2; grid-row: 2; width: 100%; max-width: 260px; }
+#xp-text { grid-column: 2; grid-row: 3; }
+#btn-start { grid-column: 2; grid-row: 4; }
+#btn-continue { grid-column: 2; grid-row: 5; }
+#lobby .lobby-row { grid-column: 2; grid-row: 6; }
+/* Thu nhỏ khung nội dung cho lọt hẳn trong chiều cao 390 của khung ngang
+   (bản đầu cao 404 nên viền vàng bị cắt 7px mỗi phía ở chế độ dọc-xoay). */
+#lobby { padding: 10px; }
+#lobby-logo { width: 60px; height: 76px; margin-bottom: 6px; }
+#lobby-title { font-size: 26px; }
+#lobby-sub { line-height: 1.4; }
+/* Khung bị phình 402 dù tổng các hàng chỉ ~314: lưới bị giãn hàng mặc định
+   và #btn-gift chưa có ô nên tự lấp. Khóa align-content + xếp ô cho nút quà. */
+#lobby-content { align-content: center; row-gap: 2px; }
+#btn-gift { grid-column: 1; grid-row: 4; }
+/* Khung kính mờ xuyên thấu (Bảo muốn): hạ độ đậm nền khung + làm mờ nền
+   sảnh phía sau bằng backdrop-filter, viền vàng giữ nguyên. */
+/* Nâng lên phong cách LIQUID GLASS (Bảo thích kiểu này — cùng ngôn ngữ với
+   bong bóng chat r116): vệt sáng chéo, viền bắt ánh sáng, highlight cạnh
+   trên, nền tông tối bán trong để chữ vàng/trắng vẫn nổi. */
+#lobby-content { background: linear-gradient(150deg, rgba(255,255,255,.30), rgba(255,255,255,.09) 38%, rgba(10,42,34,.16) 72%, rgba(4,20,16,.32));
+    border: 1px solid rgba(255,255,255,.65);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 1px rgba(255,255,255,.12), inset 0 -18px 30px rgba(255,255,255,.06), 0 22px 55px rgba(0,0,0,.40);
+    backdrop-filter: blur(16px) saturate(180%); -webkit-backdrop-filter: blur(16px) saturate(180%);
+    animation: popIn .35s ease-out; overflow: hidden; }
+/* Vệt sáng chéo quét trên mặt kính (tĩnh) — dấu hiệu nhận biết liquid glass.
+   Kèm tắt panelGlow ở trên vì keyframes đó animate box-shadow, ghi đè
+   toàn bộ highlight kính (bản trước vì vậy mà nhìn gần như không đổi). */
+#lobby-content::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: linear-gradient(115deg, transparent 25%, rgba(255,255,255,.16) 42%, rgba(255,255,255,.04) 55%, transparent 72%); }
+@media (orientation: portrait) {
+    #lobby { left: 0; top: 0; right: auto; bottom: auto; width: 100vh; height: 100vw;
+        transform-origin: top left; transform: rotate(90deg) translateY(-100%); }
+    #lobby-content { width: min(700px, 92vh); }
+}
