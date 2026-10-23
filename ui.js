@@ -19,6 +19,25 @@ function clearPassLabels() { PLAYERS.forEach(k => { const el = document.getEleme
 
 const BUBBLE_IDS = { left: 'bubble-left', top: 'bubble-top', right: 'bubble-right' };
 const bubbleTimers = {};
+// Giữ bong bóng chữ ở lại cho khớp tiếng đọc: khi tiếng bắt đầu phát thì hẹn
+// tắt theo lúc tiếng kết thúc (dự phòng tối đa ~6 giây), thay vì tắt cố định 2 giây.
+function bubbleKeep(actorIdx, ms) {
+    const key = PLAYERS[actorIdx || 0];
+    const id = BUBBLE_IDS[key];
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    clearTimeout(bubbleTimers[key]);
+    bubbleTimers[key] = setTimeout(() => { el.classList.remove('show'); }, ms);
+}
+function bubbleSyncAudio(actorIdx, au) {
+    let done = false;
+    const fin = (ms) => { if (done) return; done = true; bubbleKeep(actorIdx, ms); };
+    try { au.addEventListener('ended', () => fin(350)); } catch (e) {}
+    setTimeout(() => fin(0), 6500);
+    bubbleKeep(actorIdx, 6500);
+}
+
 function showBubble(actorIdx, text) {
     const key = PLAYERS[actorIdx || 0];
     const id = BUBBLE_IDS[key];

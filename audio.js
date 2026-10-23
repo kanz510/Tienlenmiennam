@@ -117,7 +117,7 @@ function speakNative(text, actorIdx) {
     } catch (e) {}
 }
 
-function ttsPlay(url, rate) {
+function ttsPlay(url, rate, actorIdx) {
     try {
         if (ttsAudio) { try { ttsAudio.pause(); } catch (e) {} }
         const au = new Audio(url);
@@ -125,20 +125,20 @@ function ttsPlay(url, rate) {
         try { au.preservesPitch = false; } catch (e) {}
         try { au.webkitPreservesPitch = false; } catch (e) {}
         ttsAudio = au;
+        if (typeof bubbleSyncAudio === 'function') bubbleSyncAudio(actorIdx, au);
         const p = au.play();
         if (p && p.catch) p.catch(() => {});
     } catch (e) {}
 }
 
-function speakAI(text, actorIdx) {
-    const key = PLAYERS[actorIdx || 0];
-    const conf = TTS_VOICES[key] || TTS_VOICES.player;
+// Lấy file tiếng của 1 câu về lưu vào bộ nhớ đệm (dùng chung cho lúc nói và nạp trước).
+function ttsFetchToCache(text, conf) {
     const ck = conf.voice + '|' + text;
-    if (ttsCache[ck]) { ttsPlay(ttsCache[ck], conf.rate); return; }
-    if (typeof fetch !== 'function' || Date.now() < ttsFailUntil) { speakNative(text, actorIdx); return; }
+    if (ttsCache[ck]) return Promise.resolve(ttsCache[ck]);
+    if (typeof fetch !== 'function' || Date.now() < ttsFailUntil) return Promise.resolve(null);
     const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
     const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 7000) : null;
-    fetch(AI_CHAT_URL + 'tts', {
+    return fetch(AI_CHAT_URL + 'tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, voice: conf.voice }),
@@ -153,11 +153,38 @@ function speakAI(text, actorIdx) {
         ttsCache[ck] = url;
         ttsCacheKeys.push(ck);
         if (ttsCacheKeys.length > 40) { const oldK = ttsCacheKeys.shift(); try { URL.revokeObjectURL(ttsCache[oldK]); } catch (e) {} delete ttsCache[oldK]; }
-        ttsPlay(url, conf.rate);
+        return url;
     }).catch(() => {
         if (to) clearTimeout(to);
         ttsFailUntil = Date.now() + 30000;
-        speakNative(text, actorIdx);
+        return null;
+    });
+}
+
+// Nạp sẵn tiếng cho các câu vừa vào kho: tới lúc bot nói là phát ngay, khớp với chữ.
+const ttsPending = {};
+let ttsChain = Promise.resolve();
+function aiPrefetchTTS(botKey, lines) {
+    const conf = TTS_VOICES[botKey];
+    if (!conf || typeof fetch !== 'function') return;
+    (lines || []).slice(0, 2).forEach(line => {
+        const ck = conf.voice + '|' + line;
+        if (ttsCache[ck] || ttsPending[ck]) return;
+        ttsPending[ck] = 1;
+        ttsChain = ttsChain.then(() => ttsFetchToCache(line, conf)).then(() => { delete ttsPending[ck]; }).catch(() => { delete ttsPending[ck]; });
+    });
+}
+
+function speakAI(text, actorIdx) {
+    const key = PLAYERS[actorIdx || 0];
+    const conf = TTS_VOICES[key] || TTS_VOICES.player;
+    const ck = conf.voice + '|' + text;
+    if (ttsCache[ck]) { ttsPlay(ttsCache[ck], conf.rate, actorIdx); return; }
+    if (typeof fetch !== 'function' || Date.now() < ttsFailUntil) { speakNative(text, actorIdx); return; }
+    if (typeof bubbleKeep === 'function') bubbleKeep(actorIdx, 5000); // giữ chữ chờ tiếng về
+    ttsFetchToCache(text, conf).then(url => {
+        if (url) ttsPlay(url, conf.rate, actorIdx);
+        else speakNative(text, actorIdx);
     });
 }
 
@@ -317,6 +344,7 @@ function aiRefill(botKey, group) {
                 aiBusy = false;
                 const k = botKey + '|' + group;
                 aiPool[k] = (aiPool[k] || []).concat(lines).slice(0, 6);
+                try { aiPrefetchTTS(botKey, lines); } catch (e) {}
             } else if (stage === 0) {
                 attempt(AI_CHAT_MODEL, safePersona, 1); // bị bộ lọc chặn -> thử lại model chính bằng giọng nhẹ
             } else if (stage === 1) {
