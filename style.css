@@ -1438,3 +1438,41 @@ body {
 #bubble-player.show { transform: translateY(0) scale(1); }
 #bubble-player::after { left: 26px; right: auto; top: 100%; bottom: auto; transform: none;
     border: 6px solid transparent; border-top-color: #fffdf4; border-bottom: 0; }
+
+
+/* ===== r116: thoại Tuấn hết cấn bài giữa bàn + tay bài người chơi thẳng hàng, nâng lên =====
+   1) Bong bóng bot trên (Tuấn) trước treo thẳng xuống dưới avatar nên câu
+   dài tràn xuống đè bài đã đánh giữa bàn. Nay neo chéo góc dưới-phải của
+   avatar (về phía Nam): đo thật cho thấy không chạm bài giữa bàn, nút Ván
+   mới, cụm Nam/Hùng hay vệt bài cũ. Đuôi chỉ lên về phía avatar.
+   2) Tay bài người chơi bỏ hiệu ứng cong 3D (lá hai đầu xoay Y và võng
+   xuống 7px làm hàng bài trông nghiêng) — mọi lá thẳng một hàng.
+   3) Hàng bài nâng lên 8px (bottom 60 -> 68 ở tier-short). */
+.bot-top .bubble { left: calc(100% + 6px); right: auto; top: calc(100% + 2px);
+    transform: scale(.7); transform-origin: top left; }
+.bot-top .bubble.show { transform: scale(1); }
+.bot-top .bubble::after { left: 16px; right: auto; top: -6px; transform: none;
+    border: 5px solid transparent; border-bottom-color: #fffdf4; border-top: 0; }
+.player-cards .card { transform: none; }
+#game-container.tier-short .player-cards { bottom: 68px; }
+
+
+/* ===== r116b: nền bong bóng chat kiểu liquid glass =====
+   Kính mờ trong suốt: làm mờ + tăng bão hòa hậu cảnh phía sau bong bóng,
+   viền sáng, vệt sáng mặt kính ở cạnh trên, bóng đổ mềm. Chữ chuyển sang
+   trắng (có bóng chữ nhẹ) cho dễ đọc trên nền kính tối. Đuôi bong bóng
+   của cả 4 vị trí đổi sang tông kính tương ứng. */
+.bubble {
+    background: linear-gradient(135deg, rgba(255,255,255,.32), rgba(255,255,255,.13) 55%, rgba(255,255,255,.22));
+    -webkit-backdrop-filter: blur(14px) saturate(170%);
+    backdrop-filter: blur(14px) saturate(170%);
+    border: 1px solid rgba(255,255,255,.5);
+    box-shadow: 0 8px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -10px 18px rgba(255,255,255,.07);
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+.bubble::after { border-bottom-color: rgba(238,246,255,.5); }
+.bot-left .bubble::after { border-right-color: rgba(238,246,255,.5); }
+.bot-right .bubble::after { border-left-color: rgba(238,246,255,.5); }
+.bot-top .bubble::after { border-bottom-color: rgba(238,246,255,.5); }
+#bubble-player::after { border-top-color: rgba(238,246,255,.5); }
