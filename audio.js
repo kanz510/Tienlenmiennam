@@ -158,6 +158,7 @@ function toggleSound() {
 // Hết kho / lỗi mạng / không có fetch -> tự dùng câu mẫu TAUNTS như cũ.
 const AI_CHAT_KEY = ''; // key nằm ở TRẠM TRUNG CHUYỂN (Cloudflare Worker), game không giữ key nữa
 const AI_CHAT_MODEL = 'qwen/qwen3.5-flash:free';
+const AI_CHAT_MODEL_FALLBACK = 'mistralai/mistral-large-2512'; // Qwen bị bộ lọc chặn câu tục thì Mistral (thoáng hơn) nạp thay
 const AI_CHAT_URL = 'https://soft-fog-4383.tanbaonguyen2409.workers.dev/'; // trạm trung chuyển của Bảo (gắn key + mở CORS rồi gọi xKiro hộ)
 const AI_PERSONA = {
     left:  'Bạn là Hùng Sấm Sét, dân chơi Tiến Lên Miền Nam tính hổ báo, hung hăng, nói cộc lốc, thích đe dọa đối thủ.',
@@ -173,15 +174,15 @@ const AI_SITUATION = {
 // 'vangtuc' = chợ búa văng tục kiểu bạn bè thân chơi bài — Bảo yêu cầu.
 const AI_STYLE = {
     hien:    'Nói năng hiền lành, thân thiện, vui vẻ động viên đối thủ, tuyệt đối không chửi thề, không cà khịa gắt.',
-    vangtuc: 'Nói giọng chợ búa như bạn bè thân thiết ngồi chơi bài với nhau: văng tục tự nhiên, vừa phải để gây cười (kiểu đm, vãi, tổ sư, mẹ kiếp, chó má), chửi cái thế bài và sự đời chứ không xúc phạm nặng nề cá nhân, không kỳ thị vùng miền hay chủng tộc.',
+    vangtuc: 'Nói giọng chợ búa như bạn bè thân thiết ngồi chơi bài với nhau: văng tục tự nhiên, vừa phải để gây cười bằng các từ viết ĐẦY ĐỦ như đù má, địt mẹ, đéo mẹ, đụ mạ, vãi, tổ sư, mẹ kiếp, chó má — mọi từ chửi phải viết đầy đủ, tuyệt đối không viết tắt kiểu đm vì game sẽ đọc thành tiếng. Chửi cái thế bài và sự đời cho vui, không xúc phạm nặng nề cá nhân, không kỳ thị.',
     rapper:  'Nói câu nào cũng gieo vần như đang rap, có nhịp điệu, chơi chữ.',
     genz:    'Nói kiểu cà khịa Gen Z: lồng tiếng lóng và câu trend đang hot một cách tự nhiên, ví dụ: ê nha, keo quá, đỉnh nóc kịch trần, hết nước chấm, xịt keo cứng họng, ô dề, gì dợ, báo quá báo, flex nhẹ, SOS, khum, u là trời, mê chữ ê kéo dài. Hài hước, bắt trend, không gượng ép, mỗi câu chỉ lồng 1-2 tiếng lóng thôi.',
     thayboi: 'Nói như thầy bói phán quẻ, mở đầu kiểu "ta xem quẻ thì...", phán về vận mệnh ván bài của đối thủ một cách huyền bí, hài hước.'
 };
 // MỨC ĐỘ CHỬI — phủ lên MỌI bot, MỌI tính cách (trừ khi tắt). Bảo yêu cầu câu nào cũng tục.
 const AI_SWEAR = {
-    vua: 'Nói giọng chợ búa như bạn bè thân chơi bài: thỉnh thoảng văng tục tự nhiên để gây cười (đm, vãi, tổ sư, chó má).',
-    tuc: 'BẮT BUỘC: câu nào mở miệng cũng phải có ít nhất 2 từ chửi thề chợ búa (đm, địt mẹ, vãi lồn, tổ sư, chó má, mẹ kiếp, con mẹ nó), câu nào cũng tục, không được sót câu nào, chửi phong phú không lặp lại. Chửi cái thế bài và đời cho vui kiểu bạn bè thân, không kỳ thị, không nhắm vào đặc điểm cá nhân nhạy cảm.'
+    vua: 'Nói giọng chợ búa như bạn bè thân chơi bài: thỉnh thoảng văng tục tự nhiên để gây cười (đù má, địt mẹ, vãi, tổ sư, chó má — viết đầy đủ, không viết tắt).',
+    tuc: 'Câu nào mở miệng cũng phải văng tục chợ búa bằng từ viết ĐẦY ĐỦ (đù má, địt mẹ, đỉ mẹ, đéo mẹ, địt con mẹ, đụ mạ, vãi, tổ sư, chó má, mẹ kiếp), không sót câu nào, chửi phong phú không lặp lại, tuyệt đối không viết tắt kiểu đm vì game đọc thành tiếng. Chửi cho vui kiểu bạn bè thân, không kỳ thị, không nhắm đặc điểm cá nhân nhạy cảm.'
 };
 function aiSwearLevel() {
     try { if (typeof settings !== 'undefined' && settings && settings.swearLevel) return settings.swearLevel; } catch (e) {}
@@ -189,9 +190,9 @@ function aiSwearLevel() {
 }
 // Câu mẫu tục dùng khi hết kho câu AI ở mức chửi cao nhất — giữ đúng tông chợ búa.
 const TAUNTS_TUC = {
-    play: ['Đm, đánh nè con', 'Vãi lồn, đỡ đi nè', 'Tổ sư nó, to chưa', 'Chó má, chặn thử coi', 'Mẹ kiếp, qua được không'],
-    big:  ['Địt mẹ, hàng khủng nè', 'Đm, chặt chết mẹ mày chưa', 'Vãi lồn, tứ quý nè con', 'Tổ sư, bố mày tới rồi nè'],
-    pass: ['Đm, cay vãi lồn', 'Chó má, nhường nè', 'Mẹ kiếp, đợi đó', 'Địt, ván sau tính sổ']
+    play: ['Đù má, đánh nè con', 'Vãi lồn, đỡ đi nè', 'Tổ sư nó, to chưa', 'Chó má, chặn thử coi', 'Mẹ kiếp, qua được không'],
+    big:  ['Địt mẹ, hàng khủng nè', 'Địt con mẹ, chặt chết mày chưa', 'Vãi lồn, tứ quý nè con', 'Tổ sư, bố mày tới rồi nè'],
+    pass: ['Đụ mạ, cay vãi lồn', 'Chó má, nhường nè', 'Mẹ kiếp, đợi đó', 'Đéo mẹ, ván sau tính sổ']
 };
 function tucFallback(group) {
     const arr = TAUNTS_TUC[group] || TAUNTS_TUC.play;
@@ -228,30 +229,42 @@ function aiRefill(botKey, group) {
     const persona = aiPersonaFor(botKey);
     if (!persona) return;
     aiBusy = true; aiLastCall = now;
-    const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-    const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 8000) : null;
-    fetch(AI_CHAT_URL, {
-        method: 'POST',
-        headers: AI_CHAT_KEY ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_CHAT_KEY } : { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            model: AI_CHAT_MODEL,
-            messages: [
-                { role: 'system', content: persona },
-                { role: 'user', content: (AI_SITUATION[group] || AI_SITUATION.play) + ' Viết đúng 3 câu cà khịa NGẮN bằng tiếng Việt (mỗi câu tối đa 9 từ), mỗi câu một dòng, không đánh số, không ngoặc kép, không emoji, ba câu khác nhau, tránh câu sáo rỗng.' }
-            ],
-            max_tokens: 130, temperature: 1.05
-        }),
-        signal: ctrl ? ctrl.signal : undefined
-    }).then(r => (r && r.ok) ? r.json() : null).then(j => {
-        if (to) clearTimeout(to);
-        aiBusy = false;
-        const txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
-        if (!txt) return;
-        const lines = String(txt).split('\n').map(s => s.replace(/^[\d\.\-\*\u201C"\s]+/, '').replace(/[\u201D"]+$/, '').trim()).filter(s => s.length >= 4 && s.length <= 60);
-        if (!lines.length) return;
-        const k = botKey + '|' + group;
-        aiPool[k] = (aiPool[k] || []).concat(lines).slice(0, 6);
-    }).catch(() => { if (to) clearTimeout(to); aiBusy = false; });
+    const userMsg = (AI_SITUATION[group] || AI_SITUATION.play) + ' Viết đúng 3 câu cà khịa NGẮN bằng tiếng Việt (mỗi câu tối đa 9 từ), mỗi câu một dòng, không đánh số, không ngoặc kép, không emoji, ba câu khác nhau, tránh câu sáo rỗng.';
+    const attempt = (model, isRetry) => {
+        const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 8000) : null;
+        const done = (lines) => {
+            if (to) clearTimeout(to);
+            if (lines && lines.length) {
+                aiBusy = false;
+                const k = botKey + '|' + group;
+                aiPool[k] = (aiPool[k] || []).concat(lines).slice(0, 6);
+            } else if (!isRetry) {
+                attempt(AI_CHAT_MODEL_FALLBACK, true); // model chính lỗi/bị lọc chặn -> model dự phòng thoáng hơn
+            } else {
+                aiBusy = false;
+            }
+        };
+        fetch(AI_CHAT_URL, {
+            method: 'POST',
+            headers: AI_CHAT_KEY ? { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AI_CHAT_KEY } : { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model,
+                messages: [
+                    { role: 'system', content: persona },
+                    { role: 'user', content: userMsg }
+                ],
+                max_tokens: 130, temperature: 1.05
+            }),
+            signal: ctrl ? ctrl.signal : undefined
+        }).then(r => (r && r.ok) ? r.json() : null).then(j => {
+            const txt = j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content;
+            if (!txt) return done(null);
+            const lines = String(txt).split('\n').map(s => s.replace(/^[\d\.\-\*\u201C"\s]+/, '').replace(/[\u201D"]+$/, '').trim()).map(s => s.replace(/đm+/gi, 'địt mẹ')).filter(s => s.length >= 4 && s.length <= 60);
+            done(lines.length ? lines : null);
+        }).catch(() => done(null));
+    };
+    attempt(AI_CHAT_MODEL, false);
 }
 
 // Lấy 1 câu nói cho bot: ưu tiên câu AI trong kho; chưa có thì câu mẫu + nạp nền.
