@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240">
+<defs>
+ <linearGradient id="felt" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0c7664"/><stop offset=".5" stop-color="#075448"/><stop offset="1" stop-color="#03362f"/></linearGradient>
+ <pattern id="weave" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0h8M0 4h8" stroke="#b4e0bd" stroke-opacity=".035" stroke-width="1"/><path d="M0 0v8M4 0v8" stroke="#001d19" stroke-opacity=".12" stroke-width="1"/></pattern>
+ <radialGradient id="light" cx=".5" cy=".36" r=".75"><stop stop-color="#77d9b4" stop-opacity=".19"/><stop offset="1" stop-color="#001a19" stop-opacity=".35"/></radialGradient>
+</defs>
+<rect width="240" height="240" fill="url(#felt)"/><rect width="240" height="240" fill="url(#weave)"/><rect width="240" height="240" fill="url(#light)"/>
+<g fill="none" stroke="#e5c57a" stroke-opacity=".12" stroke-width="1.2">
+ <rect x="12" y="12" width="216" height="216" rx="18"/>
+ <rect x="17" y="17" width="206" height="206" rx="15"/>
+ <path d="M120 22l9 9-9 9-9-9z M120 200l9 9-9 9-9-9z M22 120l9-9 9 9-9 9z M200 120l9-9 9 9-9 9z"/>
+ <circle cx="120" cy="120" r="54"/><circle cx="120" cy="120" r="48"/>
+</g>
+</svg>
