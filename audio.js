@@ -521,6 +521,19 @@ function aiRefill(botKey, group) {
 const AI_NAMES = { player: 'người chơi', left: 'Hùng', top: 'Tuấn', right: 'Nam' };
 let aiNowBusy = false;
 let aiNowLast = 0;
+// Bộ nhớ ngắn cho các cuộc tám chuyện: giúp bot nối mạch, tránh tự lặp chủ đề.
+const aiBanterHistory = [];
+function aiBanterRemember(name, line) {
+    const clean = String(line || '').trim();
+    if (!clean) return;
+    aiBanterHistory.push(name + ': ' + clean);
+    while (aiBanterHistory.length > 8) aiBanterHistory.shift();
+}
+function aiBanterContext() {
+    return aiBanterHistory.length
+        ? ' Những câu tám chuyện vừa nói gần đây (hãy nối tiếp tự nhiên, đừng nhắc lại nguyên văn): ' + aiBanterHistory.join(' | ') + '.'
+        : ' Đây là lúc mở chuyện mới: chọn một chủ đề đời thường vui nhộn, đừng nói về nước bài.';
+}
 // Mô tả một bộ bài thành chữ trung tính cho AI dễ bám ngữ cảnh: "đôi Át", "sảnh 6 lá tới K"...
 function aiDescribeCombo(combo, cards) {
     try {
@@ -564,7 +577,12 @@ function aiSayNow(actorIdx, eventText, fallbackText, onSaid, urgent) {
         }
         aiNowBusy = true; aiNowLast = Date.now();
         const persona = aiPersonaFor(botKey);
-        const userMsg = aiContextLine() + ' Sự kiện vừa xảy ra: ' + eventText + ' Hãy viết đúng 1 câu cà khịa NGẮN bằng tiếng Việt (tối đa 12 từ) bám đúng sự kiện và tình hình này, nhắc tên người liên quan nếu có. Chỉ viết 1 câu duy nhất, không ngoặc kép, không emoji, chỉ tiếng Việt, không chêm từ nước ngoài.';
+        const isBanter = /^TÁM CHUYỆN:/.test(String(eventText || ''));
+        const banterContext = isBanter ? aiBanterContext() : '';
+        const userMsg = (isBanter ? '' : aiContextLine()) + ' Sự kiện vừa xảy ra: ' + eventText + banterContext +
+            (isBanter
+                ? ' Hãy nói như một người bạn đang ngồi chơi cùng bàn: có thể kể chuyện ăn uống, ngủ nghỉ, tiền bạc, tình yêu, công việc, chuyện vô tri hoặc trêu bạn bè. Nếu có lịch sử thì phản hồi/nối tiếp đúng mạch; nếu chưa có thì tự mở chủ đề mới. Mỗi bot giữ cá tính riêng. Đừng cố lôi bài bạc vào khi không cần. Viết đúng 1 câu tiếng Việt tự nhiên, hài hước, tối đa 18 từ; không lặp câu trước, không ngoặc kép, không emoji, không chêm từ nước ngoài.'
+                : ' Hãy viết đúng 1 câu cà khịa NGẮN bằng tiếng Việt (tối đa 12 từ) bám đúng sự kiện và tình hình này, nhắc tên người liên quan nếu có. Chỉ viết 1 câu duy nhất, không ngoặc kép, không emoji, chỉ tiếng Việt, không chêm từ nước ngoài.');
         const attempt = (model, isRetry) => {
             const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
             const to = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch (e) {} }, 5000) : null;
@@ -592,6 +610,7 @@ function aiSayNow(actorIdx, eventText, fallbackText, onSaid, urgent) {
                 if (line && line.length >= 4 && line.length <= 90 && aiForeignFree(line)) {
                     aiNowBusy = false;
                     speak(line, actorIdx);
+                    if (isBanter) aiBanterRemember(AI_NAMES[botKey] || botKey, line);
                     if (onSaid) { try { onSaid(line); } catch (e) {} }
                 } else fail();
             }).catch(fail);
@@ -645,7 +664,7 @@ function banterTick() {
     const mode = Math.random();
     if (mode < 0.45) {
         // A chọc B, B đáp trả (70%), A chốt hạ (35%)
-        aiSayNow(a, 'Giữa ván đang rảnh, hãy chọc ghẹo ' + AI_NAMES[bKey] + ' một câu cho vui (hắn đang còn ' + state.hands[bKey].length + ' lá bài trên tay).', null, (line) => {
+        aiSayNow(a, 'TÁM CHUYỆN: Mở lời với ' + AI_NAMES[bKey] + ' bằng một câu tự nhiên, có thể kể chuyện đời thường hoặc trêu bạn bè; không bắt buộc nhắc bài.', null, (line) => {
             if (Math.random() > 0.7) return;
             setTimeout(() => {
                 try {
@@ -661,7 +680,7 @@ function banterTick() {
         aiSayNow(a, 'Giữa ván đang rảnh, hãy quay sang cà khịa người chơi một câu cho vui (người chơi đang còn ' + state.hands.player.length + ' lá bài trên tay).', null);
     } else {
         // Nói xàm xàm tầm bậy cho vui
-        aiSayNow(a, 'Hãy nói một câu nhảm nhí, xàm xàm, tầm bậy bất thình lình cho cả bàn cười, không cần liên quan gì tới ván bài (than thở đời, khoe khoang, triết lý vớ vẩn...).', null);
+        aiSayNow(a, 'TÁM CHUYỆN: ' + (aiBanterHistory.length ? 'Nói tiếp mạch chuyện gần đây bằng một ý mới hoặc bẻ lái bất ngờ.' : 'Tự mở một chủ đề đời thường vô tri, hài hước như ăn uống, ngủ nghỉ, tiền bạc, tình yêu, công việc hoặc triết lý xàm.') + ' Không cần liên quan ván bài.', null);
     }
 }
 
