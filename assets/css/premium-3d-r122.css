@@ -205,3 +205,117 @@ body {
 #game-container .bot-area,
 #game-container .player-area,
 #game-container .table-area { min-width: 0; min-height: 0; }
+
+
+/* r124 — stronger premium 2.5D finish, kept additive and layout-safe. */
+#game-container {
+  isolation: isolate;
+  border: 1px solid rgba(255, 225, 157, .78);
+  border-radius: 20px;
+  background-clip: padding-box;
+}
+#game-container .table-area {
+  position: relative;
+  overflow: visible;
+  border-radius: 16px;
+}
+#game-container .table-area::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border: 1px solid rgba(255, 224, 155, .12);
+  border-radius: 19px;
+  pointer-events: none;
+  box-shadow: 0 0 24px rgba(73, 224, 183, .08);
+}
+#game-container .bot-info,
+#game-container .player-info {
+  border-radius: 10px;
+  background:
+    linear-gradient(115deg, rgba(255,255,255,.08), transparent 34%),
+    linear-gradient(180deg, #153b35 0%, #092622 55%, #041819 100%);
+}
+#game-container .avatar-wrap .avatar {
+  outline: 1px solid rgba(255, 236, 184, .28);
+  outline-offset: 2px;
+}
+#game-container .player-cards .card {
+  transform-origin: 50% 100%;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+#game-container .player-cards .card:hover {
+  transform: translateY(-7px) scale(1.025);
+  z-index: 20;
+}
+#game-container .player-cards .card.selected {
+  transform: translateY(-8px);
+  border-color: #f5d987;
+}
+#game-container .btn-play,
+#game-container .btn-pass,
+#game-container .btn-new-game,
+#lobby button {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+#game-container .btn-play::before,
+#game-container .btn-pass::before,
+#game-container .btn-new-game::before,
+#lobby button::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto;
+  height: 42%;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,.24), rgba(255,255,255,0));
+  pointer-events: none;
+  z-index: -1;
+}
+#game-container .btn-play:hover:not(:disabled),
+#game-container .btn-pass:hover:not(:disabled),
+#game-container .btn-new-game:hover:not(:disabled),
+#lobby button:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+#lobby-content {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+}
+#lobby-content::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(255, 226, 161, .24);
+  border-radius: 16px;
+  pointer-events: none;
+}
+#lobby-logo img {
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 12px 8px rgba(0,0,0,.48));
+}
+#lobby-title {
+  background: linear-gradient(180deg, #fff8db 0%, #f3d58a 48%, #bd8c3e 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+#overlay-content,
+.modal-box {
+  border-radius: 18px;
+  background-image:
+    linear-gradient(145deg, rgba(255,255,255,.35), transparent 38%),
+    linear-gradient(145deg, #fdf8e9, #e4d5b4 52%, #b99a60);
+}
+@media (hover: none) {
+  #game-container .player-cards .card:hover {
+    transform: none;
+    filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container .player-cards .card { will-change: auto; }
+}
