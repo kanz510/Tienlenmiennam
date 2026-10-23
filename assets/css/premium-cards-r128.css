@@ -1,0 +1,80 @@
+/* r128 — premium card-face finish and center-play staging; CSS-only, no gameplay changes. */
+#game-container .player-cards .card,
+#game-container #played-cards .card,
+#game-container #played-ghost .card {
+  overflow: hidden;
+  border: 1px solid rgba(221, 190, 117, .9);
+  border-radius: 7px;
+  background-color: #fffdf7;
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.98) 0%, rgba(255,253,246,.98) 48%, rgba(239,232,215,.98) 100%);
+  box-shadow:
+    0 7px 12px rgba(0,0,0,.26),
+    0 2px 2px rgba(0,0,0,.16),
+    inset 0 0 0 2px rgba(255,255,255,.9),
+    inset 0 0 0 3px rgba(190,155,79,.18);
+  isolation: isolate;
+}
+#game-container .player-cards .card::before,
+#game-container #played-cards .card::before,
+#game-container #played-ghost .card::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  z-index: 0;
+  border: 1px solid rgba(174,139,66,.19);
+  border-radius: 4px;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,.35), transparent 35%, transparent 75%, rgba(198,167,104,.08));
+}
+#game-container .player-cards .card .corner,
+#game-container #played-cards .card .corner {
+  z-index: 2;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.7));
+}
+#game-container .player-cards .card .suit-big,
+#game-container #played-cards .card .suit-big {
+  z-index: 2;
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.75));
+}
+#game-container .player-cards .card {
+  transform-origin: 50% 100%;
+  transition: transform .18s cubic-bezier(.2,.75,.25,1), box-shadow .18s ease, filter .18s ease;
+}
+#game-container .player-cards .card:hover {
+  filter: brightness(1.035);
+  box-shadow: 0 12px 18px rgba(0,0,0,.32), 0 0 0 1px rgba(255,226,157,.8), inset 0 0 0 2px #fff;
+}
+#game-container .player-cards .card.selected {
+  border-color: #ffe6a1;
+  box-shadow: 0 0 0 2px rgba(255,219,128,.78), 0 12px 20px rgba(0,0,0,.4), 0 0 18px rgba(255,205,92,.3), inset 0 0 0 2px #fff;
+  filter: brightness(1.045);
+}
+#game-container .table-area {
+  perspective: 900px;
+}
+#game-container #played-cards {
+  position: relative;
+  z-index: 2;
+  padding: 8px 10px 12px;
+  border-radius: 16px;
+  background: radial-gradient(ellipse at 50% 40%, rgba(0,0,0,.12), transparent 72%);
+  filter: drop-shadow(0 8px 8px rgba(0,0,0,.12));
+}
+#game-container #played-cards .card {
+  transform: rotateX(2deg);
+  transform-origin: 50% 100%;
+}
+#game-container #played-cards .card + .card {
+  margin-left: -25px;
+}
+#game-container.tier-short #played-cards .card + .card { margin-left: -20px; }
+#game-container.tier-tiny #played-cards .card + .card { margin-left: -15px; }
+#game-container #last-play-info {
+  position: relative;
+  z-index: 3;
+  box-shadow: 0 4px 10px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.12);
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container .player-cards .card { transition: none; }
+}
