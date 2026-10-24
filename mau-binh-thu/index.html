@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mậu Binh</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: #0f172a; color: #fff;
+    font-family: -apple-system, sans-serif;
+    max-width: 520px; margin: 0 auto; padding: 12px;
+    user-select: none; -webkit-user-select: none;
+  }
+  h1 { text-align: center; font-size: 22px; margin-bottom: 4px; }
+  .coins { text-align: center; color: #fde68a; font-size: 16px; margin-bottom: 10px; }
+  .bots { display: flex; gap: 8px; margin-bottom: 10px; }
+  .bot {
+    flex: 1; background: #1e293b; border-radius: 10px; padding: 8px 6px;
+    text-align: center; font-size: 13px; line-height: 1.5;
+  }
+  .bot .av { font-size: 22px; }
+  .bot .dc { color: #fde68a; font-weight: bold; }
+  #msg {
+    text-align: center; min-height: 22px; font-size: 14px; margin-bottom: 8px;
+  }
+  #msg.warn { color: #f87171; font-weight: bold; }
+  #msg.win { color: #4ade80; font-weight: bold; }
+  .chi-label { font-size: 13px; color: #94a3b8; margin: 8px 0 4px; }
+  .row { display: flex; gap: 6px; min-height: 62px; }
+  .row.lost { opacity: 0.55; }
+  .card {
+    width: 44px; height: 62px; background: #fff; border-radius: 6px;
+    color: #111; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+  }
+  .card.red { color: #dc2626; }
+  .card .r { font-size: 15px; }
+  .card .s { font-size: 20px; line-height: 1; }
+  .card.sel { outline: 3px solid #facc15; transform: translateY(-6px); }
+  .card.mini { width: 32px; height: 46px; }
+  .card.mini .r { font-size: 11px; }
+  .card.mini .s { font-size: 15px; }
+  .back {
+    width: 44px; height: 62px; border-radius: 6px;
+    background: repeating-linear-gradient(45deg, #065f46 0 6px, #047857 6px 12px);
+    border: 2px solid #f59e0b;
+  }
+  .back.mini { width: 32px; height: 46px; }
+  .mark { font-size: 18px; margin-left: 2px; align-self: center; }
+  .btns { display: flex; gap: 8px; margin-top: 14px; }
+  button {
+    flex: 1; border: none; border-radius: 999px; padding: 13px 6px;
+    font-size: 15px; font-weight: bold; color: #fff;
+  }
+  .b-auto { background: #16a34a; }
+  .b-go { background: #f97316; }
+  .b-new { background: #2563eb; }
+  .rules { font-size: 12px; color: #94a3b8; text-align: center; margin-top: 14px; line-height: 1.6; }
+  .bot-chis { background: #1e293b; border-radius: 10px; padding: 8px; margin-bottom: 10px; }
+  .bot-chis .bname { font-size: 14px; margin-bottom: 4px; }
+  .bot-chis .bname .tot { color: #fde68a; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>🃏 MẬU BINH</h1>
+  <div class="coins">💰 Bạn: <span id="myCoins">5000</span> xu (100 xu/chi)</div>
+
+  <div class="bots" id="bots"></div>
+  <div id="msg"></div>
+
+  <div id="botChis"></div>
+
+  <div id="playerArea">
+    <div class="chi-label">Chi đầu (3 lá)</div>
+    <div class="row" id="row0"></div>
+    <div class="chi-label">Chi giữa (5 lá)</div>
+    <div class="row" id="row1"></div>
+    <div class="chi-label">Chi cuối (5 lá)</div>
+    <div class="row" id="row2"></div>
+  </div>
+
+  <div class="btns" id="btns"></div>
+
+  <div class="rules">
+    Chạm 1 lá rồi chạm lá khác để đổi chỗ. Chi cuối ≥ chi giữa ≥ chi đầu, không là binh lủng.<br>
+    Thắng 1 chi +1, sập hầm (thắng cả 3) +6, binh lủng −6. Tới trắng tính gọn +12 chi.
+  </div>
+
+<script>
+  // ---------- Bài + chấm điểm (thang thống nhất cho cả 3 lá và 5 lá) ----------
+  const SUITS = ['♠', '♥', '♦', '♣'];
+  const RANKS = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+  const RV = r => RANKS.indexOf(r) + 2;
+  const RED = s => s === '♥' || s === '♦';
+  const K = 759375;
+
+  function ev(cards) {
+    const rs = cards.map(c => RV(c.r)), n = rs.length, cnt = {};
+    rs.forEach(v => cnt[v] = (cnt[v] || 0) + 1);
+    const g = Object.entries(cnt).map(([v, k]) => [+v, k]).sort((a, b) => b[1] - a[1] || b[0] - a[0]);
+    let tie = g.map(x => x[0]);
+    const flush = n === 5 && cards.every(c => c.s === cards[0].s);
+    let straight = false;
+    if (n === 5 && g.length === 5) {
+      const s = [...rs].sort((a, b) => b - a);
+      if (s[0] - s[4] === 4) { straight = true; tie = [s[0]]; }
+      else if (s.join(',') === '14,5,4,3,2') { straight = true; tie = [5]; }
+    }
+    const m = g[0][1];
+    let ct;
+    if (straight && flush) ct = 8;
+    else if (m === 4) ct = 7;
+    else if (m === 3 && g.length === 2) ct = 6;
+    else if (flush) ct = 5;
+    else if (straight) ct = 4;
+    else if (m === 3) ct = 3;
+    else if (m === 2) ct = g[1][1] === 2 ? 2 : 1;
+    else ct = 0;
+    return ct * K + tie.reduce((a, x, i) => a + x * 15 ** (4 - i), 0);
+  }
+
+  function combos(arr, k) {
+    const out = [];
+    (function rec(start, cur) {
+      if (cur.length === k) { out.push(cur.slice()); return; }
+      for (let i = start; i <= arr.length - (k - cur.length); i++) {
+        cur.push(arr[i]); rec(i + 1, cur); cur.pop();
+      }
+    })(0, []);
+    return out;
+  }
+
+  function autoArrange(hand) {
+    const cache = new Map();
+    const keyOf = cs => cs.map(c => c.id).sort((a, b) => a - b).join(',');
+    const E = cs => {
+      const k = keyOf(cs);
+      let v = cache.get(k);
+      if (v === undefined) { v = ev(cs); cache.set(k, v); }
+      return v;
+    };
+    const idx = hand.map((_, i) => i);
+    let best = null, bestScore = -Infinity;
+    for (const h of combos(idx, 3)) {
+      const hSet = new Set(h);
+      const rest = idx.filter(i => !hSet.has(i));
+      const head = h.map(i => hand[i]), hv = E(head);
+      for (const m of combos(rest, 5)) {
+        const mSet = new Set(m);
+        const other = rest.filter(i => !mSet.has(i));
+        const g1 = m.map(i => hand[i]), g2 = other.map(i => hand[i]);
+        const v1 = E(g1), v2 = E(g2);
+        let cuoi, giua, vC, vG;
+        if (v1 >= v2) { cuoi = g1; giua = g2; vC = v1; vG = v2; }
+        else { cuoi = g2; giua = g1; vC = v2; vG = v1; }
+        if (vC < vG || vG < hv) continue;
+        const s = 1.3 * vC + 1.1 * vG + hv;
+        if (s > bestScore) { bestScore = s; best = [head, giua, cuoi]; }
+      }
+    }
+    return best;
+  }
+
+  function detectSpecial(hand) {
+    const vals = hand.map(c => RV(c.r));
+    const cnt = {};
+    vals.forEach(v => cnt[v] = (cnt[v] || 0) + 1);
+    const counts = Object.values(cnt);
+    const red = hand.filter(c => RED(c.s)).length;
+    if (new Set(vals).size === 13) return { name: 'Sảnh rồng', rank: 5 };
+    if (red === 13 || red === 0) return { name: 'Đồng màu 13 lá', rank: 4 };
+    if (red >= 12 || red <= 1) return { name: 'Đồng màu 12 lá', rank: 3 };
+    if (counts.filter(x => x === 3).length === 1 && counts.filter(x => x === 2).length === 5)
+      return { name: '5 đôi 1 sám', rank: 2 };
+    if (counts.reduce((s, x) => s + (x >> 1), 0) >= 6) return { name: '6 đôi', rank: 1 };
+    return null;
+  }
+
+  function buildPlayer(arr) {
+    const v = arr.map(ev);
+    return { arr, v, lung: v[2] < v[1] || v[1] < v[0] };
+  }
+
+  function scorePair(P, B) {
+    if (P.sp && B.sp) {
+      if (P.sp.rank === B.sp.rank) return 0;
+      return P.sp.rank > B.sp.rank ? 12 : -12;
+    }
+    if (P.sp) return 12;
+    if (B.sp) return -12;
+    if (P.lung && B.lung) return 0;
+    if (P.lung) return -6;
+    if (B.lung) return 6;
+    let s = 0, w = 0, l = 0;
+    for (let k = 0; k < 3; k++) {
+      if (P.v[k] > B.v[k]) { s++; w++; }
+      else if (P.v[k] < B.v[k]) { s--; l++; }
+    }
+    if (w === 3) s += 3;
+    else if (l === 3) s -= 3;
+    return s;
+  }
+
+  // ---------- Trạng thái game ----------
+  const BOT_DEFS = [
+    { name: 'An', av: '🦊' },
+    { name: 'Bình', av: '🐼' },
+    { name: 'Cường', av: '🐯' },
+  ];
+  let myCoins = 5000, botCoins = [5000, 5000, 5000];
+  let phase = 'arrange'; // 'arrange' | 'showdown'
+  let myHand = [], myFlat = [], bots = [];
+  let selected = null, mySp = null, results = null;
+
+  try {
+    const saved = parseInt(localStorage.getItem('maubinh_coins') || '0', 10);
+    if (saved > 0) myCoins = saved;
+  } catch (e) {}
+  function saveCoins() { try { localStorage.setItem('maubinh_coins', String(myCoins)); } catch (e) {} }
+
+  function newDeck() {
+    const d = [];
+    for (let s = 0; s < 4; s++)
+      for (let r = 0; r < 13; r++)
+        d.push({ id: s * 13 + r, r: RANKS[r], s: SUITS[s] });
+    for (let i = d.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [d[i], d[j]] = [d[j], d[i]];
+    }
+    return d;
+  }
+
+  const sortCards = cs => [...cs].sort((a, b) => RV(b.r) - RV(a.r));
+
+  function deal() {
+    const d = newDeck();
+    myHand = d.slice(0, 13);
+    bots = BOT_DEFS.map((b, i) => ({ ...b, hand: d.slice(13 + i * 13, 26 + i * 13) }));
+    myFlat = [...myHand];
+    mySp = detectSpecial(myHand);
+    phase = 'arrange';
+    selected = null;
+    results = null;
+    if (myCoins <= 0) { myCoins = 5000; setMsg('Đã nạp lại 5000 xu!', 'win'); }
+    render();
+  }
+
+  function currentArr() {
+    return [myFlat.slice(0, 3), myFlat.slice(3, 8), myFlat.slice(8, 13)];
+  }
+
+  function setMsg(t, cls) {
+    const el = document.getElementById('msg');
+    el.textContent = t;
+    el.className = cls || '';
+  }
+
+  function cardEl(c, mini, onClick, sel) {
+    const d = document.createElement('div');
+    d.className = 'card' + (RED(c.s) ? ' red' : '') + (mini ? ' mini' : '') + (sel ? ' sel' : '');
+    d.innerHTML = `<div class="r">${c.r}</div><div class="s">${c.s}</div>`;
+    if (onClick) d.onclick = onClick;
+    return d;
+  }
+
+  function backEl(mini) {
+    const d = document.createElement('div');
+    d.className = 'back' + (mini ? ' mini' : '');
+    return d;
+  }
+
+  function renderBots() {
+    const el = document.getElementById('bots');
+    el.innerHTML = '';
+    bots.forEach((b, i) => {
+      const d = document.createElement('div');
+      d.className = 'bot';
+      d.innerHTML = `<div class="av">${b.av}</div><div>${b.name}</div><div class="dc">${botCoins[i]} xu</div>` +
+        (phase === 'arrange' ? '<div>🂠 Đang xếp…</div>' : '');
+      el.appendChild(d);
+    });
+  }
+
+  function renderPlayer() {
+    const arr = currentArr();
+    const rows = [document.getElementById('row0'), document.getElementById('row1'), document.getElementById('row2')];
+    arr.forEach((chi, ri) => {
+      rows[ri].innerHTML = '';
+      sortCards(chi).forEach(c => {
+        const gi = myFlat.indexOf(c);
+        rows[ri].appendChild(cardEl(c, false, phase === 'arrange' ? () => tapCard(gi) : null, selected === gi));
+      });
+    });
+    if (phase === 'arrange') {
+      const P = buildPlayer(arr);
+      if (mySp) setMsg('🎉 Tới trắng: ' + mySp.name + ' — bấm So bài để lụm!', 'win');
+      else if (P.lung) setMsg('⚠ Binh lủng — sẽ thua 6 chi mỗi nhà!', 'warn');
+      else setMsg('Chạm 1 lá rồi chạm lá khác để đổi chỗ.');
+    }
+  }
+
+  function tapCard(gi) {
+    if (selected === null) { selected = gi; }
+    else if (selected === gi) { selected = null; }
+    else {
+      [myFlat[selected], myFlat[gi]] = [myFlat[gi], myFlat[selected]];
+      selected = null;
+    }
+    renderPlayer();
+  }
+
+  function renderBtns() {
+    const el = document.getElementById('btns');
+    el.innerHTML = '';
+    if (phase === 'arrange') {
+      const b1 = document.createElement('button');
+      b1.className = 'b-auto'; b1.textContent = '✨ Xếp tự động';
+      b1.onclick = () => {
+        const best = autoArrange(myHand);
+        if (best) { myFlat = [...best[0], ...best[1], ...best[2]]; selected = null; }
+        renderPlayer();
+      };
+      const b2 = document.createElement('button');
+      b2.className = 'b-go'; b2.textContent = 'So bài';
+      b2.onclick = showdown;
+      el.append(b1, b2);
+    } else {
+      const b = document.createElement('button');
+      b.className = 'b-new'; b.textContent = 'Ván mới';
+      b.onclick = deal;
+      el.appendChild(b);
+    }
+  }
+
+  function renderBotChis() {
+    const el = document.getElementById('botChis');
+    el.innerHTML = '';
+    if (phase !== 'showdown' || !results) return;
+    const P = results.player;
+    results.bots.forEach((rb, i) => {
+      const box = document.createElement('div');
+      box.className = 'bot-chis';
+      let html = `<div class="bname">${bots[i].av} ${bots[i].name} ` +
+        (rb.sp ? `🎉 ${rb.sp.name}` : '') +
+        ` — <span class="tot">${rb.pts > 0 ? '+' : ''}${rb.pts} chi (${rb.pts > 0 ? '+' : ''}${rb.pts * 100} xu)</span></div>`;
+      box.innerHTML = html;
+      rb.arr.forEach((chi, k) => {
+        const row = document.createElement('div');
+        row.className = 'row';
+        sortCards(chi).forEach(c => row.appendChild(cardEl(c, true)));
+        const mk = document.createElement('span');
+        mk.className = 'mark';
+        if (P.sp || rb.sp) mk.textContent = '';
+        else if (P.lung || rb.lung) mk.textContent = (P.lung && rb.lung) ? '=' : (P.lung ? '✗' : '✓');
+        else mk.textContent = P.v[k] > rb.v[k] ? '✓' : (P.v[k] < rb.v[k] ? '✗' : '=');
+        row.appendChild(mk);
+        box.appendChild(row);
+      });
+      el.appendChild(box);
+    });
+  }
+
+  function showdown() {
+    const P = buildPlayer(currentArr());
+    P.sp = mySp;
+    const rb = bots.map(b => {
+      const arr = autoArrange(b.hand);
+      const o = buildPlayer(arr);
+      o.sp = detectSpecial(b.hand);
+      return { ...o, pts: scorePair(P, o) };
+    });
+    let total = 0;
+    rb.forEach((r, i) => { total += r.pts; botCoins[i] -= r.pts * 100; });
+    myCoins += total * 100;
+    saveCoins();
+    phase = 'showdown';
+    results = { player: P, bots: rb };
+    document.getElementById('myCoins').textContent = myCoins;
+    setMsg(total > 0 ? `🎉 Thắng ${total} chi (+${total * 100} xu)!` :
+      total < 0 ? `Thua ${-total} chi (${total * 100} xu).` : 'Hòa!', total > 0 ? 'win' : '');
+    render();
+  }
+
+  function render() {
+    document.getElementById('myCoins').textContent = myCoins;
+    renderBots();
+    renderPlayer();
+    renderBotChis();
+    renderBtns();
+    if (phase === 'showdown') {
+      document.querySelectorAll('#playerArea .row').forEach(r => r.style.pointerEvents = 'none');
+    } else {
+      document.querySelectorAll('#playerArea .row').forEach(r => r.style.pointerEvents = 'auto');
+    }
+  }
+
+  deal();
+</script>
+</body>
+</html>
