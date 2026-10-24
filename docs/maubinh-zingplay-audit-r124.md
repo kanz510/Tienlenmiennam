@@ -43,6 +43,18 @@ Nhánh audit: `maubinh-zingplay-audit-r124`
 - ZingPlay — hướng dẫn Mậu Binh: https://play.zing.vn/detail-games/chi-tiet.poker-viet-nam.17.html
 - ZingPlay Chinese Poker / 13 lá trên Google Play: https://play.google.com/store/apps/details?id=zps.game.pusoy.cn
 
+## Cập nhật triển khai tiếp theo — 2026-10-24
+
+Sau audit tĩnh, nhánh có thêm các cải tiến nhỏ, tập trung vào thao tác và khả năng đọc kết quả:
+
+- [x] Nút **Hoàn tác** cho một thao tác xếp gần nhất; ghi snapshot trước khi đưa/trả bài, xóa xếp và xếp tự động; reset lịch sử khi chia ván mới.
+- [x] Kết quả từng đối thủ được trình bày thành thẻ riêng; từng chi có nhãn **THẮNG / THUA / HÒA**, tên tổ hợp của hai bên và màu phân biệt.
+- [x] Bổ sung dòng điểm cơ bản, thưởng của người chơi, thưởng đối thủ và sập; CSS có quy tắc thu gọn cho màn hình nhỏ.
+- [x] Cập nhật query version tài nguyên CSS/JS lên `r126` để tránh dùng bản cache `r125` cũ.
+- [x] Đọc lại file trên nhánh sau khi ghi và xác nhận các selector, handler, markup và version string đã có.
+
+**Giới hạn xác minh:** đây là xác minh tĩnh từ nội dung GitHub. Chưa chạy trình duyệt, chưa kiểm thử mobile, chưa kiểm chứng số điểm bằng test tự động; vì vậy các thay đổi này chưa được đánh dấu là runtime-tested.
+
 ## Trạng thái
 
 - [x] Đọc code r124 và lập audit tĩnh.
