@@ -1,7 +1,8 @@
 /* r144: individual authored suit emblems, mounted as image assets on every card */
 .card{isolation:isolate;overflow:hidden}
 .card .suit-emblem{position:absolute;z-index:0;width:52%;height:auto;left:50%;top:50%;transform:translate(-50%,-50%);opacity:.17;pointer-events:none;user-select:none}
-.card .face-full,.card .face-art,.card .corner,.card .suit-big{position:relative;z-index:1}
+.card .face-full,.card .face-art{position:relative;z-index:1}
+.card .corner,.card .suit-big{z-index:1}
 .card .suit-emblem[src*="hearts"],.card .suit-emblem[src*="diamonds"]{opacity:.12}
 .card.selected .suit-emblem{opacity:.24;filter:drop-shadow(0 0 4px rgba(216,174,83,.35))}
 .bot-cards .card .suit-emblem{display:none}
