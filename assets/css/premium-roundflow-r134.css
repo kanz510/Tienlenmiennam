@@ -1,0 +1,31 @@
+/* r134 — premium pass badges and trick-clear feedback; visual only. */
+#game-container .pass-label {
+  transform-origin: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,235,210,.18);
+  transition: filter .16s ease, box-shadow .16s ease;
+}
+#game-container .pass-label.show {
+  animation: tl-pass-callout-r134 .26s cubic-bezier(.16,.8,.25,1) both;
+  box-shadow: 0 0 0 1px rgba(255,220,145,.35), 0 3px 10px rgba(0,0,0,.32), 0 0 10px rgba(225,179,89,.16);
+}
+@keyframes tl-pass-callout-r134 {
+  0% { opacity: 0; transform: translateY(3px) scale(.82); filter: brightness(1.35); }
+  72% { opacity: 1; transform: translateY(-1px) scale(1.04); filter: brightness(1.08); }
+  100% { opacity: 1; transform: translateY(0) scale(1); filter: none; }
+}
+#game-container #played-cards.trick-clear-r134 {
+  animation: tl-trick-clear-r134 .34s ease-out both;
+}
+@keyframes tl-trick-clear-r134 {
+  0% { opacity: 1; filter: brightness(1.12) drop-shadow(0 0 9px rgba(231,190,98,.3)); }
+  45% { opacity: .78; filter: brightness(1.04) drop-shadow(0 0 5px rgba(231,190,98,.18)); }
+  100% { opacity: 1; filter: none; }
+}
+#game-container .bot-info.active-turn,
+#game-container .player-info.active-turn {
+  transition: box-shadow .2s ease, border-color .2s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container .pass-label.show,
+  #game-container #played-cards.trick-clear-r134 { animation: none !important; }
+}
