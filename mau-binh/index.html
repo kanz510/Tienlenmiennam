@@ -267,8 +267,8 @@ function special(h){
 }
 const $=s=>document.querySelector(s);
 let arr=[],fresh=false,landed=[],dg=null,sel=-1,T=1,steps=[];
-const cardAssetUrl=id=>{const suits=['spades','clubs','diamonds','hearts'],r=rk(id),s=suits[su(id)],rank=r===14?'ace':r===13?'king':r===12?'queen':r===11?'jack':String(r);return 'https://cdn.jsdelivr.net/gh/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards@main/svg%20cards/card%20fronts/'+s+'/'+encodeURIComponent(rank)+'%20of%20'+s+'.svg'};
-const cardBackAssetUrl='https://cdn.jsdelivr.net/gh/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards@main/svg%20cards/card%20backs/card%20back%20blue.svg';
+const cardAssetUrl=id=>{const suits=['spades','clubs','diamonds','hearts'],r=rk(id),s=suits[su(id)],rank=r===14?'ace':r===13?'king':r===12?'queen':r===11?'jack':String(r);return 'assets/cards/'+s+'/'+rank+'.svg'};
+const cardBackAssetUrl='assets/cards/back-blue.svg';
 // Warm the browser cache before the first deal so cards do not pop in one by one.
 const assetCache=new Map();let assetsReady=false,assetsPromise=null;
 function preloadAssets(){if(assetsPromise)return assetsPromise;const urls=[...Array(52)].map((_,i)=>cardAssetUrl(i));urls.push(cardBackAssetUrl);assetsPromise=Promise.all(urls.map(url=>new Promise(resolve=>{const img=new Image();assetCache.set(url,img);img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.decoding='async';img.src=url;}))).then(results=>{assetsReady=results.filter(Boolean).length>=52;const b=document.getElementById('startBtn'),s=document.getElementById('assetStatus');if(b){b.disabled=false;b.textContent='Bắt đầu chơi'}if(s)s.textContent=assetsReady?'Bộ bài đã sẵn sàng':'Một số ảnh tải lỗi, sẽ thử lại khi cần';return assetsReady;});const b=document.getElementById('startBtn'),s=document.getElementById('assetStatus');if(b){b.disabled=true;b.textContent='Đang tải bộ bài…'}if(s)s.textContent='Đang chuẩn bị 52 lá bài trước khi vào bàn…';return assetsPromise;}

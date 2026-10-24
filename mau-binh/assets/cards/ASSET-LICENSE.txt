@@ -1,0 +1,8 @@
+Playing card SVG assets bundled locally for faster loading.
+
+Source: OpenDecks - Public Domain and CC0 Playing Cards
+Repository: https://github.com/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards
+License: CC0 1.0 Universal (public domain dedication)
+License text: https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+The SVG assets are stored in this folder so the game does not need to download card art from jsDelivr at runtime.
