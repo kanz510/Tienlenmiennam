@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="none">
+<defs>
+ <linearGradient id="felt" x1="0" y1="0" x2="0.9" y2="1"><stop stop-color="#14715b"/><stop offset=".38" stop-color="#075143"/><stop offset=".72" stop-color="#043a32"/><stop offset="1" stop-color="#021f1d"/></linearGradient>
+ <radialGradient id="lamp"><stop stop-color="#4bb393" stop-opacity=".3"/><stop offset="1" stop-color="#0b5b4b" stop-opacity="0"/></radialGradient>
+ <linearGradient id="rail" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f3d99b"/><stop offset=".18" stop-color="#7b542b"/><stop offset=".5" stop-color="#171e1a"/><stop offset=".8" stop-color="#624522"/><stop offset="1" stop-color="#e6c77f"/></linearGradient>
+ <pattern id="weave" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0 0H10M0 0V10" stroke="#d4f3dc" stroke-opacity=".035" stroke-width=".7"/><circle cx="5" cy="5" r=".6" fill="#d6f0dd" fill-opacity=".08"/></pattern>
+ <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="18"/></filter>
+</defs>
+<rect width="1600" height="900" fill="#021512"/>
+<rect x="34" y="24" width="1532" height="852" rx="84" fill="#000" opacity=".45" filter="url(#shadow)"/>
+<rect x="22" y="18" width="1556" height="864" rx="78" fill="url(#rail)" stroke="#f3d99b" stroke-width="2"/>
+<rect x="38" y="34" width="1524" height="832" rx="66" fill="#14221c" stroke="#4e3922" stroke-width="8"/>
+<rect x="52" y="48" width="1496" height="804" rx="58" fill="url(#felt)" stroke="#d7b76d" stroke-width="2"/>
+<rect x="52" y="48" width="1496" height="804" rx="58" fill="url(#weave)"/>
+<ellipse cx="800" cy="380" rx="680" ry="420" fill="url(#lamp)"/>
+<rect x="74" y="70" width="1452" height="760" rx="45" fill="none" stroke="#f0d18a" stroke-opacity=".32" stroke-width="2"/>
+<rect x="86" y="82" width="1428" height="736" rx="38" fill="none" stroke="#c59b51" stroke-opacity=".19" stroke-width="1"/>
+<g fill="none" stroke="#f1d99a" stroke-opacity=".55" stroke-width="2">
+ <path d="M110 165V115Q110 110 115 110H165M1435 110H1485Q1490 110 1490 115V165M110 735V785Q110 790 115 790H165M1435 790H1485Q1490 790 1490 785V735"/>
+ <path d="M125 170Q160 120 195 170Q160 220 125 170ZM1405 170Q1440 120 1475 170Q1440 220 1405 170ZM125 730Q160 680 195 730Q160 780 125 730ZM1405 730Q1440 680 1475 730Q1440 780 1405 730Z"/>
+</g>
+<g fill="#e6c77f" opacity=".6"><circle cx="110" cy="110" r="3"/><circle cx="1490" cy="110" r="3"/><circle cx="110" cy="790" r="3"/><circle cx="1490" cy="790" r="3"/></g>
+</svg>
