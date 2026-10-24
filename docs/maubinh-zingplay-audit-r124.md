@@ -62,3 +62,13 @@ Sau audit tĩnh, nhánh có thêm các cải tiến nhỏ, tập trung vào thao
 - [ ] Chưa sửa luật / solver trước khi có test xác nhận.
 - [ ] Chưa kiểm thử trình duyệt hoặc điện thoại.
 - [ ] Chưa merge.
+
+## Cập nhật kiểm tra luật — 2026-10-24 (tiếp)
+
+- [x] Sửa lỗi số dư bằng 0 khi thanh toán Mậu Binh: trước đây dùng `state.money[k] || 1000`, khiến người chơi/bot có đúng 0 xu bị tự nâng lên 1000 trước khi cộng/trừ. Đổi sang `state.money[k] ?? 1000` để chỉ dùng mặc định khi giá trị là `null` hoặc `undefined`.
+- [x] Chuẩn hóa rank số 11–14 trong helper test thành J/Q/K/A; tránh test fixture dùng `"13"` không khớp bảng rank của game.
+- [x] Bổ sung test cho thứ tự ăn trắng (mạnh hơn/thứ hạng bằng nhau) và tình huống bài lủng thua cả ba chi.
+- [ ] Chưa chạy trực tiếp lệnh `node --test tests/maubinh-rules.test.cjs` trong môi trường Node. Vì vậy các test mới chỉ được thêm vào repository; không ghi nhận là đã pass.
+- [ ] Chưa có kiểm thử runtime trong trình duyệt, trên điện thoại hoặc test tích hợp tiền với Tiến Lên.
+
+**Lưu ý:** mức thưởng và cách xử lý các biến thể ăn trắng/sập làng vẫn cần đối chiếu luật tham chiếu đã chốt trước khi sửa công thức. Bản sửa số dư 0 là lỗi kỹ thuật rõ ràng; các công thức điểm khác chưa bị thay đổi.
