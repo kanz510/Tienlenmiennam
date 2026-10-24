@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="vi"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Mậu Binh Premium V4 — bộ bài asset thật</title>
+<title>Mậu Binh Premium — Mobile Edition</title>
 <style>
 :root{--bg:#0b2a30;--gold:#ffd54a;--ink:#f4f1e8;--red:#d62839;--blk:#1b1b1f;--cw:min(12vh,6.6vw,62px);--ocw:min(8.2vh,5vw,42px);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 :root:not([data-theme=light]){--bg:#0b2a30}
@@ -63,6 +63,9 @@ button:hover{background:#000b;transform:translateY(-1px)}
 .c.back b,.c.back i,.c.back u{visibility:hidden}
 .c.dr{cursor:grab}@media (hover:hover){.c.dr:hover{transform:translateY(-6px);box-shadow:0 10px 18px #000a}}.dragging .c.dr:hover{transform:none;box-shadow:0 2px 6px #0008,inset 0 0 0 2px #fff}
 .c.drag{z-index:50;box-shadow:0 18px 30px #000b;transition:none!important;animation:none!important;cursor:grabbing;will-change:transform}
+.c.selected{transform:translateY(-9px) scale(1.035);z-index:12;box-shadow:0 0 0 2px #f4d18a,0 10px 22px #000b,0 0 16px #f4d18a55}
+.touch-hint{position:absolute;left:50%;bottom:62px;transform:translateX(-50%);z-index:5;padding:6px 11px;border:1px solid #f4d18a55;border-radius:99px;background:#031d17cc;color:#fff4d7;font-size:11px;white-space:nowrap;box-shadow:0 3px 10px #0005;pointer-events:none}
+@media (max-width:900px){.touch-hint{bottom:calc(58px + env(safe-area-inset-bottom,0px));font-size:10px;padding:5px 9px}.c.selected{transform:translateY(-7px) scale(1.04)}}
 .c.deal{animation:deal .6s cubic-bezier(.2,.8,.3,1) both;animation-delay:calc(var(--d)*55ms)}
 .c.land{animation:land .35s both}
 .box{position:relative;margin:auto;max-width:780px;max-height:92%;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:22px;background:linear-gradient(#000c,#0008);border:1px solid #f5c54266;border-radius:20px;padding:18px 22px;box-shadow:0 20px 60px #000a;animation:pop .5s both;z-index:8}
@@ -263,9 +266,12 @@ function special(h){
  return -1;
 }
 const $=s=>document.querySelector(s);
-let arr=[],fresh=false,landed=[],dg=null,T=1,steps=[];
+let arr=[],fresh=false,landed=[],dg=null,sel=-1,T=1,steps=[];
 const cardAssetUrl=id=>{const suits=['spades','clubs','diamonds','hearts'],r=rk(id),s=suits[su(id)],rank=r===14?'ace':r===13?'king':r===12?'queen':r===11?'jack':String(r);return 'https://cdn.jsdelivr.net/gh/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards@main/svg%20cards/card%20fronts/'+s+'/'+encodeURIComponent(rank)+'%20of%20'+s+'.svg'};
 const cardBackAssetUrl='https://cdn.jsdelivr.net/gh/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards@main/svg%20cards/card%20backs/card%20back%20blue.svg';
+// Warm the browser cache before the first deal so cards do not pop in one by one.
+const assetCache=new Map();let assetsReady=false,assetsPromise=null;
+function preloadAssets(){if(assetsPromise)return assetsPromise;const urls=[...Array(52)].map((_,i)=>cardAssetUrl(i));urls.push(cardBackAssetUrl);assetsPromise=Promise.all(urls.map(url=>new Promise(resolve=>{const img=new Image();assetCache.set(url,img);img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.decoding='async';img.src=url;}))).then(results=>{assetsReady=results.filter(Boolean).length>=52;const b=document.getElementById('startBtn'),s=document.getElementById('assetStatus');if(b){b.disabled=false;b.textContent='Bắt đầu chơi'}if(s)s.textContent=assetsReady?'Bộ bài đã sẵn sàng':'Một số ảnh tải lỗi, sẽ thử lại khi cần';return assetsReady;});const b=document.getElementById('startBtn'),s=document.getElementById('assetStatus');if(b){b.disabled=true;b.textContent='Đang tải bộ bài…'}if(s)s.textContent='Đang chuẩn bị 52 lá bài trước khi vào bàn…';return assetsPromise;}
 const cd=(id,x='',at='',d=0)=>{const r=rk(id),s=S[su(id)],back=String(x).includes('back'),src=back?cardBackAssetUrl:cardAssetUrl(id);return`<div class="c asset-card ${red(id)?'r':'k'} ${x}" data-r="${r}" data-suit="${s}" style="--d:${d};--fx:${(d-6)*-14}px" ${at}><img class="card-art" src="${src}" alt="${back?'Mặt sau lá bài':R(r)+' '+s}" draggable="false" loading="eager" onload="this.parentNode.classList.add('asset-loaded')" onerror="this.parentNode.classList.add('asset-failed');this.remove()"><b>${R(r)}</b><i>${s}</i><u>${r>10?R(r):s}</u></div>`};
 const sg=x=>x>0?1:x<0?-1:0,fmt=x=>(x>0?'+':'')+x;
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -279,18 +285,18 @@ function setup(){
  app.innerHTML=TBL+`<div class="box"><div><h1>♠ MẬU BINH ♥</h1><p class="sub">Chơi offline với máy · Luật Zing Play</p>
  <label>Tên của bạn</label><input type="text" value="${escapeHtml(name)}" maxlength="14" oninput="name=this.value">
  <label>Số người chơi</label><div class="seg">${[2,3,4].map(n=>`<button class="${n==N?'on':''}" onclick="N=${n};setup()">${n} người</button>`).join('')}</div>
- <button class="go pri" onclick="start()">Bắt đầu chơi</button></div><div class="rl">${RULES}</div></div>`;
+ <button class="go pri" id="startBtn" onclick="start()">Đang chuẩn bị bộ bài…</button><p class="sub" id="assetStatus">Tải trước ảnh bài để tránh hiện từng lá trễ khi chia</p></div><div class="rl">${RULES}</div></div>`;if(!assetsPromise)preloadAssets();else if(assetsReady){const b=document.getElementById("startBtn"),s=document.getElementById("assetStatus");if(b){b.disabled=false;b.textContent="Bắt đầu chơi"}if(s)s.textContent="Bộ bài đã sẵn sàng";}
 }
 function rules(){const o=document.createElement('div');o.className='ov';o.onclick=e=>{if(e.target===o)o.remove()};o.innerHTML=`<div class="box" style="grid-template-columns:1fr;position:relative;transform:none">${'<div class="rl">'+RULES+'</div>'}<button class="pri" onclick="this.closest('.ov').remove()">Đóng</button></div>`;document.body.appendChild(o)}
 function fs(){try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){}}
 function boom(){const c=['#f5c542','#ff5c7a','#7ee2a8','#6ab8ff','#fff'];
  for(let i=0;i<40;i++){const d=document.createElement('div');d.className='cf';d.style.cssText=`left:${Math.random()*100}vw;background:${c[i%5]};animation-delay:${Math.random()*.8}s`;document.body.appendChild(d);setTimeout(()=>d.remove(),3600)}}
-function start(){try{fs();screen.orientation.lock('landscape').catch(()=>{})}catch(e){}tot=Array(N).fill(5000);round=0;deal()}
+async function start(){const b=document.getElementById("startBtn"),s=document.getElementById("assetStatus");if(!assetsReady){if(b){b.disabled=true;b.textContent="Đang tải bộ bài…"}if(s)s.textContent="Đang tải ảnh bài trước khi vào bàn, lần đầu có thể mất chút thời gian";await preloadAssets();if(b)b.disabled=false;}try{fs();screen.orientation.lock('landscape').catch(()=>{})}catch(e){}tot=Array(N).fill(5000);round=0;deal()}
 function deal(){
  const d=[...Array(52).keys()];
  for(let i=51;i>0;i--){const j=Math.random()*(i+1)|0;[d[i],d[j]]=[d[j],d[i]]}
  P=[...Array(N)].map((_,i)=>{const h=sortH(d.slice(i*13,i*13+13));return{n:i?BN[i-1]:(name.trim()||'Bạn'),av:AV[i],h,sp:special(h)}});
- arr=[...P[0].h];fresh=true;landed=[];zoom=false;botDone=P.map((_,i)=>!i);
+ arr=[...P[0].h];fresh=true;landed=[];sel=-1;zoom=false;botDone=P.map((_,i)=>!i);
  P.forEach((p,i)=>{if(i)setTimeout(()=>{if(P[i]!==p)return;botDone[i]=true;const e=document.getElementById('bs'+i);if(e){e.className='bs ok';e.textContent='✔ Xong';const s=e.closest('.seat');s&&s.classList.remove('shuf')}},2200+i*900+Math.random()*3500)});
  draw();setTimeout(()=>document.querySelectorAll('.c.deal').forEach(e=>e.classList.remove('deal')),1700);
 }
@@ -313,25 +319,26 @@ function handH(i,mode,v){
  return[[0,3],[3,8],[8,13]].map((r,k)=>{
   const ids=mode=='arr'?arr.slice(r[0],r[1]):mode=='dealback'?p.h.slice(r[0],r[1]):p.arr[k];
   const cs=ids.map((id,j)=>{const gi=r[0]+j;
-   if(mode=='arr')return`<div class="slot" data-i="${gi}">${cd(id,'dr'+(fresh?' deal':landed.includes(gi)?' land':''),`onpointerdown="down(event,${gi})"`,gi)}</div>`;
+   if(mode=='arr')return`<div class="slot" data-i="${gi}">${cd(id,'dr'+(sel===gi?' selected':'')+(fresh?' deal':landed.includes(gi)?' land':''),`onpointerdown="down(event,${gi})"`,gi)}</div>`;
    return cd(id,(mode=='show'?'':'back')+(mode=='dealback'&&fresh?' deal':''),'',gi)}).join('');
   return`<div class="row" id="rw${i}_${k}"><div class="cards" id="c${i}_${k}">${cs}</div><span class="nm" id="l${i}_${k}">${mode=='arr'?CN[cat(v[k])]:''}</span></div>`}).join('');
 }
 function draw(){
  const v=[[0,3],[3,8],[8,13]].map(r=>ev(arr.slice(r[0],r[1]))),lung=v[2]<v[1]||v[1]<v[0],sp=P[0].sp;
  app.innerHTML=TBL+info()+P.map((p,i)=>seatH(i,handH(i,i?'dealback':'arr',v))).join('')+
- `<div class="ct ${lung?'warn':sp>=0?'sm':''}" id="ct">${lung?'⚠ BINH LỦNG':sp>=0?'🎉 '+SP[sp][0].toUpperCase():''}</div>
+ `<div class="touch-hint">Kéo thả hoặc chạm 2 lá để đổi vị trí</div><div class="ct ${lung?'warn':sp>=0?'sm':''}" id="ct">${lung?'⚠ BINH LỦNG':sp>=0?'🎉 '+SP[sp][0].toUpperCase():''}</div>
  <div class="bl">${sp>=0?`<button class="pri" onclick="showdown(true)">🎉 Tới trắng</button>`:''}<button onclick="autoMe()">✨ Xếp tự động</button>${ck()}</div>
  <div class="br"><button onclick="zm(true)">🔍 Xếp bài</button><button class="big" onclick="showdown(false)">So Bài</button></div>${zoom?zoomH2(v,lung):''}`;
  fresh=false;landed=[];
 }
 function down(e,i){
  if(dg||e.button>0)return;e.preventDefault();
- dg={i,el:e.currentTarget,x:e.clientX,y:e.clientY,t:null};dg.el.classList.remove('deal','land');dg.el.style.animation='none';dg.el.classList.add('drag');app.classList.add('dragging');
+ dg={i,el:e.currentTarget,x:e.clientX,y:e.clientY,t:null,moved:false};dg.el.classList.remove('deal','land');dg.el.style.animation='none';dg.el.classList.add('drag');app.classList.add('dragging');
  addEventListener('pointermove',mv);addEventListener('pointerup',up);addEventListener('pointercancel',up);
 }
 function mv(e){
  const g=dg;if(!g)return;
+ if(Math.hypot(e.clientX-g.x,e.clientY-g.y)>8)g.moved=true;
  g.el.style.transform=`translate(${e.clientX-g.x}px,${e.clientY-g.y}px) scale(1.12) rotate(${(e.clientX-g.x)/25}deg)`;g.el.style.pointerEvents='none';
  const t=document.elementFromPoint(e.clientX,e.clientY)?.closest('.slot');
  if(g.t!==t){g.t&&g.t.classList.remove('tgt');if(t&&+t.dataset.i!==g.i)t.classList.add('tgt');g.t=t}
@@ -340,10 +347,15 @@ function up(){
  const g=dg;if(!g)return;dg=null;
  removeEventListener('pointermove',mv);removeEventListener('pointerup',up);removeEventListener('pointercancel',up);app.classList.remove('dragging');
  const j=g.t?+g.t.dataset.i:-1;
- if(j>=0&&j!==g.i){[arr[g.i],arr[j]]=[arr[j],arr[g.i]];landed=[g.i,j];draw()}
- else{g.t&&g.t.classList.remove('tgt');g.el.classList.remove('drag');g.el.style.transform='';g.el.style.pointerEvents=''}
+ if(j>=0&&j!==g.i){[arr[g.i],arr[j]]=[arr[j],arr[g.i]];sel=-1;landed=[g.i,j];draw()}
+ else if(!g.moved&&!g.t){
+  if(sel<0)sel=g.i;
+  else if(sel===g.i)sel=-1;
+  else{[arr[sel],arr[g.i]]=[arr[g.i],arr[sel]];landed=[sel,g.i];sel=-1}
+  draw();
+ }else{g.t&&g.t.classList.remove('tgt');g.el.classList.remove('drag');g.el.style.transform='';g.el.style.pointerEvents=''}
 }
-function autoMe(){arr=auto_(P[0].h).flat();landed=[...Array(13).keys()];draw()}
+function autoMe(){arr=auto_(P[0].h).flat();sel=-1;landed=[...Array(13).keys()];draw()}
 
 function mkSteps(){
  const z=()=>Array(N).fill(0),pr=f=>{for(let a=0;a<N;a++)for(let b=a+1;b<N;b++)f(a,b,P[a],P[b])};
@@ -422,6 +434,6 @@ function fin(){
  if(run[0]>0)boom();
  const nx=$('#nx');nx.textContent='Ván Mới';nx.onclick=deal;
 }
-setup();
+setup();preloadAssets();
 </script><!-- V4: CDN switch to jsDelivr for asset delivery. Card artwork: OpenDecks CC0 public-domain playing cards. Source: https://github.com/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards -->
 </body></html>
