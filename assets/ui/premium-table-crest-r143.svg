@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 260" width="420" height="260">
+<defs>
+ <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0b8"/><stop offset=".32" stop-color="#c99a42"/><stop offset=".56" stop-color="#fff2c6"/><stop offset="1" stop-color="#8a5a20"/></linearGradient>
+ <radialGradient id="e"><stop stop-color="#2d8974" stop-opacity=".55"/><stop offset="1" stop-color="#062c2b" stop-opacity="0"/></radialGradient>
+ <filter id="s" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter>
+</defs>
+<ellipse cx="210" cy="130" rx="168" ry="100" fill="#062b28" opacity=".65" filter="url(#s)"/>
+<ellipse cx="210" cy="130" rx="164" ry="96" fill="url(#e)" stroke="url(#g)" stroke-width="2.4"/>
+<ellipse cx="210" cy="130" rx="151" ry="83" fill="none" stroke="#f2d58b" stroke-opacity=".48"/>
+<g fill="none" stroke="url(#g)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+ <path d="M210 49 C191 76 167 78 146 59 C153 87 139 105 112 111 C140 125 145 145 128 168 C158 163 183 177 190 203 C202 184 218 184 230 203 C237 177 262 163 292 168 C275 145 280 125 308 111 C281 105 267 87 274 59 C253 78 229 76 210 49Z"/>
+ <path d="M210 69 C194 89 179 94 161 85 C170 103 165 119 150 130 C171 132 185 144 190 161 C202 148 218 148 230 161 C235 144 249 132 270 130 C255 119 250 103 259 85 C241 94 226 89 210 69Z"/>
+ <path d="M210 88 L222 111 L247 115 L229 132 L233 156 L210 144 L187 156 L191 132 L173 115 L198 111Z"/>
+ <path d="M66 130 Q91 113 104 130 Q91 147 66 130Z M354 130 Q329 113 316 130 Q329 147 354 130Z"/>
+ <path d="M85 99q-13-16 0-29q16 13 0 29z M335 99q13-16 0-29q-16 13 0 29z M85 161q-13 16 0 29q16-13 0-29z M335 161q13 16 0 29q-16-13 0-29z"/>
+</g>
+<g fill="#ffe8a4"><circle cx="210" cy="28" r="3"/><circle cx="210" cy="232" r="3"/><circle cx="35" cy="130" r="3"/><circle cx="385" cy="130" r="3"/></g>
+<text x="210" y="226" text-anchor="middle" font-family="Georgia,serif" font-size="13" letter-spacing="4" fill="#f4d993">TIEN LEN MIEN NAM</text>
+</svg>
