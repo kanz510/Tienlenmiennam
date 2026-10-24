@@ -21,11 +21,19 @@ vm.runInNewContext(rulesSource, sandbox, { timeout: 2000 });
 const { mbEvalChi, mbCompareChi, mbHandValue, mbIsBinhLung, mbInstantWin, mbScorePair } = sandbox.__mbRules;
 
 const suits = ['♠', '♥', '♦', '♣'];
+function normalizeRank(rank) {
+  const n = Number(rank);
+  if (n === 11) return 'J';
+  if (n === 12) return 'Q';
+  if (n === 13) return 'K';
+  if (n === 14) return 'A';
+  return String(rank);
+}
 function hand(spec, suitOffset = 0) {
-  return spec.map(([rank, suit]) => ({ rank: String(rank), suit: suit || suits[(suitOffset++) % suits.length] }));
+  return spec.map(([rank, suit]) => ({ rank: normalizeRank(rank), suit: suit || suits[(suitOffset++) % suits.length] }));
 }
 function ranks(spec, suitOffset = 0) {
-  return hand(spec.map(r => [String(r)]), suitOffset);
+  return hand(spec.map(r => [r]), suitOffset);
 }
 
 test('5-card hand categories are ordered high-card < pair < two-pair < trips < straight < flush < full-house < quads < straight-flush', () => {
