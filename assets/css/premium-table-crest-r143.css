@@ -1,0 +1,6 @@
+/* r143: authored vector table crest; this is a real SVG asset, not a CSS-only drawing */
+#premium-table-crest{position:absolute;left:50%;top:50%;width:min(46%,420px);height:auto;transform:translate(-50%,-50%);opacity:.24;pointer-events:none;z-index:0;filter:drop-shadow(0 8px 16px #001c19)}
+#played-ghost,#played-cards,#last-play-info,#message{position:relative;z-index:1}
+#premium-table-crest.is-active{opacity:.32}
+@media(max-width:700px){#premium-table-crest{width:42%;opacity:.18}}
+@media(prefers-reduced-motion:reduce){#premium-table-crest{filter:none}}
