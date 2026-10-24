@@ -408,7 +408,7 @@ function go(){
  document.querySelectorAll('.row.hl').forEach(e=>e.classList.remove('hl'));
  const ks=s.k>=0?[s.k]:s.k==-1?[0,1,2]:[];
  ks.forEach(k=>P.forEach((p,i)=>{$(`#rw${i}_${k}`).classList.add('hl');
-  if(i)document.querySelectorAll(`#c${i}_${k} .c`).forEach((el,j)=>{el.style.animation=`flp .5s ${j*.08}s`;setTimeout(()=>el.classList.remove('back'),250+j*80)})}));
+  if(i)document.querySelectorAll(`#c${i}_${k} .c`).forEach((el,j)=>{el.style.animation=`flp .5s ${j*.08}s`;setTimeout(()=>{el.classList.remove('back');const im=el.querySelector('img.card-art');if(im)im.src=cardAssetUrl(P[i].arr[k][j]);},250+j*80)})}));
  setTimeout(()=>{
   ks.forEach(k=>P.forEach((p,i)=>{$(`#l${i}_${k}`).textContent=CN[cat(p.v[k])]}));
   P.forEach((p,i)=>{
