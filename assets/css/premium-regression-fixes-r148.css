@@ -38,6 +38,7 @@
   position:fixed!important; z-index:1300!important; left:50%!important; top:9%!important;
   width:min(78vw,560px)!important; max-height:26vh; object-fit:contain;
   transform:translateX(-50%); pointer-events:none;
+  animation:premium-victory-art-in 2.8s ease-out both;
 }
 /* Let the crown/card logo remain inside the framed lobby without being clipped. */
 #lobby-content { overflow:visible!important; }
