@@ -469,7 +469,7 @@ function aiEnabled() { return !!AI_CHAT_URL && typeof fetch === 'function'; }
 function aiRefill(botKey, group) {
     if (!aiEnabled() || aiBusy) return;
     const now = Date.now();
-    if (now - aiLastCall < 5000) return;
+    if (now - aiLastCall < 12000) return; // r122: nới 5s -> 12s, tiết kiệm quota ngày
     const persona = aiPersonaFor(botKey);
     if (!persona) return;
     aiBusy = true; aiLastCall = now;
@@ -571,7 +571,7 @@ function aiContextLine() {
 function aiSayNow(actorIdx, eventText, fallbackText, onSaid, urgent) {
     try {
         const botKey = PLAYERS[actorIdx || 0];
-        if (!botKey || botKey === 'player' || !aiEnabled() || aiNowBusy || (!urgent && Date.now() - aiNowLast < 4000)) {
+        if (!botKey || botKey === 'player' || !aiEnabled() || aiNowBusy || (!urgent && Date.now() - aiNowLast < 8000)) {
             if (fallbackText) speak(fallbackText, actorIdx);
             return;
         }
@@ -646,16 +646,16 @@ let banterTimer = null;
 function banterStart() {
     if (banterTimer) return;
     const loop = () => {
-        banterTimer = setTimeout(loop, 4500 + Math.random() * 4000);
+        banterTimer = setTimeout(loop, 16000 + Math.random() * 12000); // r122: nhịp tám chuyện 4.5-8.5s -> 16-28s (quota free xKiro chỉ ~500K/ngày, nhịp cũ đốt hết trong ~1 giờ chơi)
         try { banterTick(); } catch (e) {}
     };
-    banterTimer = setTimeout(loop, 4500);
+    banterTimer = setTimeout(loop, 9000);
 }
 function banterTick() {
     if (typeof state === 'undefined' || !state || state.gameOver) return;
     if (typeof inLobby !== 'undefined' && inLobby) return;
     if (typeof voiceOn !== 'undefined' && !voiceOn) return;
-    if (Math.random() > 0.8) return; // không phải nhịp nào cũng có chuyện
+    if (Math.random() > 0.5) return; // r122: xác suất nổ 0.8 -> 0.5
     const bots = [1, 2, 3];
     const a = bots[Math.floor(Math.random() * 3)];
     const others = bots.filter(x => x !== a);
@@ -665,11 +665,11 @@ function banterTick() {
     if (mode < 0.40) {
         // A chọc B, B đáp trả (70%), A chốt hạ (35%)
         aiSayNow(a, 'TÁM CHUYỆN: Mở lời với ' + AI_NAMES[bKey] + ' bằng một câu tự nhiên, có thể kể chuyện đời thường hoặc trêu bạn bè; không bắt buộc nhắc bài.', null, (line) => {
-            if (Math.random() > 0.8) return;
+            if (Math.random() > 0.55) return; // r122: đáp lời 0.8 -> 0.55
             setTimeout(() => {
                 try {
                     aiSayNow(b, 'TÁM CHUYỆN: ' + AI_NAMES[aKey] + ' vừa nói: "' + line + '" — đáp lại đúng ý câu đó, có thể phản bác, kể thêm hoặc bẻ lái hài hước; đừng chỉ chửi lại.', null, (line2) => {
-                        if (Math.random() > 0.45) return;
+                        if (Math.random() > 0.65) return; // r122: chốt hạ 0.45 -> 0.35
                         setTimeout(() => { try { aiSayNow(a, 'TÁM CHUYỆN: ' + AI_NAMES[bKey] + ' vừa đáp: "' + line2 + '" — chốt lại bằng một câu duyên dáng hoặc bẻ sang chuyện khác.', null, null, true); } catch (e) {} }, 2600 + Math.random() * 2000);
                     }, true);
                 } catch (e) {}
@@ -688,8 +688,8 @@ function banterTick() {
 function aiWarmUp() {
     if (!aiEnabled()) return;
     ['left', 'top', 'right'].forEach((k, i) => {
-        setTimeout(() => aiRefill(k, 'play'), 600 + i * 2600);
-        setTimeout(() => aiRefill(k, 'big'), 2100 + i * 2600);
-        setTimeout(() => aiRefill(k, 'winsoon'), 3400 + i * 2600);
+        setTimeout(() => aiRefill(k, 'play'), 800 + i * 4200);
+        setTimeout(() => aiRefill(k, 'big'), 3200 + i * 4200);
+        // r122: bỏ nạp trước nhóm 'winsoon' (tự nạp khi cần) — đầu ván 9 request -> 6
     });
 }
