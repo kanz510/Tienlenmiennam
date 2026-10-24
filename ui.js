@@ -913,6 +913,17 @@ function fxLevelUp() {
 }
 
 function addSuitEmblem(div, card) {
+    // r147: rank-specific authored medallion behind the existing J/Q/K illustration.
+    if (div.classList.contains('face-rank')) {
+        const rank = String(card.rank || '').toLowerCase();
+        const medallion = document.createElement('img');
+        medallion.className = 'premium-royal-medallion';
+        medallion.src = 'assets/cards/royal-medallion-' + rank + '-r147.svg';
+        medallion.alt = '';
+        medallion.setAttribute('aria-hidden', 'true');
+        medallion.draggable = false;
+        div.appendChild(medallion);
+    }
     // r145: consistent champagne frame is a standalone authored SVG, not a CSS-drawn border.
     const frame = document.createElement('img');
     frame.className = 'premium-card-frame-art';
