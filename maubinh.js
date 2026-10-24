@@ -627,7 +627,16 @@ if (typeof document !== 'undefined') {
         const bc = mbEl('btn-mb-clear');
         if (bc) bc.addEventListener('click', () => { if (mbState && mbState.phase === 'arrange') mbClearArrangement(); });
         const bd = mbEl('btn-mb-done');
-        if (bd) bd.addEventListener('click', () => { if (mbState && mbState.phase === 'arrange') mbShowdown(); });
+        if (bd) bd.addEventListener('click', () => {
+            if (!mbState || mbState.phase !== 'arrange') return;
+            const p = mbState.playerArr;
+            const instant = mbInstantWin(mbState.hands.player, p);
+            if (!instant && mbIsBinhLung(p)) {
+                const proceed = window.confirm('Bài đang BINH LỦNG. Nếu so bài lúc này, bạn sẽ thua cả 3 chi theo luật bàn. Bạn vẫn muốn so bài?');
+                if (!proceed) return;
+            }
+            mbShowdown();
+        });
         const bn = mbEl('btn-mb-new');
         if (bn) bn.addEventListener('click', mbNewGame);
         const bl2 = mbEl('btn-mb-result-lobby');
