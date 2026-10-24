@@ -1714,3 +1714,50 @@ body {
 #maubinh #btn-mb-new { background: linear-gradient(180deg, #2ecc71, #27ae60); box-shadow: 0 4px 0 #1e8449; }
 #maubinh #btn-mb-result-lobby { background: linear-gradient(180deg, #607d8b, #455a64); box-shadow: 0 4px 0 #263238; }
 #lobby #btn-maubinh { background: linear-gradient(180deg, #ab47bc, #6a1b9a); border: 2px solid #e1bee7; color: #fff; border-radius: 14px; padding: 12px 20px; font-size: 16px; font-weight: 800; cursor: pointer; margin-top: 8px; box-shadow: 0 4px 0 #4a148c; }
+
+
+/* Mậu Binh r126 — kết quả so chi dễ quét nhanh */
+#maubinh .mb-score-card {
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,215,0,.22);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+#maubinh .mb-score-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: #fff8dc;
+}
+#maubinh .mb-score-total { font-size: 16px; white-space: nowrap; }
+#maubinh .mb-score-total.win, #maubinh .mb-score-outcome { color: #8ce5b0; }
+#maubinh .mb-score-total.loss { color: #ff9b9b; }
+#maubinh .mb-score-total.tie { color: #ffe082; }
+#maubinh .mb-score-chi-list { display: grid; gap: 5px; }
+#maubinh .mb-score-chi {
+    display: grid;
+    grid-template-columns: 72px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: rgba(0,0,0,.18);
+    font-size: 12px;
+}
+#maubinh .mb-score-chi.win { border-left: 3px solid #55c98a; }
+#maubinh .mb-score-chi.loss { border-left: 3px solid #ef7777; }
+#maubinh .mb-score-chi.tie { border-left: 3px solid #e8c75a; }
+#maubinh .mb-score-chi-label { color: #ffe082; font-weight: 800; }
+#maubinh .mb-score-hands { min-width: 0; overflow-wrap: anywhere; color: #e8edf0; }
+#maubinh .mb-score-outcome { font-size: 10px; letter-spacing: .3px; }
+#maubinh .mb-score-chi.loss .mb-score-outcome { color: #ff9b9b; }
+#maubinh .mb-score-chi.tie .mb-score-outcome { color: #ffe082; }
+#maubinh .mb-score-meta { margin-top: 8px; color: #c4d4d3; font-size: 11px; line-height: 1.5; }
+@media (max-width: 560px) {
+    #maubinh .mb-score-card { padding: 8px; }
+    #maubinh .mb-score-chi { grid-template-columns: 62px minmax(0,1fr) auto; gap: 5px; padding: 6px; font-size: 11px; }
+    #maubinh .mb-score-outcome { font-size: 9px; }
+    #maubinh .mb-score-meta { font-size: 10px; }
+}
