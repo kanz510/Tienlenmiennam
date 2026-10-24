@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r123">
+    <link rel="stylesheet" href="style.css?v=r124">
 <script>
-window.__TLV = 'r123';
+window.__TLV = 'r124';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -159,12 +159,51 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
             <h1 id="lobby-title">TIẾN LÊN MIỀN NAM</h1>
             <div id="lobby-level">🪙 0 xu</div>
             <button id="btn-start">✦ ▶ Bắt đầu ✦</button>
+            <button id="btn-maubinh">🀄 Mậu Binh</button>
             <button id="btn-continue" class="hidden">⏩ Chơi tiếp ván dở</button>
             <div class="lobby-row">
                 <button id="btn-shop" class="lobby-sub-btn">🛒 Cửa hàng</button>
                 <button id="btn-tasks" class="lobby-sub-btn">🎯 Nhiệm vụ</button>
             </div>
             <button id="btn-gift" class="hidden">🎁 Nhận thưởng đăng nhập</button>
+        </div>
+    </div>
+
+    <!-- Mậu Binh -->
+    <div id="maubinh" class="hidden">
+        <div class="mb-top">
+            <button id="btn-mb-lobby">🏠 Sảnh</button>
+            <h2>🀄 MẬU BINH</h2>
+            <span id="mb-timer">⏳ 90</span>
+            <span id="mb-money">💰 0</span>
+        </div>
+        <div class="mb-bots">
+            <div class="mb-bot" id="mb-bot-left"><div class="mb-bot-head"><span class="mb-bot-avatar">🐯</span><span class="mb-bot-name">Hùng Sấm Sét</span><span class="mb-bot-money">💰 1000</span></div><div class="mb-bot-cards"></div></div>
+            <div class="mb-bot" id="mb-bot-top"><div class="mb-bot-head"><span class="mb-bot-avatar">🐻</span><span class="mb-bot-name">Tuấn Cao Thủ</span><span class="mb-bot-money">💰 1000</span></div><div class="mb-bot-cards"></div></div>
+            <div class="mb-bot" id="mb-bot-right"><div class="mb-bot-head"><span class="mb-bot-avatar">🦊</span><span class="mb-bot-name">Nam Lì Đòn</span><span class="mb-bot-money">💰 1000</span></div><div class="mb-bot-cards"></div></div>
+        </div>
+        <div class="mb-player">
+            <div class="mb-chi" id="mb-chi-dau"><span class="mb-chi-label">Chi đầu · 3 lá</span><div class="mb-chi-cards"></div><span class="mb-chi-name"></span><span class="mb-chi-count">0/3</span></div>
+            <div class="mb-chi" id="mb-chi-giua"><span class="mb-chi-label">Chi giữa · 5 lá</span><div class="mb-chi-cards"></div><span class="mb-chi-name"></span><span class="mb-chi-count">0/5</span></div>
+            <div class="mb-chi" id="mb-chi-cuoi"><span class="mb-chi-label">Chi cuối · 5 lá</span><div class="mb-chi-cards"></div><span class="mb-chi-name"></span><span class="mb-chi-count">0/5</span></div>
+        </div>
+        <div id="mb-tray"></div>
+        <div id="mb-lung-warn" class="hidden">⚠️ Binh lủng — chi sau yếu hơn chi trước. So bài lúc này sẽ thua cả 3 chi.</div>
+        <div id="mb-msg"></div>
+        <div id="mb-instant-badge" class="hidden"></div>
+        <div id="mb-actions">
+            <button id="btn-mb-auto">🪄 Xếp tự động</button>
+            <button id="btn-mb-clear">🧹 Xoá</button>
+            <button id="btn-mb-done">⚔️ So bài</button>
+        </div>
+        <div id="mb-result" class="hidden">
+            <h2 id="mb-result-title"></h2>
+            <div id="mb-result-money"></div>
+            <div id="mb-result-breakdown"></div>
+            <div class="mb-result-actions">
+                <button id="btn-mb-new">▶ Ván mới</button>
+                <button id="btn-mb-result-lobby">🏠 Về sảnh</button>
+            </div>
         </div>
     </div>
 
@@ -250,12 +289,13 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r123"></script>
-    <script src="audio.js?v=r123"></script>
-    <script src="cards-img.js?v=r123"></script>
-    <script src="bot.js?v=r123"></script>
-    <script src="ui.js?v=r123"></script>
-    <script src="game.js?v=r123"></script>
+    <script src="rules.js?v=r124"></script>
+    <script src="audio.js?v=r124"></script>
+    <script src="cards-img.js?v=r124"></script>
+    <script src="bot.js?v=r124"></script>
+    <script src="ui.js?v=r124"></script>
+    <script src="game.js?v=r124"></script>
+    <script src="maubinh.js?v=r124"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
