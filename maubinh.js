@@ -278,6 +278,7 @@ const MB_CHI_SIZE = { dau: 3, giua: 5, cuoi: 5 };
 let mbState = null;
 let mbTimerId = null;
 let mbActiveChi = 'dau';
+let mbUndoSnapshot = null;
 
 function mbBet() {
     try { return (typeof settings !== 'undefined' && settings.bet) ? settings.bet : 100; } catch (e) { return 100; }
@@ -395,10 +396,39 @@ function mbRenderPlayer() {
     mbUpdateActions();
 }
 
+function mbSaveUndo() {
+    if (!mbState || !mbState.playerArr) return;
+    const p = mbState.playerArr;
+    mbUndoSnapshot = {
+        playerArr: { dau: p.dau.slice(), giua: p.giua.slice(), cuoi: p.cuoi.slice(), tray: p.tray.slice() },
+        activeChi: mbActiveChi,
+        usedAuto: mbState.usedAuto
+    };
+}
+
+function mbUndo() {
+    if (!mbState || mbState.phase !== 'arrange' || !mbUndoSnapshot) {
+        mbMsg('Chưa có thao tác nào để hoàn tác.');
+        return;
+    }
+    mbState.playerArr = {
+        dau: mbUndoSnapshot.playerArr.dau.slice(),
+        giua: mbUndoSnapshot.playerArr.giua.slice(),
+        cuoi: mbUndoSnapshot.playerArr.cuoi.slice(),
+        tray: mbUndoSnapshot.playerArr.tray.slice()
+    };
+    mbActiveChi = mbUndoSnapshot.activeChi;
+    mbState.usedAuto = mbUndoSnapshot.usedAuto;
+    mbUndoSnapshot = null;
+    mbRenderPlayer();
+    mbMsg('Đã hoàn tác thao tác gần nhất.');
+}
+
 function mbAssign(card) {
     const p = mbState.playerArr;
     const ti = mbFindCard(p.tray, mbCardKey(card));
     if (ti < 0) return;
+    mbSaveUndo();
     mbState.usedAuto = false; // xếp tay lại thì lấy lại quyền thưởng xếp tay
     let target = mbActiveChi;
     if (p[target].length >= MB_CHI_SIZE[target]) {
@@ -416,6 +446,7 @@ function mbAssign(card) {
 
 function mbUnassign(card) {
     const p = mbState.playerArr;
+    mbSaveUndo();
     mbState.usedAuto = false;
     for (const k of MB_CHI_ORDER) {
         const i = mbFindCard(p[k], mbCardKey(card));
@@ -427,6 +458,7 @@ function mbUnassign(card) {
 
 function mbClearArrangement() {
     const p = mbState.playerArr;
+    mbSaveUndo();
     MB_CHI_ORDER.forEach(k => { p.tray.push(...p[k]); p[k] = []; });
     p.tray.sort((a, b) => (MB_RANK_VAL[b.rank] - MB_RANK_VAL[a.rank]) || (MB_SUIT_LETTER[a.suit] < MB_SUIT_LETTER[b.suit] ? -1 : 1));
     mbActiveChi = 'dau';
@@ -622,6 +654,8 @@ if (typeof document !== 'undefined') {
         if (b) b.addEventListener('click', mbEnter);
         const bl = mbEl('btn-mb-lobby');
         if (bl) bl.addEventListener('click', mbBackToLobby);
+        const bu = mbEl('btn-mb-undo');
+        if (bu) bu.addEventListener('click', mbUndo);
         const ba = mbEl('btn-mb-auto');
         if (ba) ba.addEventListener('click', () => { if (mbState && mbState.phase === 'arrange') mbAutoAndShowdownPreview(); });
         const bc = mbEl('btn-mb-clear');
@@ -655,6 +689,7 @@ if (typeof document !== 'undefined') {
 // Nút "Xếp tự động" chỉ xếp (không so) — khác với hết giờ (xếp + so).
 // Dùng nút này thì mất quyền nhận thưởng xếp tay (theo gamehub24).
 function mbAutoAndShowdownPreview() {
+    mbSaveUndo();
     mbState.usedAuto = true;
     const best = mbAutoArrange(mbState.hands.player);
     if (!best) { mbMsg('Bài này không xếp được cách nào hợp lệ.'); return; }
