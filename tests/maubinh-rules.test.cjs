@@ -130,9 +130,9 @@ test('a fouled hand loses all three chi against a valid hand', () => {
 test('settlement preserves an exact zero balance instead of resetting it to 1000', () => {
   const settleStart = source.indexOf('function mbSettlePlayer(');
   assert.notEqual(settleStart, -1, 'could not find settlement function');
-  const settleEnd = source.indexOf('\\n}\\n', settleStart);
+  const settleEnd = source.indexOf('function mbShowdown()', settleStart);
   assert.notEqual(settleEnd, -1, 'could not find end of settlement function');
-  const settleSource = source.slice(settleStart, settleEnd + 3) + '\\nglobalThis.__settle = mbSettlePlayer;';
+  const settleSource = source.slice(settleStart, settleEnd) + '; globalThis.__settle = mbSettlePlayer;';
   const settlementSandbox = {
     state: { money: { player: 0, left: 0, top: 100, right: 1000 } },
     mbState: { money: {} },
