@@ -1,0 +1,39 @@
+/* r132 — smoother turn focus and card-table transitions; visual-only. */
+#game-container .player-info,
+#game-container .bot-info {
+  transition: box-shadow .24s ease, border-color .24s ease, filter .24s ease;
+}
+#game-container .player-info.active-turn,
+#game-container .bot-info.active-turn {
+  animation: tl-turn-focus-r132 1.45s ease-in-out infinite;
+  border-color: rgba(255,220,145,.9);
+}
+@keyframes tl-turn-focus-r132 {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(255,220,145,.58), 0 0 10px rgba(230,187,87,.16);
+  }
+  50% {
+    box-shadow: 0 0 0 2px rgba(255,225,160,.78), 0 0 19px rgba(230,187,87,.32);
+  }
+}
+#game-container .player-cards .card {
+  transition: filter .18s ease, box-shadow .18s ease;
+}
+#game-container .player-cards .card:not(.selected):hover {
+  filter: brightness(1.045);
+}
+#game-container #played-cards {
+  transition: opacity .18s ease, filter .24s ease, background .24s ease;
+}
+#game-container .bot-cards .back-card {
+  transition: filter .18s ease, transform .18s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container .player-info,
+  #game-container .bot-info,
+  #game-container .player-cards .card,
+  #game-container #played-cards,
+  #game-container .bot-cards .back-card { transition: none !important; }
+  #game-container .player-info.active-turn,
+  #game-container .bot-info.active-turn { animation: none !important; }
+}
