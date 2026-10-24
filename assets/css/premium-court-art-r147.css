@@ -1,0 +1,8 @@
+/* r147 — authored court-card medallions: decorative only, no game logic changes. */
+#game-container .card.face-rank .premium-royal-medallion{position:absolute;left:50%;top:50%;width:78%;height:72%;transform:translate(-50%,-50%);object-fit:contain;opacity:.17;z-index:0;pointer-events:none;user-select:none;filter:saturate(.9)}
+#game-container .card.face-rank .face-full,#game-container .card.face-rank .face-art{position:absolute;z-index:1;filter:drop-shadow(0 1px 1px rgba(48,35,14,.22))}
+#game-container .card.face-rank .premium-card-frame-art{z-index:4;opacity:.96}
+#game-container .card.face-rank::after{border-color:rgba(176,132,47,.42);background:radial-gradient(ellipse at 50% 45%,rgba(244,218,153,.11),transparent 58%),linear-gradient(135deg,transparent 35%,rgba(255,255,255,.16) 50%,transparent 65%)}
+#game-container .card.face-rank-j{--royal-accent:#a77931}#game-container .card.face-rank-q{--royal-accent:#0b8d7a}#game-container .card.face-rank-k{--royal-accent:#b88736}
+#game-container .card.face-rank .corner{z-index:5}
+@media(prefers-reduced-motion:reduce){#game-container .card.face-rank{transition:none}}
