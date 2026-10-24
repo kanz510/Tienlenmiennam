@@ -393,6 +393,7 @@ function renderLastPlay() {
     const el = document.getElementById('played-cards');
     const ghost = document.getElementById('played-ghost');
     const info = document.getElementById('last-play-info');
+    if (el) el.classList.remove('big-play');
     if (!state.lastPlay) {
         el.innerHTML = '';
         if (ghost) ghost.innerHTML = '';
@@ -434,7 +435,9 @@ function renderLastPlay() {
     if (info) {
         info.textContent = PLAYER_NAMES[PLAYERS[state.lastPlay.player]] + ' · ' + (COMBO_LABELS[state.lastPlay.combo.type] || '');
         info.classList.add('show');
-        info.classList.toggle('big-play', isBigPlay(state.lastPlay.combo, state.lastPlayWasChop));
+        const isBig = isBigPlay(state.lastPlay.combo, state.lastPlayWasChop);
+        info.classList.toggle('big-play', isBig);
+        if (el) el.classList.toggle('big-play', isBig);
     }
     // r88: giấu lá đích NGAY từ lúc dựng mỗi khi nước thay đổi — bài chỉ hiện
     // khi chính chuyến bay của nước đó hạ cánh (cơ chế dọn dẹp của chuyến bay
