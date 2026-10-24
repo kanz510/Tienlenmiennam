@@ -574,6 +574,8 @@ function resumeSavedGame() {
 
 function newGame() {
     stopTimer();
+    // r135: reset visual deal tracker so every new hand gets the staggered deal effect.
+    if (typeof resetPremiumDealCounts === 'function') resetPremiumDealCounts();
     levelUpNote = '';
     lastXpGain = 0;
     const deck = shuffle(createDeck());
