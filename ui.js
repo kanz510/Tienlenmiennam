@@ -110,17 +110,21 @@ function spawnConfetti() {
     const box = document.getElementById('confetti');
     if (!box) return;
     box.innerHTML = '';
-    // r145: authored victory plaque artwork; keep it decorative and outside game-state logic.
-    const overlay = document.getElementById('overlay');
-    const oldPlaque = overlay && overlay.querySelector('.premium-victory-plaque');
-    if (oldPlaque) oldPlaque.remove();
+    // r149: mount victory art in a dedicated body-level FX layer, above the result overlay stacking context.
+    let fxLayer = document.getElementById('premium-victory-fx');
+    if (!fxLayer) {
+        fxLayer = document.createElement('div');
+        fxLayer.id = 'premium-victory-fx';
+        fxLayer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(fxLayer);
+    }
+    fxLayer.innerHTML = '';
     const plaque = document.createElement('img');
     plaque.className = 'premium-victory-plaque';
     plaque.src = 'assets/fx/victory-plaque-r145.svg';
     plaque.alt = '';
     plaque.setAttribute('aria-hidden', 'true');
-    // r148: mount outside #confetti because that layer clips overflow and sits below the result panel.
-    (overlay || box).appendChild(plaque);
+    fxLayer.appendChild(plaque);
     const colors = ['#ffd700', '#f3d27a', '#fff6cf', '#1db981', '#e9c767', '#ffffff'];
     for (let i = 0; i < 34; i++) {
         const p = document.createElement('div');
