@@ -1,0 +1,329 @@
+/* r139 — major art-direction pass: luxury emerald card room.
+   Visual-only layer. Preserve DOM, layout grid, game rules, and handlers. */
+:root {
+  --room-ink: #041c1b;
+  --room-deep: #062b27;
+  --room-emerald: #0a5948;
+  --room-jade: #16866a;
+  --room-champagne: #f4dca0;
+  --room-gold: #bd9147;
+  --room-ivory: #fff9e9;
+}
+
+/* A framed game table, not a flat green rectangle. */
+body {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(66,177,143,.24), transparent 43%),
+    radial-gradient(ellipse at 50% 100%, rgba(0,0,0,.8), transparent 60%),
+    repeating-linear-gradient(115deg, rgba(255,255,255,.012) 0 1px, transparent 1px 5px),
+    linear-gradient(135deg, #031514 0%, #0a3b32 48%, #021311 100%);
+  box-shadow: inset 0 0 100px rgba(0,0,0,.72);
+}
+#game-container {
+  isolation: isolate;
+  border: 1px solid rgba(244,220,160,.72);
+  border-radius: 17px;
+  background:
+    radial-gradient(ellipse at 50% 47%, rgba(28,135,103,.92), rgba(7,76,61,.97) 62%, rgba(3,43,38,.99) 100%);
+  box-shadow:
+    0 0 0 3px rgba(17,25,19,.96),
+    0 0 0 4px rgba(190,145,71,.72),
+    0 15px 36px rgba(0,0,0,.6),
+    inset 0 2px 0 rgba(255,255,255,.22),
+    inset 0 -18px 30px rgba(0,0,0,.32);
+}
+#game-container::before {
+  inset: 5px;
+  border: 1px solid rgba(255,230,171,.3);
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.28), inset 0 0 35px rgba(0,0,0,.15);
+}
+#game-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 50% 45%, transparent 35%, rgba(0,0,0,.13) 100%),
+    linear-gradient(120deg, rgba(255,255,255,.055), transparent 28% 70%, rgba(0,0,0,.13));
+}
+#game-container > * { z-index: 1; }
+#game-container .table-area {
+  overflow: visible;
+  border: 1px solid rgba(245,220,158,.36);
+  border-radius: 26px;
+  background:
+    radial-gradient(ellipse at 50% 38%, rgba(61,192,145,.16), transparent 58%),
+    url("../ui/premium-table-felt.svg") center / 240px 240px repeat,
+    linear-gradient(145deg, #0b6a52, #064336);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.12),
+    inset 0 0 0 5px rgba(1,34,29,.16),
+    inset 0 -18px 26px rgba(0,0,0,.18),
+    0 8px 18px rgba(0,0,0,.1);
+}
+#game-container .table-area::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(243,215,151,.12);
+  border-radius: 20px;
+  pointer-events: none;
+}
+#game-container .table-area::after {
+  content: "TIẾN LÊN MIỀN NAM";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  color: rgba(235,211,154,.055);
+  font-size: 23px;
+  font-weight: 900;
+  letter-spacing: .22em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+#game-container #played-cards,
+#game-container #last-play-info,
+#game-container #message { z-index: 2; }
+
+/* Player identity becomes a compact, jewel-like status panel. */
+#game-container .bot-info,
+#game-container .player-info {
+  position: relative;
+  background:
+    linear-gradient(145deg, rgba(21,70,58,.97), rgba(3,25,24,.98) 72%),
+    url("../ui/premium-player-frame.svg") center / 100% 100% no-repeat;
+  border: 1px solid rgba(240,211,143,.76);
+  border-radius: 12px;
+  padding: 6px 9px;
+  gap: 6px;
+  box-shadow:
+    0 5px 0 rgba(0,0,0,.27),
+    0 9px 15px rgba(0,0,0,.34),
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -2px 0 rgba(0,0,0,.24);
+}
+#game-container .bot-info::before,
+#game-container .player-info::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(247,223,167,.15);
+  border-radius: 8px;
+  pointer-events: none;
+}
+#game-container .avatar-wrap .avatar {
+  background: linear-gradient(145deg, #f8e9bd, #b98b45);
+  border: 2px solid #ffedbd;
+  box-shadow: 0 0 0 2px #183b30, 0 4px 9px rgba(0,0,0,.48), inset 0 1px 0 #fff;
+}
+#game-container .bot-name {
+  background: transparent;
+  color: #fff0c4;
+  border: 1px solid rgba(238,208,135,.52);
+  border-radius: 5px;
+  padding: 3px 7px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1);
+  text-shadow: 0 1px 3px #000;
+}
+#game-container .player-info .bot-name {
+  background: linear-gradient(180deg, #ffeab0, #c18d3d);
+  color: #1d281d;
+  border-color: #fff0c5;
+  text-shadow: 0 1px 0 rgba(255,255,255,.35);
+}
+#game-container .card-count {
+  background: linear-gradient(145deg, #f6d78e, #ad762a);
+  border: 1px solid #fff0bf;
+  color: #2a1c08;
+  box-shadow: 0 2px 0 #65441e, 0 4px 7px rgba(0,0,0,.34);
+}
+#game-container .money {
+  color: #f7df9e;
+  text-shadow: 0 1px 3px #000;
+}
+#game-container .pass-label {
+  border: 1px solid rgba(247,222,162,.72);
+  border-radius: 5px;
+  background: linear-gradient(180deg, #344b3e, #182d27);
+  color: #ffe9b1;
+  box-shadow: 0 2px 5px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.12);
+}
+
+/* Cards: ivory stock, crisp inset frame, physically lifted selected cards. */
+#game-container .player-cards .card,
+#game-container #played-cards .card,
+#game-container #played-ghost .card {
+  border: 1px solid #caa65e;
+  border-radius: 7px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,251,237,.99) 55%, rgba(228,216,187,.98));
+  box-shadow:
+    0 2px 0 #9b7b42,
+    0 7px 13px rgba(0,0,0,.38),
+    inset 0 0 0 2px #fffdf4,
+    inset 0 0 0 3px rgba(181,139,57,.3);
+}
+#game-container .player-cards .card::before,
+#game-container #played-cards .card::before,
+#game-container #played-ghost .card::before {
+  inset: 4px;
+  border: 1px solid rgba(157,119,49,.26);
+  border-radius: 4px;
+  background: linear-gradient(120deg, rgba(255,255,255,.44), transparent 34%, transparent 78%, rgba(174,136,67,.1));
+}
+#game-container .player-cards .card:hover {
+  filter: brightness(1.045);
+  box-shadow: 0 3px 0 #9b7b42, 0 13px 18px rgba(0,0,0,.42), inset 0 0 0 2px #fffdf4;
+}
+#game-container .player-cards .card.selected {
+  transform: translateY(-18px) scale(1.055);
+  border-color: #fff0ad;
+  box-shadow: 0 0 0 2px #f6d98e, 0 0 0 5px rgba(237,194,91,.16), 0 14px 22px rgba(0,0,0,.52);
+  filter: brightness(1.06);
+}
+#game-container .back-card {
+  border: 1px solid #f7df9e;
+  border-radius: 5px;
+  box-shadow: 0 3px 0 #6a4b22, 0 7px 11px rgba(0,0,0,.48), inset 0 0 0 1px rgba(255,255,255,.3);
+}
+
+/* Action controls: unmistakable primary action, quieter secondary controls. */
+#game-container .btn-play,
+#game-container .btn-pass,
+#game-container .btn-new-game,
+#game-container #btn-sound,
+#game-container #btn-clear-save,
+#game-container #btn-settings,
+#game-container #btn-hint,
+#game-container #btn-sort,
+#game-container #btn-shop-ingame {
+  border-radius: 9px;
+  border: 1px solid rgba(255,233,178,.78);
+  box-shadow: 0 4px 0 rgba(0,0,0,.35), 0 7px 12px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.35);
+}
+#game-container .btn-play {
+  background: linear-gradient(180deg, #fff0bd 0%, #e8bd68 45%, #b37b32 100%);
+  color: #30200b;
+  border-color: #fff0bb;
+  font-weight: 900;
+  letter-spacing: .045em;
+  box-shadow: 0 5px 0 #69451c, 0 8px 13px rgba(0,0,0,.34), inset 0 1px 0 #fff9df;
+}
+#game-container .btn-pass {
+  background: linear-gradient(180deg, #a84943, #722923);
+  border-color: #e69c80;
+}
+#game-container #btn-new {
+  background: linear-gradient(180deg, rgba(25,78,65,.98), rgba(4,35,31,.98));
+  border: 1px solid rgba(244,218,153,.72);
+  box-shadow: 0 4px 0 rgba(0,0,0,.3), 0 7px 12px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.17);
+}
+#game-container #last-play-info {
+  border: 1px solid rgba(246,220,159,.68);
+  background: linear-gradient(180deg, rgba(15,68,54,.96), rgba(3,31,27,.97));
+  color: #ffe8ae;
+  box-shadow: 0 5px 14px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.13);
+}
+#game-container #message {
+  background: linear-gradient(180deg, rgba(7,46,37,.96), rgba(2,23,21,.98));
+  border: 1px solid rgba(244,219,153,.66);
+  border-radius: 7px;
+  color: #ffe9b1;
+  box-shadow: 0 5px 14px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.13);
+}
+
+/* Lobby is redesigned as a jewel-box entrance, with stronger focal hierarchy. */
+#lobby {
+  background:
+    radial-gradient(ellipse at 50% 18%, rgba(67,185,141,.23), transparent 34%),
+    radial-gradient(ellipse at 50% 105%, rgba(0,0,0,.9), transparent 55%),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.012) 0 1px, transparent 1px 7px),
+    linear-gradient(135deg, #031715, #0b5141 48%, #031815);
+}
+#lobby::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(243,216,155,.42);
+  box-shadow: inset 0 0 0 4px rgba(0,0,0,.14), 0 0 0 1px rgba(0,0,0,.25);
+  pointer-events: none;
+}
+#lobby-content {
+  position: relative;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255,255,255,.13), transparent 46%),
+    linear-gradient(145deg, rgba(15,91,69,.97), rgba(3,34,30,.98) 70%);
+  border: 1px solid #f0d28a;
+  border-radius: 20px;
+  box-shadow: 0 0 0 4px rgba(186,139,57,.14), 0 18px 0 rgba(0,0,0,.3), 0 30px 65px rgba(0,0,0,.58), inset 0 1px 0 rgba(255,255,255,.28);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+}
+#lobby-content::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(244,221,166,.22);
+  border-radius: 13px;
+  pointer-events: none;
+}
+#lobby-logo {
+  filter: drop-shadow(0 10px 9px rgba(0,0,0,.55));
+}
+#lobby-title {
+  color: #fff0c2;
+  letter-spacing: .11em;
+  text-shadow: 0 2px 0 #6f4b1d, 0 4px 0 rgba(0,0,0,.25), 0 8px 18px rgba(0,0,0,.7);
+}
+#lobby-content #lobby-level {
+  background: linear-gradient(180deg, rgba(3,28,24,.9), rgba(8,52,41,.92));
+  border: 1px solid rgba(241,210,133,.65);
+  color: #f6d98f;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 4px 9px rgba(0,0,0,.2);
+}
+#lobby-content #btn-start {
+  background:
+    radial-gradient(circle at 14px 50%, #fff0b8 0 2px, transparent 3px),
+    radial-gradient(circle at calc(100% - 14px) 50%, #fff0b8 0 2px, transparent 3px),
+    linear-gradient(180deg, #fff0bd 0%, #e6b95f 44%, #a96e2b 100%);
+  color: #2a1b08;
+  border: 1px solid #fff0bd;
+  border-radius: 13px;
+  text-shadow: 0 1px rgba(255,255,255,.38);
+  box-shadow: 0 6px 0 #69451d, 0 13px 22px rgba(0,0,0,.36), inset 0 1px 0 #fff9df;
+}
+#lobby-content #btn-continue,
+#lobby-content .lobby-sub-btn,
+#lobby-content #btn-gift {
+  background: linear-gradient(180deg, #1b8065, #064638);
+  color: #fff0c2;
+  border: 1px solid rgba(241,213,149,.66);
+  border-radius: 9px;
+  box-shadow: 0 4px 0 rgba(0,0,0,.32), 0 7px 12px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.modal-box,
+#overlay-content {
+  border: 1px solid #f1d48f;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #fff9e9, #e7d8b6 64%, #c6a568);
+  box-shadow: 0 0 0 4px rgba(184,139,58,.17), 0 18px 0 rgba(0,0,0,.26), 0 30px 65px rgba(0,0,0,.62), inset 0 1px 0 #fff;
+}
+.modal-box h3,
+#overlay-content h2 { color: #075442; }
+
+/* Respect compact devices and users who request less motion. */
+@media (max-width: 700px) {
+  #game-container { border-radius: 12px; }
+  #game-container .bot-info, #game-container .player-info { padding: 4px 6px; gap: 4px; }
+  #game-container .table-area { border-radius: 17px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container .player-cards .card,
+  #game-container button,
+  #lobby-content { animation: none !important; transition: none !important; }
+}
