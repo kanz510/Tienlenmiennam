@@ -1,0 +1,50 @@
+/* r136 — premium status typography and played-card finish. */
+#game-container #last-play-info {
+  width: fit-content;
+  max-width: min(92%, 340px);
+  margin: 9px auto 0;
+  padding: 5px 12px;
+  border: 1px solid rgba(235, 204, 135, .32);
+  border-radius: 999px;
+  color: rgba(255, 242, 211, .88);
+  background: linear-gradient(180deg, rgba(7, 39, 34, .76), rgba(3, 23, 22, .82));
+  box-shadow: 0 4px 12px rgba(0,0,0,.16), inset 0 1px 0 rgba(255,255,255,.07);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .045em;
+  line-height: 1.35;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+#game-container #last-play-info:not(.show) {
+  display: none;
+}
+#game-container #last-play-info.big-play {
+  border-color: rgba(255, 218, 125, .72);
+  color: #ffe8a6;
+  background: linear-gradient(180deg, rgba(91, 61, 18, .88), rgba(35, 26, 12, .92));
+  box-shadow: 0 0 0 1px rgba(255,218,125,.08), 0 4px 16px rgba(0,0,0,.24), 0 0 18px rgba(255,204,94,.14);
+}
+#game-container .pass-label {
+  border: 1px solid rgba(232, 201, 131, .32);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: #f6dfaa;
+  background: linear-gradient(180deg, rgba(19,48,42,.94), rgba(6,26,24,.96));
+  box-shadow: 0 3px 8px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+#game-container #played-cards .card {
+  outline: 1px solid rgba(255, 239, 195, .14);
+  outline-offset: -2px;
+}
+@media (max-width: 520px) {
+  #game-container #last-play-info { margin-top: 6px; padding: 4px 10px; font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container #last-play-info { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
