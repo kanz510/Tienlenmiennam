@@ -1,0 +1,58 @@
+/* r141 — premium card readability + action feedback. Visual-only; rules and scoring untouched. */
+#game-container .card.face-rank.has-art {
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(145deg,#fffdf6 0%,#f7efd9 62%,#e4d2a6 100%);
+}
+#game-container .card.face-rank.has-art img.face-full {
+  position: absolute;
+  inset: 13% 9% 7% 9%;
+  width: 82%;
+  height: 80%;
+  object-fit: contain;
+  z-index: 1;
+  border-radius: 3px;
+  filter: drop-shadow(0 2px 2px rgba(42,30,11,.22));
+}
+#game-container .card.face-rank.has-art::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(170,130,48,.48);
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 2;
+  background: linear-gradient(118deg,rgba(255,255,255,.42),transparent 32%,transparent 68%,rgba(208,171,89,.13));
+}
+#game-container .card.face-rank-j { --royal-accent:#8d6e3f; }
+#game-container .card.face-rank-q { --royal-accent:#07877e; }
+#game-container .card.face-rank-k { --royal-accent:#a87925; }
+#game-container .card.face-rank.has-art { transition: transform .18s ease, box-shadow .18s ease, filter .18s ease; }
+#game-container .player-cards .card.face-rank.has-art:hover {
+  filter: brightness(1.035) drop-shadow(0 5px 5px rgba(0,0,0,.2));
+}
+#game-container .player-cards .card.face-rank.has-art.selected {
+  outline: 1px solid rgba(255,225,150,.9);
+  outline-offset: 1px;
+}
+#game-container .bot-info.active-turn .avatar-wrap,
+#game-container .player-info.active-turn .avatar-wrap {
+  box-shadow: 0 0 0 2px rgba(255,221,139,.8), 0 0 16px rgba(255,196,75,.28);
+}
+#game-container #played-cards .card {
+  animation: r141-played-arrive .24s cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes r141-played-arrive {
+  from { opacity:.72; filter:brightness(1.18); }
+  to { opacity:1; filter:brightness(1); }
+}
+#game-container.chop-flash #played-cards .card {
+  filter: drop-shadow(0 0 7px rgba(255,214,105,.9)) brightness(1.06);
+}
+#game-container.chop-flash .table-area {
+  box-shadow: inset 0 0 0 2px rgba(255,214,105,.75), 0 0 24px rgba(255,190,64,.22);
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container #played-cards .card { animation:none; }
+  #game-container .card.face-rank.has-art { transition:none; }
+}
