@@ -8,7 +8,7 @@ const path = require('node:path');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'maubinh.js'), 'utf8');
 const start = source.indexOf('const MB_RANK_VAL');
-const end = source.indexOf('// ============================================================\\n//  LUỒNG CHƠI + GIAO DIỆN');
+const end = source.indexOf('//  LUỒNG CHƠI + GIAO DIỆN');
 assert.notEqual(start, -1, 'could not find Mậu Binh rules section');
 assert.notEqual(end, -1, 'could not find end of pure-rules section');
 const rulesSource = source.slice(start, end) + `
