@@ -1671,29 +1671,24 @@ body {
 #maubinh .mb-bot-chi { display: flex; align-items: center; gap: 2px; margin-top: 2px; }
 #maubinh .mb-bot-chi-name { font-size: 10px; color: #ffe082; margin-left: 4px; white-space: nowrap; }
 #maubinh .mb-player { display: flex; flex-direction: column; gap: 4px; }
-#maubinh .mb-chi { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,.28); border: 2px solid transparent; border-radius: 12px; padding: 3px 8px; min-height: 56px; cursor: pointer; }
-#maubinh .mb-chi.active { border-color: #ffd700; background: rgba(255,215,0,.14); box-shadow: 0 0 0 2px rgba(255,215,0,.35), 0 0 14px rgba(255,215,0,.35); }
+#maubinh .mb-chi { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,.28); border: 2px solid rgba(255,215,0,.65); border-radius: 12px; padding: 3px 8px; min-height: 56px; }
+#maubinh .mb-chi-like { font-size: 18px; flex: none; }
 #maubinh .mb-chi-label { width: 104px; flex: none; font-size: 12px; font-weight: 700; color: #ffe082; }
 #maubinh .mb-chi-cards { flex: 1; display: flex; align-items: center; min-width: 0; }
-#maubinh .mb-slot-empty { width: 42px; height: 52px; flex: none; box-sizing: border-box; border: 2px dashed rgba(255,255,255,.35); border-radius: 6px; background: rgba(255,255,255,.05); }
-#maubinh .mb-chi-cards .mb-card + .mb-slot-empty, #maubinh .mb-chi-cards .mb-slot-empty + .mb-slot-empty { margin-left: -14px; }
 #maubinh .mb-chi-name { flex: none; font-size: 12px; font-weight: 700; color: #ffd700; text-align: center; border: 1px solid rgba(255,215,0,.5); background: rgba(255,215,0,.12); border-radius: 999px; padding: 2px 9px; white-space: nowrap; }
+#maubinh .mb-chi-cards .mb-card.sel { outline: 3px solid #ffd700; outline-offset: 2px; filter: brightness(1.18); }
 #maubinh .mb-chi-count { width: 30px; flex: none; font-size: 11px; color: #cfd8dc; text-align: right; }
 #maubinh .mb-card { width: 42px; height: 60px; border-radius: 6px; box-shadow: 0 3px 8px rgba(0,0,0,.5); background: #fff; cursor: pointer; flex: none; }
 #maubinh .mb-chi-cards .mb-card + .mb-card { margin-left: -14px; }
 #maubinh .mb-card.mini { width: 26px; height: 37px; border-radius: 4px; cursor: default; }
 #maubinh .mb-bot-chi .mb-card.mini + .mb-card.mini { margin-left: -8px; }
-#maubinh #mb-tray { display: flex; flex-wrap: nowrap; align-items: center; gap: 0; background: rgba(255,255,255,.10); border: 1px dashed rgba(255,255,255,.35); border-radius: 12px; padding: 5px 10px; min-height: 70px; overflow: hidden; }
-#maubinh #mb-tray .mb-card { width: 44px; height: 62px; }
-#maubinh #mb-tray .mb-card + .mb-card { margin-left: -12px; }
 #maubinh #mb-lung-warn { background: rgba(183,28,28,.85); border-radius: 10px; padding: 6px 10px; font-size: 12px; font-weight: 700; text-align: center; }
 #maubinh #mb-msg { min-height: 18px; text-align: center; font-size: 13px; color: #ffe082; }
 #maubinh #mb-actions { display: flex; justify-content: center; gap: 12px; }
 #maubinh #mb-actions button, #maubinh .mb-result-actions button { border: none; border-radius: 12px; padding: 11px 26px; font-size: 15px; font-weight: 800; cursor: pointer; color: #fff; }
 #maubinh #btn-mb-auto { background: linear-gradient(180deg, #1e88e5, #0d47a1); box-shadow: 0 4px 0 #08306b; }
-#maubinh #btn-mb-clear { background: linear-gradient(180deg, #607d8b, #455a64); box-shadow: 0 4px 0 #263238; }
+#maubinh #btn-mb-fix { background: linear-gradient(180deg, #ffb300, #ff8f00); box-shadow: 0 4px 0 #e65100; color: #3e2700; }
 #maubinh #btn-mb-done { background: linear-gradient(180deg, #e53935, #b71c1c); box-shadow: 0 4px 0 #7f0000; }
-#maubinh #btn-mb-done.dim { opacity: .55; }
 #maubinh #btn-mb-done.lung { background: linear-gradient(180deg, #fb8c00, #e65100); box-shadow: 0 4px 0 #bf360c; }
 #maubinh #mb-instant-badge { text-align: center; font-size: 13px; font-weight: 800; color: #3e2700; background: linear-gradient(180deg, #ffe082, #ffb300); border-radius: 999px; padding: 6px 16px; margin: 0 auto; width: fit-content; animation: mb-pulse 1.2s ease-in-out infinite; }
 @keyframes mb-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }

@@ -5,9 +5,10 @@
 //  binh lủng khi chi sau YẾU HƠN chi trước (bằng nhau được),
 //  ăn trắng có thứ tự ưu tiên, thưởng đặc biệt cộng thêm,
 //  sập +3, bắt sập làng +6, thưởng xếp tay +1.
-//  Xếp tự động: liệt kê mọi cách xếp hợp lệ rồi chọn điểm
-//  cao nhất theo đúng trọng số của gamehub24
-//  (chi cuối*3 + chi giữa*2 + chi đầu).
+//  Cơ chế xếp kiểu game mẫu: bài chia ra đã nằm sẵn 3 hàng
+//  theo cách xếp tối ưu (chi cuối*3 + chi giữa*2 + chi đầu),
+//  người chơi bấm 2 lá để đổi chỗ; nút Tự động xếp lại,
+//  nút Xong để so bài.
 //  Quy ước tên chi (VN): chi đầu = 3 lá (yếu nhất),
 //  chi giữa = 5 lá, chi cuối = 5 lá (mạnh nhất).
 // ============================================================
@@ -277,7 +278,6 @@ const MB_CHI_SIZE = { dau: 3, giua: 5, cuoi: 5 };
 
 let mbState = null;
 let mbTimerId = null;
-let mbActiveChi = 'dau';
 
 function mbBet() {
     try { return (typeof settings !== 'undefined' && settings.bet) ? settings.bet : 100; } catch (e) { return 100; }
@@ -309,7 +309,7 @@ function mbRenderBots(reveal) {
         if (!reveal) {
             const backs = document.createElement('div');
             backs.className = 'mb-bot-backs';
-            backs.textContent = '🂠 13 lá · đang xếp…';
+            backs.textContent = '✓ Xếp xong';
             cardsBox.appendChild(backs);
             return;
         }
@@ -333,20 +333,26 @@ function mbChiName(chiKey, cards) {
     return chiKey === 'dau' ? MB_CAT_NAME_3[cat] : MB_CAT_NAME[cat];
 }
 
-// Trạng thái hàng nút theo bố cục của gamehub24: So bài mờ khi
-// chưa đủ lá, cam khi lủng; huy hiệu ăn trắng thô hiện ngay khi
-// chia bài (chỉ để báo, bài vẫn tự tính lúc so bài).
+// Cơ chế xếp bài kiểu game mẫu: bài chia ra đã nằm sẵn 3 hàng
+// (xếp tối ưu), người chơi bấm 1 lá rồi bấm lá khác để ĐỔI CHỖ.
+// Số lá mỗi chi không đổi (3/5/5) nên không bao giờ thiếu lá;
+// chỉ thứ tự mạnh yếu mới quyết định lủng hay không.
+let mbSelected = null; // { key, index } của lá đang chọn để đổi chỗ
+
+// Nút Xong: đỏ khi hợp lệ, cam khi lủng; nút 🔄 Sửa chỉ hiện
+// khi lủng (bấm để tự sửa); huy hiệu ăn trắng thô hiện ngay
+// khi chia bài (chỉ để báo, bài vẫn tự tính lúc so bài).
 function mbUpdateActions() {
     if (!mbState || mbState.phase !== 'arrange') return;
     const p = mbState.playerArr;
-    const complete = p.tray.length === 0;
-    const lung = complete && !mbInstantWin(mbState.hands.player, p) && mbIsBinhLung(p);
+    const lung = !mbInstantWin(mbState.hands.player, p) && mbIsBinhLung(p);
     const done = mbEl('btn-mb-done');
     if (done) {
-        done.classList.toggle('dim', !complete);
         done.classList.toggle('lung', lung);
-        done.textContent = !complete ? '🧩 Xếp hết bài (' + p.tray.length + ' lá)' : (lung ? '⚔️ So bài (Lủng!)' : '⚔️ So bài');
+        done.textContent = lung ? 'Xong (Lủng!)' : 'Xong';
     }
+    const fix = mbEl('btn-mb-fix');
+    if (fix) fix.classList.toggle('hidden', !lung);
     const badge = mbEl('mb-instant-badge');
     if (badge) {
         const inst = mbInstantWin(mbState.hands.player, null);
@@ -360,78 +366,82 @@ function mbRenderPlayer() {
     MB_CHI_ORDER.forEach(chiKey => {
         const row = mbEl('mb-chi-' + chiKey);
         if (!row) return;
-        row.classList.toggle('active', mbActiveChi === chiKey);
         const box = row.querySelector('.mb-chi-cards');
         box.innerHTML = '';
-        p[chiKey].forEach(c => {
+        p[chiKey].forEach((c, i) => {
             const el = mbCardEl(c);
-            el.addEventListener('click', () => mbUnassign(c));
+            if (mbSelected && mbSelected.key === chiKey && mbSelected.index === i) el.classList.add('sel');
+            el.addEventListener('click', () => mbOnCardClick(chiKey, i));
             box.appendChild(el);
         });
-        // Ô trống nét đứt cho số lá còn thiếu (kiểu gamehub24).
-        for (let i = p[chiKey].length; i < MB_CHI_SIZE[chiKey]; i++) {
-            const ph = document.createElement('div');
-            ph.className = 'mb-slot-empty';
-            box.appendChild(ph);
-        }
-        const nameEl = row.querySelector('.mb-chi-name');
-        const nm = (p[chiKey].length === MB_CHI_SIZE[chiKey]) ? mbChiName(chiKey, p[chiKey]) : '';
-        nameEl.textContent = nm;
-        nameEl.style.display = nm ? '' : 'none';
+        row.querySelector('.mb-chi-name').textContent = mbChiName(chiKey, p[chiKey]);
         row.querySelector('.mb-chi-count').textContent = p[chiKey].length + '/' + MB_CHI_SIZE[chiKey];
     });
-    const tray = mbEl('mb-tray');
-    tray.innerHTML = '';
-    p.tray.forEach(c => {
-        const el = mbCardEl(c);
-        el.addEventListener('click', () => mbAssign(c));
-        tray.appendChild(el);
-    });
-    const lung = p.dau.length === 3 && p.giua.length === 5 && p.cuoi.length === 5 &&
-        !mbInstantWin(mbState.hands.player, p) && mbIsBinhLung(p);
+    const lung = !mbInstantWin(mbState.hands.player, p) && mbIsBinhLung(p);
     const warn = mbEl('mb-lung-warn');
     if (warn) warn.classList.toggle('hidden', !lung);
+    // 👍 hiện ở mỗi hàng khi xếp chuẩn (không lủng) — kiểu game mẫu.
+    MB_CHI_ORDER.forEach(chiKey => {
+        const row = mbEl('mb-chi-' + chiKey);
+        const like = row && row.querySelector('.mb-chi-like');
+        if (like) like.style.display = lung ? 'none' : '';
+    });
     mbEl('mb-money').textContent = '💰 ' + (mbState.money.player ?? 1000);
     mbUpdateActions();
 }
 
-function mbAssign(card) {
-    const p = mbState.playerArr;
-    const ti = mbFindCard(p.tray, mbCardKey(card));
-    if (ti < 0) return;
-    mbState.usedAuto = false; // xếp tay lại thì lấy lại quyền thưởng xếp tay
-    let target = mbActiveChi;
-    if (p[target].length >= MB_CHI_SIZE[target]) {
-        // Chi đang chọn đầy thì tràn sang chi còn chỗ (kiểu gamehub24).
-        target = MB_CHI_ORDER.find(k => p[k].length < MB_CHI_SIZE[k]);
-        if (!target) { mbMsg('Đã xếp đủ 13 lá.'); return; }
+// Tự sửa khi xếp sai: tìm 1 lần đổi chỗ giữa 2 chi khác nhau
+// để bài hết lủng (giữ nguyên càng nhiều lá càng tốt); nếu không
+// có lần đổi nào sửa được thì xếp tối ưu lại từ đầu.
+function mbFixArrangement(arr) {
+    if (!mbIsBinhLung(arr)) return arr;
+    const keys = ['dau', 'giua', 'cuoi'];
+    let best = null, bestScore = -Infinity;
+    for (let a = 0; a < keys.length; a++) for (let b = a + 1; b < keys.length; b++) {
+        const ka = keys[a], kb = keys[b];
+        for (let i = 0; i < arr[ka].length; i++) for (let j = 0; j < arr[kb].length; j++) {
+            const cand = { dau: arr.dau.slice(), giua: arr.giua.slice(), cuoi: arr.cuoi.slice() };
+            const tmp = cand[ka][i]; cand[ka][i] = cand[kb][j]; cand[kb][j] = tmp;
+            if (mbIsBinhLung(cand)) continue;
+            const s = mbChiScore(cand.cuoi) * 3 + mbChiScore(cand.giua) * 2 + mbChiScore(cand.dau);
+            if (s > bestScore) { bestScore = s; best = cand; }
+        }
     }
-    p[target].push(p.tray.splice(ti, 1)[0]);
-    // Chi vừa đầy thì tự chuyển sang chi tiếp theo.
-    const ni = MB_CHI_ORDER.indexOf(target) + 1;
-    mbActiveChi = (p[target].length >= MB_CHI_SIZE[target] && ni < MB_CHI_ORDER.length &&
-        p[MB_CHI_ORDER[ni]].length < MB_CHI_SIZE[MB_CHI_ORDER[ni]]) ? MB_CHI_ORDER[ni] : target;
-    mbRenderPlayer();
+    if (best) return best;
+    const hand = [...arr.dau, ...arr.giua, ...arr.cuoi];
+    return mbAutoArrange(hand) || arr;
 }
 
-function mbUnassign(card) {
-    const p = mbState.playerArr;
-    mbState.usedAuto = false;
-    for (const k of MB_CHI_ORDER) {
-        const i = mbFindCard(p[k], mbCardKey(card));
-        if (i >= 0) { p.tray.push(p[k].splice(i, 1)[0]); break; }
-    }
-    p.tray.sort((a, b) => (MB_RANK_VAL[b.rank] - MB_RANK_VAL[a.rank]) || (MB_SUIT_LETTER[a.suit] < MB_SUIT_LETTER[b.suit] ? -1 : 1));
+function mbFixAndRender() {
+    if (!mbState || mbState.phase !== 'arrange') return;
+    mbState.playerArr = mbFixArrangement(mbState.playerArr);
+    mbSelected = null;
+    mbState.usedAuto = true; // sửa tự động thì tính là dùng auto
     mbRenderPlayer();
+    mbMsg('Đã tự sửa cho hết lủng.');
 }
 
-function mbClearArrangement() {
+// Bấm lá: chưa chọn lá nào → chọn lá đó; bấm lại lá đang chọn →
+// bỏ chọn; bấm lá khác → đổi chỗ 2 lá (kể cả khác chi).
+function mbOnCardClick(chiKey, index) {
+    if (!mbState || mbState.phase !== 'arrange') return;
     const p = mbState.playerArr;
-    MB_CHI_ORDER.forEach(k => { p.tray.push(...p[k]); p[k] = []; });
-    p.tray.sort((a, b) => (MB_RANK_VAL[b.rank] - MB_RANK_VAL[a.rank]) || (MB_SUIT_LETTER[a.suit] < MB_SUIT_LETTER[b.suit] ? -1 : 1));
-    mbActiveChi = 'dau';
+    if (!mbSelected) {
+        mbSelected = { key: chiKey, index };
+        mbMsg('Đã chọn 1 lá — bấm lá khác để đổi chỗ.');
+    } else if (mbSelected.key === chiKey && mbSelected.index === index) {
+        mbSelected = null;
+        mbMsg('');
+    } else {
+        const a = p[mbSelected.key][mbSelected.index];
+        const b = p[chiKey][index];
+        p[mbSelected.key][mbSelected.index] = b;
+        p[chiKey][index] = a;
+        mbSelected = null;
+        mbState.usedAuto = false; // đổi tay thì lấy lại quyền thưởng xếp tay
+        mbMsg('Đã đổi chỗ 2 lá.');
+    }
     mbRenderPlayer();
-    mbMsg('Đã trả hết bài về khay.');
 }
 
 function mbMsg(t) {
@@ -472,22 +482,22 @@ function mbNewGame() {
     MB_BOTS.forEach(k => { botArr[k] = mbAutoArrange(hands[k]) || { cuoi: hands[k].slice(0, 5), giua: hands[k].slice(5, 10), dau: hands[k].slice(10, 13) }; });
     let money = { player: 1000, left: 1000, top: 1000, right: 1000 };
     try { if (typeof state !== 'undefined' && state.money) money = state.money; } catch (e) {}
-    const tray = hands.player.slice().sort((a, b) => (MB_RANK_VAL[b.rank] - MB_RANK_VAL[a.rank]) || (MB_SUIT_LETTER[a.suit] < MB_SUIT_LETTER[b.suit] ? -1 : 1));
+    // Bài chia ra đã nằm sẵn 3 hàng theo cách xếp tối ưu (kiểu
+    // game mẫu); người chơi chỉ đổi chỗ các lá nếu muốn.
+    const best = mbAutoArrange(hands.player) || { cuoi: hands.player.slice(0, 5), giua: hands.player.slice(5, 10), dau: hands.player.slice(10, 13) };
     mbState = {
         phase: 'arrange', hands, botArr, money,
-        playerArr: { dau: [], giua: [], cuoi: [], tray },
-        usedAuto: false, timeLeft: 90, results: null
+        playerArr: { dau: best.dau, giua: best.giua, cuoi: best.cuoi },
+        usedAuto: true, timeLeft: 90, results: null
     };
-    mbActiveChi = 'dau';
+    mbSelected = null;
     const res = mbEl('mb-result');
     if (res) res.classList.add('hidden');
     const acts = mbEl('mb-actions');
     if (acts) acts.classList.remove('hidden');
-    const trayEl = mbEl('mb-tray');
-    if (trayEl) trayEl.classList.remove('hidden');
     mbRenderBots(false);
     mbRenderPlayer();
-    mbMsg('Bấm lá bài rồi bấm tên chi để xếp. Đủ 13 lá thì bấm So bài.');
+    mbMsg('Bài đã xếp sẵn. Bấm 1 lá rồi bấm lá khác để đổi chỗ, xong bấm Xong.');
     const tel = mbEl('mb-timer');
     if (tel) tel.textContent = '⏳ 90';
     mbStartTimer();
@@ -495,9 +505,10 @@ function mbNewGame() {
 
 function mbAutoAndShowdown() {
     mbState.usedAuto = true;
+    mbSelected = null;
     const best = mbAutoArrange(mbState.hands.player);
     if (best) {
-        mbState.playerArr = { dau: best.dau, giua: best.giua, cuoi: best.cuoi, tray: [] };
+        mbState.playerArr = { dau: best.dau, giua: best.giua, cuoi: best.cuoi };
         mbRenderPlayer();
     }
     mbShowdown();
@@ -518,8 +529,8 @@ function mbSettlePlayer(deltaByBot) {
 
 function mbShowdown() {
     mbStopTimer();
+    mbSelected = null;
     const p = mbState.playerArr;
-    if (p.tray.length) { mbMsg('Còn ' + p.tray.length + ' lá chưa xếp.'); return; }
     const bet = mbBet();
     // Ăn trắng xét theo cách xếp thực tế; binh lủng chỉ tính khi
     // không có ăn trắng (đúng thứ tự xét của gamehub24).
@@ -576,8 +587,6 @@ function mbShowResult(title, totalDelta, lines) {
     const box = mbEl('mb-result');
     const acts = mbEl('mb-actions');
     if (acts) acts.classList.add('hidden');
-    const tray = mbEl('mb-tray');
-    if (tray) tray.classList.add('hidden');
     mbEl('mb-result-title').textContent = title;
     mbEl('mb-result-money').textContent = (totalDelta > 0 ? '+' : '') + totalDelta + ' xu';
     const bd = mbEl('mb-result-breakdown');
@@ -624,32 +633,25 @@ if (typeof document !== 'undefined') {
         if (bl) bl.addEventListener('click', mbBackToLobby);
         const ba = mbEl('btn-mb-auto');
         if (ba) ba.addEventListener('click', () => { if (mbState && mbState.phase === 'arrange') mbAutoAndShowdownPreview(); });
-        const bc = mbEl('btn-mb-clear');
-        if (bc) bc.addEventListener('click', () => { if (mbState && mbState.phase === 'arrange') mbClearArrangement(); });
+        const bf = mbEl('btn-mb-fix');
+        if (bf) bf.addEventListener('click', () => { if (mbState && mbState.phase === 'arrange') mbFixAndRender(); });
         const bd = mbEl('btn-mb-done');
         if (bd) bd.addEventListener('click', () => { if (mbState && mbState.phase === 'arrange') mbShowdown(); });
         const bn = mbEl('btn-mb-new');
         if (bn) bn.addEventListener('click', mbNewGame);
         const bl2 = mbEl('btn-mb-result-lobby');
         if (bl2) bl2.addEventListener('click', mbBackToLobby);
-        MB_CHI_ORDER.forEach(k => {
-            const row = mbEl('mb-chi-' + k);
-            if (row) row.addEventListener('click', e => {
-                if (e.target.closest('.mb-card')) return; // bấm lá bài = trả về khay
-                mbActiveChi = k;
-                mbRenderPlayer();
-            });
-        });
     });
 }
 
-// Nút "Xếp tự động" chỉ xếp (không so) — khác với hết giờ (xếp + so).
+// Nút "Tự động" chỉ xếp lại (không so) — khác với hết giờ (xếp + so).
 // Dùng nút này thì mất quyền nhận thưởng xếp tay (theo gamehub24).
 function mbAutoAndShowdownPreview() {
     mbState.usedAuto = true;
+    mbSelected = null;
     const best = mbAutoArrange(mbState.hands.player);
     if (!best) { mbMsg('Bài này không xếp được cách nào hợp lệ.'); return; }
-    mbState.playerArr = { dau: best.dau, giua: best.giua, cuoi: best.cuoi, tray: [] };
+    mbState.playerArr = { dau: best.dau, giua: best.giua, cuoi: best.cuoi };
     mbRenderPlayer();
-    mbMsg('Đã xếp tự động. Bấm So bài để đấu, hoặc bấm lá để chỉnh lại.');
+    mbMsg('Đã xếp tự động. Bấm 2 lá để đổi chỗ nếu muốn, rồi bấm Xong.');
 }
