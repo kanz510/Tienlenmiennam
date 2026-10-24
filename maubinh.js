@@ -571,15 +571,17 @@ function mbShowdown() {
             const label = c.key === 'dau' ? 'Chi đầu' : (c.key === 'giua' ? 'Chi giữa' : 'Chi cuối');
             const aN = c.key === 'dau' ? MB_CAT_NAME_3[c.aCat] : MB_CAT_NAME[c.aCat];
             const bN = c.key === 'dau' ? MB_CAT_NAME_3[c.bCat] : MB_CAT_NAME[c.bCat];
-            const r = c.res === 1 ? 'thắng' : (c.res === -1 ? 'thua' : 'hòa');
-            return label + ': ' + aN + ' vs ' + bN + ' — ' + r;
-        }).join(' · ');
+            const outcome = c.res === 1 ? 'THẮNG' : (c.res === -1 ? 'THUA' : 'HÒA');
+            const tone = c.res === 1 ? 'win' : (c.res === -1 ? 'loss' : 'tie');
+            return '<div class="mb-score-chi ' + tone + '"><span class="mb-score-chi-label">' + label + '</span><span class="mb-score-hands">' + aN + ' <span aria-hidden="true">vs</span> ' + bN + '</span><strong class="mb-score-outcome">' + outcome + '</strong></div>';
+        }).join('');
+
         let extra = '';
         if (bInst) extra += ' <span class="mb-badge mb-badge-amber">' + MB_BOT_NAMES[k] + ' ăn trắng: ' + bInst.name + '</span>';
         if (sc.pScoop) extra += ' <span class="mb-badge mb-badge-red">Sập +3</span>';
         if (sc.bScoop) extra += ' <span class="mb-badge mb-badge-red">Bị sập</span>';
         if (sc.bonusLabels.length) extra += ' <span class="mb-badge mb-badge-indigo">Thưởng: ' + sc.bonusLabels.join(', ') + '</span>';
-        const detail = 'vs ' + MB_BOT_NAMES[k] + ': ' + (sc.total > 0 ? '+' : '') + (sc.total * bet) + ' xu (' + chiTxt + ')' + extra;
+        const detail = '<section class="mb-score-card"><header class="mb-score-card-head"><strong>' + MB_BOT_NAMES[k] + '</strong><strong class="mb-score-total ' + (sc.total > 0 ? 'win' : (sc.total < 0 ? 'loss' : 'tie')) + '">' + (sc.total > 0 ? '+' : '') + (sc.total * bet) + ' xu</strong></header><div class="mb-score-chi-list">' + chiTxt + '</div><div class="mb-score-meta">Điểm chi: ' + (sc.base > 0 ? '+' : '') + sc.base + ' · Thưởng bạn: +' + sc.pBonus + ' · Thưởng đối thủ: -' + sc.bBonus + (sc.pScoop ? ' · Sập +' + sc.pScoop : '') + (sc.bScoop ? ' · Bị sập -' + sc.bScoop : '') + '</div>' + extra + '</section>';
         delta.player += sc.total * bet;
         delta[k] -= sc.total * bet;
         if (!sc.chi.every(c => c.res === 1)) sweepAll = false;
