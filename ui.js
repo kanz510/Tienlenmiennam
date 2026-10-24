@@ -110,21 +110,19 @@ function spawnConfetti() {
     const box = document.getElementById('confetti');
     if (!box) return;
     box.innerHTML = '';
-    // r149: mount victory art in a dedicated body-level FX layer, above the result overlay stacking context.
-    let fxLayer = document.getElementById('premium-victory-fx');
-    if (!fxLayer) {
-        fxLayer = document.createElement('div');
-        fxLayer.id = 'premium-victory-fx';
-        fxLayer.setAttribute('aria-hidden', 'true');
-        document.body.appendChild(fxLayer);
-    }
-    fxLayer.innerHTML = '';
+    // r150: mount victory art inside the result overlay so it shares the overlay's final paint/rotation context.
+    const overlay = document.getElementById('overlay');
+    if (!overlay) return;
+    const staleFxLayer = document.getElementById('premium-victory-fx');
+    if (staleFxLayer) staleFxLayer.remove();
+    const oldPlaque = overlay.querySelector('.premium-victory-plaque');
+    if (oldPlaque) oldPlaque.remove();
     const plaque = document.createElement('img');
     plaque.className = 'premium-victory-plaque';
     plaque.src = 'assets/fx/victory-plaque-r145.svg';
     plaque.alt = '';
     plaque.setAttribute('aria-hidden', 'true');
-    fxLayer.appendChild(plaque);
+    overlay.appendChild(plaque);
     const colors = ['#ffd700', '#f3d27a', '#fff6cf', '#1db981', '#e9c767', '#ffffff'];
     for (let i = 0; i < 34; i++) {
         const p = document.createElement('div');
