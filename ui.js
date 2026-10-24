@@ -197,7 +197,20 @@ function updateTurnIndicator() {
     if (state.turn !== 0) setTurnRing(PLAYERS[state.turn], 1, false);
 }
 
+function ensurePremiumTableCrest() {
+    const table = document.querySelector('.table-area');
+    if (!table || document.getElementById('premium-table-crest')) return;
+    const crest = document.createElement('img');
+    crest.id = 'premium-table-crest';
+    crest.src = 'assets/ui/premium-table-crest-r143.svg';
+    crest.alt = '';
+    crest.setAttribute('aria-hidden', 'true');
+    crest.decoding = 'async';
+    table.prepend(crest);
+}
+
 function render() {
+    ensurePremiumTableCrest();
     renderPlayerHand();
     renderBotHand('left', 'cards-left', 'count-left');
     renderBotHand('right', 'cards-right', 'count-right');
