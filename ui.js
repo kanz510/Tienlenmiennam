@@ -411,8 +411,17 @@ function renderLastPlay() {
     const el = document.getElementById('played-cards');
     const ghost = document.getElementById('played-ghost');
     const info = document.getElementById('last-play-info');
-    if (el) el.classList.remove('big-play');
+    if (el) {
+        el.classList.remove('big-play');
+        el.classList.remove('trick-clear-r134');
+    }
     if (!state.lastPlay) {
+        if (el && el.children && el.children.length) {
+            el.classList.remove('trick-clear-r134');
+            void el.offsetWidth;
+            el.classList.add('trick-clear-r134');
+            setTimeout(() => { if (el) el.classList.remove('trick-clear-r134'); }, 360);
+        }
         el.innerHTML = '';
         if (ghost) ghost.innerHTML = '';
         if (info) { info.textContent = ''; info.classList.remove('show', 'big-play'); }
