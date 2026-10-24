@@ -853,6 +853,8 @@ function createCardEl(card) {
     const div = document.createElement('div');
     const isRed = (card.suit === '♥' || card.suit === '♦');
     div.className = 'card ' + (isRed ? 'red' : 'black');
+    // r130: semantic rank classes let the premium theme emphasize J/Q/K without touching game rules.
+    if (card.rank === 'J' || card.rank === 'Q' || card.rank === 'K') div.classList.add('face-rank', 'face-rank-' + card.rank.toLowerCase());
     const full = faceFullFor(card);
     if (full) {
         div.classList.add('has-art');
