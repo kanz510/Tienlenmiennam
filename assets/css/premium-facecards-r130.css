@@ -1,0 +1,43 @@
+/* r130 — royal face-card finish. Decorative only; ranks and gameplay are untouched. */
+#game-container .card.face-rank {
+  border-color: rgba(183,145,62,.96);
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.99), rgba(255,250,235,.98) 52%, rgba(224,207,166,.96));
+  box-shadow:
+    0 7px 13px rgba(0,0,0,.29),
+    inset 0 0 0 2px rgba(255,255,255,.96),
+    inset 0 0 0 4px rgba(190,151,67,.24);
+}
+#game-container .card.face-rank::after {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(183,145,62,.42);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255,224,151,.24), transparent 42%),
+    linear-gradient(145deg, transparent 42%, rgba(255,255,255,.22) 50%, transparent 58%);
+}
+#game-container .card.face-rank-j { --royal-accent: #8d6e3f; }
+#game-container .card.face-rank-q { --royal-accent: #0b8c83; }
+#game-container .card.face-rank-k { --royal-accent: #b88736; }
+#game-container .card.face-rank .corner {
+  color: var(--royal-accent, #8d6e3f);
+  text-shadow: 0 1px 0 rgba(255,255,255,.95), 0 0 5px rgba(221,185,101,.14);
+}
+#game-container .card.face-rank.has-art img.face-full,
+#game-container .card.face-rank img.face-art {
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 1px 2px rgba(91,64,22,.16));
+}
+#game-container .player-cards .card.face-rank.selected {
+  border-color: #ffdf8a;
+  box-shadow: 0 0 0 2px rgba(255,218,130,.85), 0 12px 20px rgba(0,0,0,.4), 0 0 17px rgba(255,207,100,.35), inset 0 0 0 2px #fff;
+}
+#game-container #played-cards .card.face-rank {
+  filter: drop-shadow(0 4px 4px rgba(0,0,0,.2));
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container .card.face-rank { transition: none; }
+}
