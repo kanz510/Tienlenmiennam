@@ -76,7 +76,7 @@ test('binh-lung validates 5-5-3 sizes and requires later chi not be weaker', () 
     dau: ranks([3, 3, 14])
   };
   assert.equal(mbIsBinhLung(valid), false);
-  assert.equal(mbIsBinhLung({ ...valid, dau: ranks([10, 10, 10]) }), true, 'wrong chi size should be invalid');
+  assert.equal(mbIsBinhLung({ ...valid, dau: ranks([10, 10, 10, 9]) }), true, 'wrong chi size should be invalid');
   const foul = { cuoi: ranks([2, 4, 6, 8, 10]), giua: ranks([9, 9, 9, 5, 5]), dau: ranks([3, 3, 14]) };
   assert.equal(mbIsBinhLung(foul), true);
 });
