@@ -105,3 +105,24 @@ test('score pair is zero for exact tied chi and awards sweep only for three chi 
   assert.equal(score.bScoop, 0);
   assert.ok(score.total >= 6, 'three winning chi plus sweep should produce at least +6 before special bonuses');
 });
+
+test('instant-win hierarchy resolves stronger hand and equal rank is a draw', () => {
+  const player = { dau: ranks([2, 3, 4]), giua: ranks([2, 3, 4, 5, 6]), cuoi: ranks([3, 4, 5, 6, 7]) };
+  const bot = { dau: ranks([5, 6, 7]), giua: ranks([7, 8, 9, 10, 11]), cuoi: ranks([8, 9, 10, 11, 12]) };
+  const stronger = mbScorePair(player, bot, { name: 'Sảnh rồng', rank: 6 }, { name: 'Đồng màu 13 lá', rank: 5 }, false, false);
+  assert.deepEqual(Array.from(stronger.chi, c => c.res), [1, 1, 1]);
+  assert.equal(stronger.pScoop, 3);
+  assert.equal(stronger.total, 6);
+  const tied = mbScorePair(player, bot, { name: 'Năm đôi 1 sám', rank: 3 }, { name: 'Lục phé bôn', rank: 3 }, false, false);
+  assert.deepEqual(Array.from(tied.chi, c => c.res), [0, 0, 0]);
+  assert.equal(tied.total, 0);
+});
+
+test('a fouled hand loses all three chi against a valid hand', () => {
+  const player = { dau: ranks([2, 4, 6]), giua: ranks([9, 9, 9, 5, 5]), cuoi: ranks([2, 4, 6, 8, 10]) };
+  const bot = { dau: ranks([3, 3, 3]), giua: ranks([10, 10, 10, 8, 8]), cuoi: ranks([11, 11, 11, 7, 7]) };
+  const score = mbScorePair(player, bot, null, null, true, false);
+  assert.deepEqual(Array.from(score.chi, c => c.res), [-1, -1, -1]);
+  assert.equal(score.bScoop, 3);
+  assert.equal(score.total, -6);
+});
