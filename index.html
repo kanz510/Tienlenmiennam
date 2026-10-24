@@ -11,9 +11,9 @@
     <meta name="theme-color" content="#075a5e">
     <meta name="color-scheme" content="light">
     <title>Tiến Lên Miền Nam</title>
-    <link rel="stylesheet" href="style.css?v=r122">
+    <link rel="stylesheet" href="style.css?v=r123">
 <script>
-window.__TLV = 'r122';
+window.__TLV = 'r123';
 function tlvCheck() {
     try {
         fetch(location.pathname + '?tlvcheck=' + Date.now(), { cache: 'no-store' })
@@ -111,7 +111,6 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
                     <span class="bubble" id="bubble-player"></span>
                     <div class="avatar-wrap" id="awrap-player"><div class="avatar">🧑</div><span class="just-badge hidden" id="just-player">VỪA ĐÁNH</span></div>
                     <span class="bot-name">Bạn</span>
-                    <span id="level-badge">⭐1</span>
                     <span class="pass-label" id="pass-player">BỎ LƯỢT</span>
                     <span class="card-count" id="count-player">13</span>
                     <span class="money" id="money-player">💰 1000</span>
@@ -138,10 +137,10 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
     <div id="overlay" class="hidden">
         <div id="confetti"></div>
         <button id="btn-review-back" class="hidden">↩ Quay lại bảng</button>
+        <div id="result-fx" class="hidden"><img id="result-plaque" alt="" aria-hidden="true"><button id="btn-result-continue">▶ Tiếp tục</button></div>
         <div id="overlay-content">
             <h2 id="overlay-title"></h2>
             <div id="overlay-money"></div>
-            <div id="overlay-xp"></div>
             <div id="overlay-breakdown"></div>
             <div class="overlay-actions">
                 <button id="btn-overlay-lobby">🏠 Sảnh chờ</button>
@@ -158,7 +157,7 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         <div id="lobby-content">
             <div id="lobby-logo"><img class="logo-back" src="assets/cards/AS.svg" alt=""><img class="logo-front" src="assets/cards/AH.svg" alt=""></div>
             <h1 id="lobby-title">TIẾN LÊN MIỀN NAM</h1>
-            <div id="lobby-level">⭐ Cấp 1</div>
+            <div id="lobby-level">🪙 0 xu</div>
             <button id="btn-start">✦ ▶ Bắt đầu ✦</button>
             <button id="btn-continue" class="hidden">⏩ Chơi tiếp ván dở</button>
             <div class="lobby-row">
@@ -251,12 +250,12 @@ document.addEventListener('visibilitychange', function () { if (!document.hidden
         </div>
     </div>
 
-    <script src="rules.js?v=r122"></script>
-    <script src="audio.js?v=r122"></script>
-    <script src="cards-img.js?v=r122"></script>
-    <script src="bot.js?v=r122"></script>
-    <script src="ui.js?v=r122"></script>
-    <script src="game.js?v=r122"></script>
+    <script src="rules.js?v=r123"></script>
+    <script src="audio.js?v=r123"></script>
+    <script src="cards-img.js?v=r123"></script>
+    <script src="bot.js?v=r123"></script>
+    <script src="ui.js?v=r123"></script>
+    <script src="game.js?v=r123"></script>
     <script>
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
         window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });

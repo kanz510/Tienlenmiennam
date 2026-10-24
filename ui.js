@@ -837,17 +837,6 @@ function fxChop() {
     if (chopFxTimer) clearTimeout(chopFxTimer);
     chopFxTimer = setTimeout(() => gc.classList.remove('chop-flash'), 520);
 }
-// r80: hiệu ứng lên cấp — vòng sáng vàng quanh avatar người chơi
-let levelFxTimer = null;
-function fxLevelUp() {
-    const w = document.getElementById('awrap-player');
-    if (!w) return;
-    w.classList.remove('levelup');
-    void w.offsetWidth;
-    w.classList.add('levelup');
-    if (levelFxTimer) clearTimeout(levelFxTimer);
-    levelFxTimer = setTimeout(() => w.classList.remove('levelup'), 1500);
-}
 
 function createCardEl(card) {
     const div = document.createElement('div');
@@ -1066,7 +1055,6 @@ function renderBreakdown(totalDelta) {
         html += '<div class="bd-row"><span>' + PLAYER_NAMES[k] + ' — tổng ván</span><b>' + (totalDelta[k] > 0 ? '+' : '') + totalDelta[k] + ' xu</b></div>';
     });
     html += '</div>';
-    if (typeof levelUpNote !== 'undefined' && levelUpNote) html += '<div class="bd-row"><span>' + levelUpNote + '</span><b></b></div>';
     box.innerHTML = html;
 }
 
@@ -1135,12 +1123,9 @@ function applyMetaVisuals() {
         wrap.classList.remove('frame-bac', 'frame-vang', 'frame-lua', 'frame-ngoc', 'frame-kimcuong');
         if (meta.equipped.frame && meta.equipped.frame !== 'none') wrap.classList.add('frame-' + meta.equipped.frame);
     }
-    const badge = document.getElementById('level-badge');
-    if (badge) badge.textContent = '⭐' + levelFromXp(meta.xp).level;
 }
 function renderLobbyMeta() {
     ensureDaily();
-    const info = levelFromXp(meta.xp);
     const line = document.getElementById('lobby-level');
     if (line) line.textContent = '🪙 ' + Number(state.money.player).toLocaleString('vi-VN') + ' xu';
     const gift = document.getElementById('btn-gift');
@@ -1265,4 +1250,24 @@ function renderTasks() {
     q('[data-claimw]').forEach(b => b.addEventListener('click', () => { claimWeeklyTask(b.getAttribute('data-claimw')); }));
     q('[data-mile]').forEach(b => b.addEventListener('click', () => { claimMilestone(b.getAttribute('data-mile')); }));
     q('[data-login]').forEach(b => b.addEventListener('click', () => { claimLogin(); }));
+}
+
+// r123: man hieu ung ket van — tam bang thang/thua + nut Tiep tuc; bam nut moi hien bang ke.
+function showResultFx(won) {
+    const fx = document.getElementById('result-fx');
+    const img = document.getElementById('result-plaque');
+    const oc = document.getElementById('overlay-content');
+    if (!fx || !img) return;
+    img.src = won ? 'assets/fx/victory-plaque.svg' : 'assets/fx/defeat-plaque.svg';
+    img.classList.remove('fx-pop');
+    void img.offsetWidth;
+    img.classList.add('fx-pop');
+    if (oc) oc.classList.add('hidden');
+    fx.classList.remove('hidden');
+}
+function hideResultFx() {
+    const fx = document.getElementById('result-fx');
+    const oc = document.getElementById('overlay-content');
+    if (fx) fx.classList.add('hidden');
+    if (oc) oc.classList.remove('hidden');
 }

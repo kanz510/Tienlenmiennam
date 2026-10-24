@@ -677,7 +677,6 @@ body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
 .lobby-row { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
 .lobby-sub-btn { padding: 10px 16px; border-radius: 999px; border: 2px solid rgba(255,255,255,.45); background: rgba(0,0,0,.5); color: #fff; font-size: 15px; font-weight: 800; cursor: pointer; }
 #btn-gift { margin-top: 10px; padding: 10px 18px; border-radius: 999px; border: 2px solid #ffd700; background: linear-gradient(180deg, #8d6e00, #5d4a00); color: #ffe082; font-size: 15px; font-weight: 800; cursor: pointer; }
-#level-badge { background: rgba(0,0,0,.55); color: #ffd54f; border: 1px solid rgba(255,213,79,.6); border-radius: 999px; padding: 1px 7px; font-size: 12px; font-weight: 800; }
 .shop-money { text-align: center; color: #ffd54f; font-weight: 800; font-size: 16px; margin-bottom: 6px; }
 .shop-group { color: #0b5563; font-weight: 800; margin: 12px 0 4px; font-size: 14px; }
 .shop-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 2px; border-bottom: 1px dashed rgba(0,0,0,.18); font-size: 14px; }
@@ -722,7 +721,6 @@ body.theme-duong { background: radial-gradient(circle, #24507a, #12283d); }
 @keyframes glassSheen { 0%, 55% { transform: translateX(-130%); } 88%, 100% { transform: translateX(130%); } }
 #overlay-content h2, #overlay-title { color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.45); }
 #overlay-money { color: #ffe082; font-size: 30px; font-weight: 900; text-shadow: 0 2px 12px rgba(0,0,0,.5); }
-#overlay-xp { color: #b9f6d2; font-size: 15px; font-weight: 800; text-shadow: 0 1px 8px rgba(0,0,0,.5); min-height: 20px; }
 #overlay-breakdown .bd-row { background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.16); border-radius: 10px; padding: 5px 10px; margin-top: 5px; color: #fff; animation: rowIn .45s ease both; }
 #overlay-breakdown .bd-row:nth-child(2) { animation-delay: .05s; }
 #overlay-breakdown .bd-row:nth-child(3) { animation-delay: .1s; }
@@ -1203,13 +1201,8 @@ body {
     30% { box-shadow: inset 0 0 0 2px rgba(255,213,79,.85), inset 0 0 64px rgba(255,193,7,.28); }
 }
 /* Hiệu ứng lên cấp: vòng sáng vàng lan tỏa quanh avatar người chơi */
-#awrap-player.levelup { animation: levelUpGlow 1.4s ease-out; }
-@keyframes levelUpGlow {
-    0% { box-shadow: 0 0 0 0 rgba(255,213,79,.95), 0 0 18px rgba(255,213,79,.9); }
-    100% { box-shadow: 0 0 0 16px rgba(255,213,79,0), 0 0 4px rgba(255,213,79,0); }
-}
 @media (prefers-reduced-motion: reduce) {
-    #game-container.chop-flash .table-area, #awrap-player.levelup { animation: none !important; }
+    #game-container.chop-flash .table-area { animation: none !important; }
 }
 
 /* ===== r81: khử mảng vuông của lớp bài cũ mờ (played-ghost) =====
@@ -1593,3 +1586,61 @@ body {
 }
 .lobby-fx { opacity: .72; }
 .lobby-fx .fx-card { opacity: .42; }
+
+/* ===== r123: 3 mon chon loc tu nhanh thu nghiem (khong merge nguyen nhanh) ===== */
+/* 1) Man hieu ung ket van: tam bang thang/thua + nut Tiep tuc; bang ke chi hien sau khi bam nut. */
+#result-fx {
+    position: absolute; inset: 0; z-index: 5;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+}
+#result-fx.hidden { display: none; }
+#result-plaque {
+    width: min(92%, 640px); height: auto; pointer-events: none;
+    filter: drop-shadow(0 12px 30px rgba(0,0,0,.55));
+}
+#result-plaque.fx-pop { animation: tl-result-pop .45s ease-out both; }
+@keyframes tl-result-pop {
+    0% { opacity: 0; transform: scale(.82); }
+    100% { opacity: 1; transform: scale(1); }
+}
+#btn-result-continue {
+    min-width: 200px; min-height: 52px; padding: 10px 28px;
+    font-size: 19px; font-weight: 900; color: #0a2e25;
+    background: linear-gradient(180deg, #ffe9a3, #d4af37);
+    border: 2px solid #fff3c4; border-radius: 999px; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.7);
+}
+/* 2) Avatar chan dung ve: an emoji cu, dung anh SVG theo tung ghe. */
+#game-container .avatar-wrap .avatar {
+    display: block; position: relative; overflow: hidden;
+    color: transparent !important; font-size: 0 !important; line-height: 0;
+    background-color: #0a392f; background-position: center;
+    background-size: cover; background-repeat: no-repeat;
+    border: 2px solid #f4dca0;
+    box-shadow: 0 0 0 2px rgba(2,25,22,.85), 0 4px 9px rgba(0,0,0,.42);
+}
+#game-container #awrap-player .avatar { background-image: url("assets/avatars/avatar-player-emerald.svg"); }
+#game-container #awrap-top .avatar { background-image: url("assets/avatars/avatar-tuan-tiger.svg"); }
+#game-container #awrap-left .avatar { background-image: url("assets/avatars/avatar-hung-lion.svg"); }
+#game-container #awrap-right .avatar { background-image: url("assets/avatars/avatar-nam-fox.svg"); }
+#game-container .avatar-wrap .avatar::after {
+    content: ""; position: absolute; inset: 2px;
+    border: 1px solid rgba(255,245,210,.28); border-radius: inherit; pointer-events: none;
+}
+/* 3) Lung bai moi mac dinh: chi thang luat .back-card goc; cac kieu lung
+   da chon (back-soc/back-cham/...) co specificity cao hon nen van thang. */
+#game-container .back-card {
+    background-color: #063b31;
+    background-image: url("assets/cards/card-back-emerald-r146.svg");
+    background-size: 100% 100%; background-position: center; background-repeat: no-repeat;
+}
+
+/* 4) Sua blur nua man hinh (r123): backdrop-filter tren phan tu xoay (ov-rot) bi cat
+   vung tac dung o giua man hinh — bo blur, bu bang nen toi / nen panel dam hon.
+   Panel van giu vet sang kinh (glassSheen) nen chat liquid glass khong mat. */
+#overlay { background: rgba(3,26,30,.66); backdrop-filter: none; -webkit-backdrop-filter: none; }
+#overlay-content {
+    background: linear-gradient(155deg, rgba(255,255,255,.42), rgba(255,255,255,.22) 55%, rgba(255,255,255,.30));
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+#overlay-breakdown .bd-row { background: rgba(255,255,255,.16); }

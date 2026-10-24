@@ -108,9 +108,7 @@ const MILESTONE_DEFS = {
 };
 // Đường thưởng đăng nhập 7 ngày: ngày 7 có thêm khung avatar Ngọc (frame-ngoc)
 const LOGIN_REWARDS = [50, 75, 100, 125, 150, 200, 500];
-let meta = { xp: 0, owned: [], equipped: { avatar: '🧑', frame: 'none' }, daily: null, weekly: null, login: { lastDate: '', streak: 0 } };
-let levelUpNote = ''; // ghi chú lên cấp/thưởng XP để hiện kèm bảng kê cuối ván
-let lastXpGain = 0; // XP nhận được ở ván vừa kết thúc (hiện trên bảng kết ván)
+let meta = { owned: [], equipped: { avatar: '🧑', frame: 'none' }, daily: null, weekly: null, login: { lastDate: '', streak: 0 } };
 
 function saveMeta() { try { localStorage.setItem('tlMeta', JSON.stringify(meta)); } catch (e) {} }
 function loadMeta() {
@@ -120,29 +118,11 @@ function loadMeta() {
             const m = JSON.parse(raw);
             if (m) meta = { ...meta, ...m, equipped: { ...meta.equipped, ...(m.equipped || {}) }, login: { ...meta.login, ...(m.login || {}) } };
             if (m && m.weekly) meta.weekly = m.weekly;
+            delete meta.xp; // r123: bo he XP, du lieu cu khong dung nua
         }
     } catch (e) {}
     ensureDaily();
     ensureWeekly();
-}
-function levelFromXp(xp) {
-    let lv = 1, need = 100, rest = xp;
-    while (rest >= need) { rest -= need; lv++; need = 100 * lv; }
-    return { level: lv, into: rest, need };
-}
-function addXp(n) {
-    const before = levelFromXp(meta.xp).level;
-    meta.xp += n;
-    const after = levelFromXp(meta.xp).level;
-    if (after > before) {
-        const bonus = 200 * (after - before);
-        state.money.player += bonus;
-        saveMoney();
-        levelUpNote = '⭐ Lên cấp ' + after + '! Thưởng ' + bonus + ' xu (đã cộng).';
-        floatMoney('player', '+' + bonus, true);
-        if (typeof fxLevelUp === 'function') fxLevelUp(); // r80: phát sáng avatar khi lên cấp
-    }
-    saveMeta();
 }
 function todayStr(d) {
     d = d || new Date();
@@ -267,7 +247,6 @@ function claimMilestone(key) {
 }
 function onPlayerChop() {
     ensureDaily();
-    addXp(15);
     bumpProgress('chop');
 }
 
@@ -292,17 +271,12 @@ function updateStats(winnerIdx, playerTotalDelta) {
         stats.curStreak = 0;
     }
     saveStats();
-    // r61 + r79: XP + tiến độ nhiệm vụ ngày/tuần từ sự kiện ván vừa xong
+    // r61 + r79: tiến độ nhiệm vụ ngày/tuần từ sự kiện ván vừa xong
     ensureDaily();
     bumpProgress('play');
     if (winnerIdx === 0) {
-        lastXpGain = state.toiTrang ? 50 : 30;
-        addXp(lastXpGain);
         bumpProgress('win');
         if (state.toiTrang) bumpProgress('trang');
-    } else {
-        lastXpGain = 10;
-        addXp(10);
     }
     saveMeta();
 }
@@ -574,8 +548,6 @@ function resumeSavedGame() {
 
 function newGame() {
     stopTimer();
-    levelUpNote = '';
-    lastXpGain = 0;
     const deck = shuffle(createDeck());
     playShuffle();
     try { aiWarmUp(); } catch (e) {}
@@ -953,11 +925,10 @@ function endGame(winnerIdx) {
         void om.offsetWidth;
         om.classList.add('coin-pop');
     }
-    const ox = document.getElementById('overlay-xp');
-    if (ox) ox.textContent = '⭐ +' + lastXpGain + ' XP · Cấp ' + levelFromXp(meta.xp).level;
     renderBreakdown(totalDelta);
     render();
     if (winnerIdx === 0) spawnConfetti();
+    showResultFx(winnerIdx === 0);
     const oc = document.getElementById('overlay-content');
     if (oc) oc.classList.toggle('player-won', winnerIdx === 0);
     toggleReview(false);
@@ -1046,6 +1017,7 @@ function toggleReview(on) {
     else { ov.classList.remove('review-mode'); if (back) back.classList.add('hidden'); }
 }
 
+document.getElementById('btn-result-continue').addEventListener('click', () => hideResultFx());
 document.getElementById('btn-overlay-review').addEventListener('click', () => toggleReview(true));
 document.getElementById('btn-review-back').addEventListener('click', () => toggleReview(false));
 document.getElementById('btn-overlay-lobby').addEventListener('click', () => {
