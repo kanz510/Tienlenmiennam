@@ -345,6 +345,9 @@ function handleCardClick(idx) {
 
 // r133: chỉ tạo hiệu ứng chia bài khi bắt đầu ván / số bài tăng, không chạy lại khi chọn bài.
 const premiumDealCounts = { player: null, left: null, right: null, top: null };
+function resetPremiumDealCounts() {
+    Object.keys(premiumDealCounts).forEach(who => { premiumDealCounts[who] = null; });
+}
 function shouldAnimateDeal(who, count) {
     const previous = premiumDealCounts[who];
     premiumDealCounts[who] = count;
