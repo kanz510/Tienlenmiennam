@@ -62,9 +62,8 @@ function mbEvalChi(cards) {
     return { cat: 1, tb: vals.slice().reverse() };
 }
 
-// So 2 chi cùng số lá: 1 = a thắng, 0 = hòa, -1 = a thua.
-function mbCompareChi(a, b) {
-    const A = mbEvalChi(a), B = mbEvalChi(b);
+// So 2 kết quả mbEvalChi cùng cỡ: 1 = A hơn, 0 = hòa, -1 = A kém.
+function mbCmpEval(A, B) {
     if (A.cat !== B.cat) return A.cat > B.cat ? 1 : -1;
     const n = Math.max(A.tb.length, B.tb.length);
     for (let i = 0; i < n; i++) {
@@ -72,6 +71,28 @@ function mbCompareChi(a, b) {
         if (x !== y) return x > y ? 1 : -1;
     }
     return 0;
+}
+
+// So 2 chi cùng số lá: 1 = a thắng, 0 = hòa, -1 = a thua.
+function mbCompareChi(a, b) {
+    return mbCmpEval(mbEvalChi(a), mbEvalChi(b));
+}
+
+// So chi đầu (3 lá) với chi giữa (5 lá) để xét binh lủng, theo mặt bài thật:
+// đổi hạng sám 3 lá (3) về hạng sám cô 5 lá (4); cùng hạng thì so từng lá
+// từ lớn xuống nhỏ trên số lá chung (đôi: đôi rồi kicker 1; mậu thầu: 3 lá cao nhất).
+// 1 = chi đầu mạnh hơn chi giữa (lủng), 0 = ngang nhau, -1 = chi đầu yếu hơn.
+function mbCmpDauGiuaEval(D, G) {
+    const dc = D.cat === 3 ? 4 : D.cat;
+    if (dc !== G.cat) return dc > G.cat ? 1 : -1;
+    const n = Math.min(D.tb.length, G.tb.length);
+    for (let i = 0; i < n; i++) {
+        if (D.tb[i] !== G.tb[i]) return D.tb[i] > G.tb[i] ? 1 : -1;
+    }
+    return 0;
+}
+function mbCompareDauToGiua(dau, giua) {
+    return mbCmpDauGiuaEval(mbEvalChi(dau), mbEvalChi(giua));
 }
 
 // Giá trị thống nhất của 1 chi (port theo evaluate3/5CardHand của
@@ -121,35 +142,66 @@ function mbHandValue(cards) {
 // Một cách xếp: { cuoi: [5], giua: [5], dau: [3] }.
 // Theo gamehub24: chỉ lủng khi chi sau YẾU HƠN chi trước
 // (cuoi < giua hoặc giua < dau); bằng nhau vẫn được.
+// Lủng khi chi cuối yếu hơn chi giữa, hoặc chi đầu mạnh hơn chi giữa
+// (bằng nhau vẫn được). Chi đầu 3 lá so với chi giữa 5 lá theo mặt bài.
 function mbIsBinhLung(arr) {
     if (!arr || arr.cuoi.length !== 5 || arr.giua.length !== 5 || arr.dau.length !== 3) return true;
-    return mbHandValue(arr.cuoi) < mbHandValue(arr.giua) || mbHandValue(arr.giua) < mbHandValue(arr.dau);
+    return mbCompareChi(arr.cuoi, arr.giua) < 0 || mbCompareDauToGiua(arr.dau, arr.giua) > 0;
 }
 
 // Liệt kê mọi cách xếp 5-5-3 (C(13,5)*C(8,5) = 72.072) rồi lọc
 // hợp lệ — đúng cách làm của solver (generate + validate).
-function mbAllValidArrangements(cards13) {
+// Tổ hợp chỉ số dùng chung, tính 1 lần.
+function mbCombos(n, k) {
     const out = [];
-    const idx = cards13.map((_, i) => i);
-    function comb(arr, k, start, cur, cb) {
-        if (cur.length === k) { cb(cur.slice()); return; }
-        for (let i = start; i <= arr.length - (k - cur.length); i++) {
-            cur.push(arr[i]); comb(arr, k, i + 1, cur, cb); cur.pop();
+    (function rec(start, cur) {
+        if (cur.length === k) { out.push(cur.slice()); return; }
+        for (let i = start; i <= n - (k - cur.length); i++) { cur.push(i); rec(i + 1, cur); cur.pop(); }
+    })(0, []);
+    return out;
+}
+const MB_C13_5 = mbCombos(13, 5);
+const MB_C8_5 = mbCombos(8, 5);
+const MB_C8_5_COMP = MB_C8_5.map(p => [0, 1, 2, 3, 4, 5, 6, 7].filter(i => p.indexOf(i) < 0));
+
+function mbMaskOf(idxs) { let m = 0; for (let i = 0; i < idxs.length; i++) m |= 1 << idxs[i]; return m; }
+
+// Duyệt mọi cách xếp 5-5-3 (72.072), nhưng chỉ chấm mỗi tập lá 1 lần
+// (cache theo mặt nạ bit) thay vì chấm lại cho từng cách xếp.
+// onValid(cuoiIdx, giuaIdx, dauIdx, score) gọi cho mỗi cách xếp không lủng.
+function mbSearchArrangements(cards13, onValid) {
+    const cache5 = new Map(), cache3 = new Map();
+    const info = (cache, mask, idxs) => {
+        let r = cache.get(mask);
+        if (!r) {
+            const cs = idxs.map(i => cards13[i]);
+            r = { ev: mbEvalChi(cs), val: mbHandValue(cs) };
+            cache.set(mask, r);
+        }
+        return r;
+    };
+    const all = cards13.map((_, i) => i);
+    for (let a = 0; a < MB_C13_5.length; a++) {
+        const cuoiIdx = MB_C13_5[a];
+        const maskA = mbMaskOf(cuoiIdx);
+        const rest = all.filter(i => !(maskA & (1 << i)));
+        const A = info(cache5, maskA, cuoiIdx);
+        for (let b = 0; b < MB_C8_5.length; b++) {
+            const giuaIdx = MB_C8_5[b].map(p => rest[p]);
+            const B = info(cache5, mbMaskOf(giuaIdx), giuaIdx);
+            if (mbCmpEval(A.ev, B.ev) < 0) continue;            // chi cuối < chi giữa
+            const dauIdx = MB_C8_5_COMP[b].map(p => rest[p]);
+            const D = info(cache3, mbMaskOf(dauIdx), dauIdx);
+            if (mbCmpDauGiuaEval(D.ev, B.ev) > 0) continue;     // chi đầu > chi giữa
+            onValid(cuoiIdx, giuaIdx, dauIdx, A.val * 3 + B.val * 2 + D.val);
         }
     }
-    comb(idx, 5, 0, [], frontIdx => {
-        const frontSet = new Set(frontIdx);
-        const rest = idx.filter(i => !frontSet.has(i));
-        comb(rest, 5, 0, [], midIdx => {
-            const midSet = new Set(midIdx);
-            const backIdx = rest.filter(i => !midSet.has(i));
-            const arr = {
-                cuoi: frontIdx.map(i => cards13[i]),
-                giua: midIdx.map(i => cards13[i]),
-                dau: backIdx.map(i => cards13[i])
-            };
-            if (!mbIsBinhLung(arr)) out.push(arr);
-        });
+}
+
+function mbAllValidArrangements(cards13) {
+    const out = [];
+    mbSearchArrangements(cards13, (c, g, d) => {
+        out.push({ cuoi: c.map(i => cards13[i]), giua: g.map(i => cards13[i]), dau: d.map(i => cards13[i]) });
     });
     return out;
 }
@@ -162,14 +214,12 @@ function mbChiScore(cards) {
 
 // Xếp tự động: chọn cách xếp hợp lệ có tổng điểm cao nhất.
 function mbAutoArrange(cards13) {
-    const valid = mbAllValidArrangements(cards13);
-    if (!valid.length) return null;
-    let best = valid[0], bestScore = -1;
-    valid.forEach(arr => {
-        const s = mbChiScore(arr.cuoi) * 3 + mbChiScore(arr.giua) * 2 + mbChiScore(arr.dau);
-        if (s > bestScore) { bestScore = s; best = arr; }
+    let bestScore = -1, bc = null, bg = null, bd = null;
+    mbSearchArrangements(cards13, (c, g, d, s) => {
+        if (s > bestScore) { bestScore = s; bc = c.slice(); bg = g.slice(); bd = d.slice(); }
     });
-    return best;
+    if (!bc) return null;
+    return { cuoi: bc.map(i => cards13[i]), giua: bg.map(i => cards13[i]), dau: bd.map(i => cards13[i]) };
 }
 
 // ---- Ăn trắng (theo gamehub24, có thứ tự ưu tiên) ----
@@ -468,6 +518,19 @@ function mbStartTimer() {
     }, 1000);
 }
 
+// Kho tiền: dùng state.money của game chính nếu có, không thì giữ cục bộ
+// (để tiền thắng/thua không bị mất).
+let mbLocalMoney = { player: 1000, left: 1000, top: 1000, right: 1000 };
+function mbMoneyStore() {
+    try { if (typeof state !== 'undefined' && state && state.money) return state.money; } catch (e) {}
+    return mbLocalMoney;
+}
+
+// Khóa nhận dạng 1 cách xếp (tập lá của từng chi, không phụ thuộc thứ tự).
+function mbArrangementKey(arr) {
+    return ['dau', 'giua', 'cuoi'].map(k => arr[k].map(mbCardKey).sort().join(',')).join('|');
+}
+
 function mbNewGame() {
     mbStopTimer();
     try { if (typeof loadMoney === 'function') loadMoney(); } catch (e) {}
@@ -480,14 +543,14 @@ function mbNewGame() {
     };
     const botArr = {};
     MB_BOTS.forEach(k => { botArr[k] = mbAutoArrange(hands[k]) || { cuoi: hands[k].slice(0, 5), giua: hands[k].slice(5, 10), dau: hands[k].slice(10, 13) }; });
-    let money = { player: 1000, left: 1000, top: 1000, right: 1000 };
-    try { if (typeof state !== 'undefined' && state.money) money = state.money; } catch (e) {}
+    const money = mbMoneyStore();
     // Bài chia ra đã nằm sẵn 3 hàng theo cách xếp tối ưu (kiểu
     // game mẫu); người chơi chỉ đổi chỗ các lá nếu muốn.
     const best = mbAutoArrange(hands.player) || { cuoi: hands.player.slice(0, 5), giua: hands.player.slice(5, 10), dau: hands.player.slice(10, 13) };
     mbState = {
         phase: 'arrange', hands, botArr, money,
         playerArr: { dau: best.dau, giua: best.giua, cuoi: best.cuoi },
+        autoKey: mbArrangementKey(best),
         usedAuto: true, timeLeft: 90, results: null
     };
     mbSelected = null;
@@ -515,16 +578,19 @@ function mbAutoAndShowdown() {
 }
 
 function mbSettlePlayer(deltaByBot) {
-    // Cộng/trừ tiền vào state.money dùng chung với Tiến Lên.
+    // Cộng/trừ tiền vào kho tiền dùng chung với Tiến Lên. Dùng ?? chứ không dùng ||
+    // (tiền = 0 không được hồi sinh về 1000) và không cho xuống âm.
+    const store = mbMoneyStore();
+    Object.keys(deltaByBot).forEach(k => {
+        store[k] = Math.max(0, (store[k] ?? 1000) + deltaByBot[k]);
+    });
     try {
-        if (typeof state !== 'undefined' && state.money) {
-            Object.keys(deltaByBot).forEach(k => { state.money[k] = (state.money[k] || 1000) + deltaByBot[k]; });
+        if (store !== mbLocalMoney) {
             if (typeof saveMoney === 'function') saveMoney();
             if (typeof updateMoneyUI === 'function') updateMoneyUI();
         }
     } catch (e) {}
-    mbState.money = {};
-    try { if (typeof state !== 'undefined' && state.money) mbState.money = state.money; } catch (e) {}
+    mbState.money = store;
 }
 
 function mbShowdown() {
@@ -572,7 +638,7 @@ function mbShowdown() {
     }
     // Thưởng xếp tay: tự xếp (không dùng Xếp tự động), không
     // binh lủng, tổng dương → +1 chi (theo gamehub24).
-    if (!mbState.usedAuto && !pFouled && delta.player > 0) {
+    if (!mbState.usedAuto && mbArrangementKey(p) !== mbState.autoKey && !pFouled && delta.player > 0) {
         delta.player += 1 * bet;
         lines.push('✋ <span class="mb-badge mb-badge-green">Thưởng xếp tay +1 chi</span>.');
     }
