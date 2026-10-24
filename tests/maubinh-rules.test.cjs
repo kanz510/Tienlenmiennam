@@ -126,3 +126,23 @@ test('a fouled hand loses all three chi against a valid hand', () => {
   assert.equal(score.bScoop, 3);
   assert.equal(score.total, -6);
 });
+
+test('settlement preserves an exact zero balance instead of resetting it to 1000', () => {
+  const settleStart = source.indexOf('function mbSettlePlayer(');
+  assert.notEqual(settleStart, -1, 'could not find settlement function');
+  const settleEnd = source.indexOf('\\n}\\n', settleStart);
+  assert.notEqual(settleEnd, -1, 'could not find end of settlement function');
+  const settleSource = source.slice(settleStart, settleEnd + 3) + '\\nglobalThis.__settle = mbSettlePlayer;';
+  const settlementSandbox = {
+    state: { money: { player: 0, left: 0, top: 100, right: 1000 } },
+    mbState: { money: {} },
+    saveMoney() {},
+    updateMoneyUI() {}
+  };
+  vm.runInNewContext(settleSource, settlementSandbox, { timeout: 1000 });
+  settlementSandbox.__settle({ player: 5, left: -1, top: 0, right: -10 });
+  assert.equal(settlementSandbox.state.money.player, 5);
+  assert.equal(settlementSandbox.state.money.left, -1);
+  assert.equal(settlementSandbox.state.money.top, 100);
+  assert.equal(settlementSandbox.state.money.right, 990);
+});
