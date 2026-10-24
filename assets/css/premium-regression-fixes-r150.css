@@ -1,0 +1,64 @@
+/* r150 — regression repair overrides. Appended as a separate layer; legacy rules remain intact. */
+/* Keep every in-game utility button above overlapping bot/card stacking contexts. */
+#game-container #btn-sound,
+#game-container #btn-clear-save,
+#game-container #btn-settings,
+#game-container #btn-new,
+#game-container #btn-hint,
+#game-container #btn-sort,
+#game-container #btn-shop-ingame {
+  position:absolute!important;
+  z-index:1200!important;
+  pointer-events:auto!important;
+  transform:none;
+}
+#game-container #btn-new {
+  top:8px!important; right:170px!important; left:auto!important; bottom:auto!important;
+  width:auto!important; min-width:108px; max-width:calc(100% - 330px);
+  height:44px!important; white-space:nowrap;
+}
+/* Grid items cannot paint over the hit targets, including after the CSS rotation. */
+#game-container .bot-area { position:relative; z-index:2; min-width:0; }
+#game-container .bot-top { z-index:5; }
+#game-container .bot-left { z-index:5; }
+#game-container .bot-right { z-index:5; }
+#game-container .bot-info { position:relative; z-index:6; }
+#game-container .bot-cards { position:relative; z-index:1; pointer-events:none; }
+#game-container .bot-cards .back-card { pointer-events:none; }
+/* Keep all four speech bubbles above bot info and facedown cards. */
+#game-container .bubble,
+#game-container .bubble.show { z-index:10000!important; pointer-events:none!important; }
+#game-container .bot-top .bubble { top:calc(100% + 10px); }
+#game-container .bot-left .bubble { left:calc(100% + 12px); right:auto; top:50%; }
+/* Victory art must sit above the result panel and backdrop, outside the clipped confetti layer. */
+#overlay { isolation:isolate; }
+#overlay #confetti { z-index:1; }
+#overlay #overlay-content { position:relative; z-index:2; }
+/* r150: plaque is mounted in a dedicated body-level FX layer above the result overlay. */
+#premium-victory-fx {
+  position:fixed!important; inset:0!important; z-index:2147483000!important;
+  pointer-events:none!important; overflow:visible!important; isolation:isolate;
+}
+#premium-victory-fx .premium-victory-plaque {
+  position:fixed!important; z-index:2147483000!important; left:50%!important; top:9%!important;
+  width:min(78vw,560px)!important; max-height:26vh; object-fit:contain;
+  transform:translateX(-50%); pointer-events:none!important;
+  animation:premium-victory-art-in 2.8s ease-out both;
+}
+@keyframes premium-victory-art-in {
+  0% { opacity:0; transform:translateX(-50%) translateY(-12px) scale(.92); }
+  14% { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  72% { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  100% { opacity:0; transform:translateX(-50%) translateY(-4px) scale(.98); }
+}
+/* Let the crown/card logo remain inside the framed lobby without being clipped. */
+#lobby-content { overflow:visible!important; }
+#lobby-content #lobby-logo { position:relative; z-index:2; transform:rotate(-4deg) scale(.92); transform-origin:center; }
+/* Settings stays upright and light for legibility; only the gameplay board rotates. */
+#settings-modal .modal-box, #settings-modal .modal-box h3 { color-scheme:light; }
+@media (orientation:portrait) {
+  #game-container #btn-new { right:170px!important; }
+}
+@media (prefers-reduced-motion:reduce) {
+  #overlay .premium-victory-plaque { animation:none!important; opacity:1!important; }
+}
