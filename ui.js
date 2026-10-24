@@ -343,13 +343,26 @@ function handleCardClick(idx) {
 }
 
 
+// r133: chỉ tạo hiệu ứng chia bài khi bắt đầu ván / số bài tăng, không chạy lại khi chọn bài.
+const premiumDealCounts = { player: null, left: null, right: null, top: null };
+function shouldAnimateDeal(who, count) {
+    const previous = premiumDealCounts[who];
+    premiumDealCounts[who] = count;
+    return previous === null || count > previous;
+}
+
 function renderPlayerHand() {
     const el = document.getElementById('cards-player');
     el.innerHTML = '';
     const nHand = state.hands.player.length;
+    const animateDeal = shouldAnimateDeal('player', nHand) && nHand > 0;
     const midHand = (nHand - 1) / 2;
     state.hands.player.forEach((card, i) => {
         const c = createCardEl(card);
+        if (animateDeal) {
+            c.classList.add('premium-deal-in-r133');
+            c.style.animationDelay = (Math.min(i, 12) * 32) + 'ms';
+        }
         c.dataset.idx = i;
         // r87: biến vị trí cho hiệu ứng tay cong 3D (lệch tâm + độ võng hai đầu)
         const p = midHand ? (i - midHand) / midHand : 0;
@@ -367,6 +380,7 @@ function renderBotHand(who, elId, countId) {
     const el = document.getElementById(elId);
     el.innerHTML = '';
     const count = state.hands[who].length;
+    const animateDeal = shouldAnimateDeal(who, count) && count > 0 && !state.gameOver;
     if (state.gameOver) {
         // r63: hết ván thì NGỬA toàn bộ bài còn lại của bot cho mọi người cùng xem
         state.hands[who].forEach((card, i) => {
@@ -379,6 +393,10 @@ function renderBotHand(who, elId, countId) {
         for (let i = 0; i < count; i++) {
             const c = document.createElement('div');
             c.className = 'back-card';
+            if (animateDeal) {
+                c.classList.add('premium-deal-in-r133');
+                c.style.animationDelay = (Math.min(i, 12) * 32) + 'ms';
+            }
             el.appendChild(c);
         }
     }
