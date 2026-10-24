@@ -895,6 +895,20 @@ function fxLevelUp() {
     levelFxTimer = setTimeout(() => w.classList.remove('levelup'), 1500);
 }
 
+function addSuitEmblem(div, card) {
+    const map = { '♠': 'spades', '♣': 'clubs', '♥': 'hearts', '♦': 'diamonds' };
+    const name = map[card.suit];
+    if (!name) return;
+    div.classList.add('suit-' + name);
+    const img = document.createElement('img');
+    img.className = 'suit-emblem';
+    img.src = 'assets/cards/suit-emblem-' + name + '-r144.svg';
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    img.draggable = false;
+    div.appendChild(img);
+}
+
 function createCardEl(card) {
     const div = document.createElement('div');
     const isRed = (card.suit === '♥' || card.suit === '♦');
@@ -925,6 +939,7 @@ function createCardEl(card) {
                 if (img.complete && img.naturalWidth === 0) toFallback();
             }
         } catch (e) { /* phòng thủ: lỗi gắn fallback thì giữ nguyên lá ảnh */ }
+        addSuitEmblem(div, card);
         return div;
     }
     const face = faceArtFor(card);
@@ -936,6 +951,7 @@ function createCardEl(card) {
         </div>
         ${face ? `<img class="face-art" src="${face}" alt="">` : `<div class="suit-big">${card.suit}</div>`}
     `;
+    addSuitEmblem(div, card);
     return div;
 }
 
