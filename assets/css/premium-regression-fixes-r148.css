@@ -1,4 +1,4 @@
-/* r148 — regression repair overrides. Appended as a separate layer; legacy rules remain intact. */
+/* r149 — regression repair overrides. Appended as a separate layer; legacy rules remain intact. */
 /* Keep every in-game utility button above overlapping bot/card stacking contexts. */
 #game-container #btn-sound,
 #game-container #btn-clear-save,
@@ -34,11 +34,22 @@
 #overlay { isolation:isolate; }
 #overlay #confetti { z-index:1; }
 #overlay #overlay-content { position:relative; z-index:2; }
-#overlay .premium-victory-plaque {
-  position:fixed!important; z-index:1300!important; left:50%!important; top:9%!important;
+/* r149: plaque is mounted in a dedicated body-level FX layer above the result overlay. */
+#premium-victory-fx {
+  position:fixed!important; inset:0!important; z-index:2147483000!important;
+  pointer-events:none!important; overflow:visible!important; isolation:isolate;
+}
+#premium-victory-fx .premium-victory-plaque {
+  position:fixed!important; z-index:2147483000!important; left:50%!important; top:9%!important;
   width:min(78vw,560px)!important; max-height:26vh; object-fit:contain;
-  transform:translateX(-50%); pointer-events:none;
+  transform:translateX(-50%); pointer-events:none!important;
   animation:premium-victory-art-in 2.8s ease-out both;
+}
+@keyframes premium-victory-art-in {
+  0% { opacity:0; transform:translateX(-50%) translateY(-12px) scale(.92); }
+  14% { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  72% { opacity:1; transform:translateX(-50%) translateY(0) scale(1); }
+  100% { opacity:0; transform:translateX(-50%) translateY(-4px) scale(.98); }
 }
 /* Let the crown/card logo remain inside the framed lobby without being clipped. */
 #lobby-content { overflow:visible!important; }
@@ -49,5 +60,5 @@
   #game-container #btn-new { right:170px!important; }
 }
 @media (prefers-reduced-motion:reduce) {
-  #overlay .premium-victory-plaque { animation:none!important; opacity:1!important; }
+  #premium-victory-fx .premium-victory-plaque { animation:none!important; opacity:1!important; }
 }
