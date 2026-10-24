@@ -1,0 +1,28 @@
+/* r131 — cinematic emphasis for strong plays / chops; decorative only. */
+#game-container #played-cards {
+  transition: background .24s ease, filter .24s ease;
+}
+#game-container #played-cards.big-play {
+  background:
+    radial-gradient(ellipse at 50% 48%, rgba(255,211,112,.2) 0%, rgba(255,193,75,.09) 34%, transparent 72%),
+    radial-gradient(ellipse at 50% 40%, rgba(0,0,0,.12), transparent 72%);
+  filter: drop-shadow(0 8px 8px rgba(0,0,0,.12)) drop-shadow(0 0 12px rgba(255,203,91,.2));
+}
+#game-container #played-cards.big-play .card {
+  border-color: rgba(255,220,133,.98);
+  box-shadow:
+    0 9px 17px rgba(0,0,0,.34),
+    0 0 0 1px rgba(255,228,163,.56),
+    0 0 15px rgba(255,197,78,.23),
+    inset 0 0 0 2px rgba(255,255,255,.98),
+    inset 0 0 0 4px rgba(190,151,67,.28);
+}
+#game-container #last-play-info.big-play {
+  border-color: rgba(255,220,133,.9);
+  color: #fff2c9;
+  text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 10px rgba(255,204,94,.32);
+  box-shadow: 0 0 0 1px rgba(255,219,130,.18), 0 0 16px rgba(255,198,79,.2), inset 0 1px 0 rgba(255,255,255,.2);
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container #played-cards { transition: none; }
+}
