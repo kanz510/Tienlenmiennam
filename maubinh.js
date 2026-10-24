@@ -491,6 +491,7 @@ function mbStartTimer() {
 }
 
 function mbNewGame() {
+    mbUndoSnapshot = null;
     mbStopTimer();
     try { if (typeof loadMoney === 'function') loadMoney(); } catch (e) {}
     const deck = shuffle(createDeck());
