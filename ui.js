@@ -179,22 +179,6 @@ function applyRotation() {
         }
     }
 
-    // r124: màn Mậu Binh (#maubinh là phần tử fixed riêng) xoay CÙNG khung
-    // với bàn chơi khi máy dọc, y hệt #overlay.
-    const mb = document.getElementById('maubinh');
-    if (mb) {
-        if (portrait) {
-            mb.classList.add('ov-rot');
-            mb.style.width = designW + 'px';
-            mb.style.height = '440px';
-            mb.style.transform = game.style.transform;
-        } else {
-            mb.classList.remove('ov-rot');
-            mb.style.width = '';
-            mb.style.height = '';
-            mb.style.transform = '';
-        }
-    }
 }
 
 
