@@ -269,6 +269,9 @@ const $=s=>document.querySelector(s);
 let arr=[],fresh=false,landed=[],dg=null,sel=-1,T=1,steps=[];
 const cardAssetUrl=id=>{const suits=['spades','clubs','diamonds','hearts'],r=rk(id),s=suits[su(id)],rank=r===14?'ace':r===13?'king':r===12?'queen':r===11?'jack':String(r);return 'https://cdn.jsdelivr.net/gh/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards@main/svg%20cards/card%20fronts/'+s+'/'+encodeURIComponent(rank)+'%20of%20'+s+'.svg'};
 const cardBackAssetUrl='https://cdn.jsdelivr.net/gh/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards@main/svg%20cards/card%20backs/card%20back%20blue.svg';
+// Warm the browser cache before the first deal so cards do not pop in one by one.
+const assetCache=new Map();let assetsReady=false,assetsPromise=null;
+function preloadAssets(){if(assetsPromise)return assetsPromise;const urls=[...Array(52)].map((_,i)=>cardAssetUrl(i));urls.push(cardBackAssetUrl);assetsPromise=Promise.all(urls.map(url=>new Promise(resolve=>{const img=new Image();assetCache.set(url,img);img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.decoding='async';img.src=url;}))).then(results=>{assetsReady=results.filter(Boolean).length>=52;const b=document.getElementById('startBtn'),s=document.getElementById('assetStatus');if(b){b.disabled=false;b.textContent='Bắt đầu chơi'}if(s)s.textContent=assetsReady?'Bộ bài đã sẵn sàng':'Một số ảnh tải lỗi, sẽ thử lại khi cần';return assetsReady;});const b=document.getElementById('startBtn'),s=document.getElementById('assetStatus');if(b){b.disabled=true;b.textContent='Đang tải bộ bài…'}if(s)s.textContent='Đang chuẩn bị 52 lá bài trước khi vào bàn…';return assetsPromise;}
 const cd=(id,x='',at='',d=0)=>{const r=rk(id),s=S[su(id)],back=String(x).includes('back'),src=back?cardBackAssetUrl:cardAssetUrl(id);return`<div class="c asset-card ${red(id)?'r':'k'} ${x}" data-r="${r}" data-suit="${s}" style="--d:${d};--fx:${(d-6)*-14}px" ${at}><img class="card-art" src="${src}" alt="${back?'Mặt sau lá bài':R(r)+' '+s}" draggable="false" loading="eager" onload="this.parentNode.classList.add('asset-loaded')" onerror="this.parentNode.classList.add('asset-failed');this.remove()"><b>${R(r)}</b><i>${s}</i><u>${r>10?R(r):s}</u></div>`};
 const sg=x=>x>0?1:x<0?-1:0,fmt=x=>(x>0?'+':'')+x;
 const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -282,13 +285,13 @@ function setup(){
  app.innerHTML=TBL+`<div class="box"><div><h1>♠ MẬU BINH ♥</h1><p class="sub">Chơi offline với máy · Luật Zing Play</p>
  <label>Tên của bạn</label><input type="text" value="${escapeHtml(name)}" maxlength="14" oninput="name=this.value">
  <label>Số người chơi</label><div class="seg">${[2,3,4].map(n=>`<button class="${n==N?'on':''}" onclick="N=${n};setup()">${n} người</button>`).join('')}</div>
- <button class="go pri" onclick="start()">Bắt đầu chơi</button></div><div class="rl">${RULES}</div></div>`;
+ <button class="go pri" id="startBtn" onclick="start()">Đang chuẩn bị bộ bài…</button><p class="sub" id="assetStatus">Tải trước ảnh bài để tránh hiện từng lá trễ khi chia</p></div><div class="rl">${RULES}</div></div>`;if(!assetsPromise)preloadAssets();else if(assetsReady){const b=document.getElementById("startBtn"),s=document.getElementById("assetStatus");if(b){b.disabled=false;b.textContent="Bắt đầu chơi"}if(s)s.textContent="Bộ bài đã sẵn sàng";}
 }
 function rules(){const o=document.createElement('div');o.className='ov';o.onclick=e=>{if(e.target===o)o.remove()};o.innerHTML=`<div class="box" style="grid-template-columns:1fr;position:relative;transform:none">${'<div class="rl">'+RULES+'</div>'}<button class="pri" onclick="this.closest('.ov').remove()">Đóng</button></div>`;document.body.appendChild(o)}
 function fs(){try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()}catch(e){}}
 function boom(){const c=['#f5c542','#ff5c7a','#7ee2a8','#6ab8ff','#fff'];
  for(let i=0;i<40;i++){const d=document.createElement('div');d.className='cf';d.style.cssText=`left:${Math.random()*100}vw;background:${c[i%5]};animation-delay:${Math.random()*.8}s`;document.body.appendChild(d);setTimeout(()=>d.remove(),3600)}}
-function start(){try{fs();screen.orientation.lock('landscape').catch(()=>{})}catch(e){}tot=Array(N).fill(5000);round=0;deal()}
+async function start(){const b=document.getElementById("startBtn"),s=document.getElementById("assetStatus");if(!assetsReady){if(b){b.disabled=true;b.textContent="Đang tải bộ bài…"}if(s)s.textContent="Đang tải ảnh bài trước khi vào bàn, lần đầu có thể mất chút thời gian";await preloadAssets();if(b)b.disabled=false;}try{fs();screen.orientation.lock('landscape').catch(()=>{})}catch(e){}tot=Array(N).fill(5000);round=0;deal()}
 function deal(){
  const d=[...Array(52).keys()];
  for(let i=51;i>0;i--){const j=Math.random()*(i+1)|0;[d[i],d[j]]=[d[j],d[i]]}
@@ -431,6 +434,6 @@ function fin(){
  if(run[0]>0)boom();
  const nx=$('#nx');nx.textContent='Ván Mới';nx.onclick=deal;
 }
-setup();
+setup();preloadAssets();
 </script><!-- V4: CDN switch to jsDelivr for asset delivery. Card artwork: OpenDecks CC0 public-domain playing cards. Source: https://github.com/hhonbo/OpenDecks-Public-Domain-and-CC0-Playing-Cards -->
 </body></html>
