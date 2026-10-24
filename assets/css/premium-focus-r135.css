@@ -1,0 +1,44 @@
+/* r135 — refined table focus and active-seat lighting; decorative only. */
+#game-container .table-area {
+  isolation: isolate;
+}
+#game-container .table-area::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -9% -7%;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 48%,
+    rgba(255,225,155,.095) 0%,
+    rgba(22,173,139,.055) 35%,
+    rgba(0,0,0,0) 72%);
+  opacity: .82;
+  transition: opacity .24s ease, filter .24s ease;
+}
+#game-container #played-cards:not(:empty) {
+  filter: drop-shadow(0 8px 9px rgba(0,0,0,.24));
+}
+#game-container .bot-info.active-turn,
+#game-container .player-info.active-turn {
+  position: relative;
+  filter: drop-shadow(0 0 7px rgba(238,199,111,.22));
+}
+#game-container .bot-info.active-turn::after,
+#game-container .player-info.active-turn::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border: 1px solid rgba(238,199,111,.24);
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: .72;
+}
+#game-container .player-cards .card.selected {
+  filter: brightness(1.06) drop-shadow(0 0 8px rgba(255,218,127,.28));
+}
+@media (prefers-reduced-motion: reduce) {
+  #game-container .table-area::before,
+  #game-container .bot-info.active-turn,
+  #game-container .player-info.active-turn { transition: none !important; }
+}
