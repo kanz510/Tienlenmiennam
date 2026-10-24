@@ -110,6 +110,13 @@ function spawnConfetti() {
     const box = document.getElementById('confetti');
     if (!box) return;
     box.innerHTML = '';
+    // r145: authored victory plaque artwork; keep it decorative and outside game-state logic.
+    const plaque = document.createElement('img');
+    plaque.className = 'premium-victory-plaque';
+    plaque.src = 'assets/fx/victory-plaque-r145.svg';
+    plaque.alt = '';
+    plaque.setAttribute('aria-hidden', 'true');
+    box.appendChild(plaque);
     const colors = ['#ffd700', '#f3d27a', '#fff6cf', '#1db981', '#e9c767', '#ffffff'];
     for (let i = 0; i < 34; i++) {
         const p = document.createElement('div');
@@ -877,6 +884,16 @@ let chopFxTimer = null;
 function fxChop() {
     const gc = document.getElementById('game-container');
     if (!gc) return;
+    // r145: a dedicated vector impact asset, mounted for this event only.
+    const oldBurst = gc.querySelector('.premium-chop-burst');
+    if (oldBurst) oldBurst.remove();
+    const burst = document.createElement('img');
+    burst.className = 'premium-chop-burst';
+    burst.src = 'assets/fx/chop-heo-burst-r145.svg';
+    burst.alt = '';
+    burst.setAttribute('aria-hidden', 'true');
+    gc.appendChild(burst);
+    setTimeout(() => { try { burst.remove(); } catch (e) {} }, 1050);
     gc.classList.remove('chop-flash');
     void gc.offsetWidth;
     gc.classList.add('chop-flash');
@@ -896,6 +913,14 @@ function fxLevelUp() {
 }
 
 function addSuitEmblem(div, card) {
+    // r145: consistent champagne frame is a standalone authored SVG, not a CSS-drawn border.
+    const frame = document.createElement('img');
+    frame.className = 'premium-card-frame-art';
+    frame.src = 'assets/cards/card-frame-champagne-r145.svg';
+    frame.alt = '';
+    frame.setAttribute('aria-hidden', 'true');
+    frame.draggable = false;
+    div.appendChild(frame);
     const map = { '♠': 'spades', '♣': 'clubs', '♥': 'hearts', '♦': 'diamonds' };
     const name = map[card.suit];
     if (!name) return;
