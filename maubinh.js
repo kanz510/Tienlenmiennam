@@ -540,7 +540,7 @@ function mbSettlePlayer(deltaByBot) {
     // Cộng/trừ tiền vào state.money dùng chung với Tiến Lên.
     try {
         if (typeof state !== 'undefined' && state.money) {
-            Object.keys(deltaByBot).forEach(k => { state.money[k] = (state.money[k] || 1000) + deltaByBot[k]; });
+            Object.keys(deltaByBot).forEach(k => { state.money[k] = (state.money[k] ?? 1000) + deltaByBot[k]; });
             if (typeof saveMoney === 'function') saveMoney();
             if (typeof updateMoneyUI === 'function') updateMoneyUI();
         }
