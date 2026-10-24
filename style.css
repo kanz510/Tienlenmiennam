@@ -1691,6 +1691,8 @@ body {
 #maubinh #mb-actions { display: flex; justify-content: center; gap: 12px; }
 #maubinh #mb-actions button, #maubinh .mb-result-actions button { border: none; border-radius: 12px; padding: 11px 26px; font-size: 15px; font-weight: 800; cursor: pointer; color: #fff; }
 #maubinh #btn-mb-auto { background: linear-gradient(180deg, #1e88e5, #0d47a1); box-shadow: 0 4px 0 #08306b; }
+#maubinh #btn-mb-undo { background: linear-gradient(180deg, #00897b, #00695c); box-shadow: 0 4px 0 #004d40; }
+#maubinh #btn-mb-undo:disabled { opacity: .5; cursor: not-allowed; }
 #maubinh #btn-mb-clear { background: linear-gradient(180deg, #607d8b, #455a64); box-shadow: 0 4px 0 #263238; }
 #maubinh #btn-mb-done { background: linear-gradient(180deg, #e53935, #b71c1c); box-shadow: 0 4px 0 #7f0000; }
 #maubinh #btn-mb-done.dim { opacity: .55; }
